@@ -141,7 +141,7 @@ export default function Dashboard() {
                 {t('dashboard_holding_wallet')}
               </div>
               <div className="text-base font-black text-white leading-tight tabular-nums">
-                {formatGram(holdingWallet, 3)}
+                {formatGram(displayedHolding, 3)}
               </div>
               <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
             </div>
