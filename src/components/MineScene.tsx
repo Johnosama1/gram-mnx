@@ -20,7 +20,7 @@ const Coin = ({ className, style }: { className?: string; style?: React.CSSPrope
     style={{
       width: 12,
       height: 12,
-      background: 'radial-gradient(circle at 32% 28%, #fff3bf 0%, #ffd countryside 1%, #ffcf4d 35%, #e0a11c 70%, #a86f0c 100%)',
+      background: 'radial-gradient(circle at 32% 28%, #fff3bf 0%, #ffcf4d 35%, #e0a11c 70%, #a86f0c 100%)',
       boxShadow: '0 0 8px rgba(255,200,70,0.75), inset 0 -2px 3px rgba(0,0,0,0.35)',
       ...style,
     }}
