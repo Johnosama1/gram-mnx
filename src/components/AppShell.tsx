@@ -246,8 +246,17 @@ function Shell() {
         backgroundImage: `url(${mineBgImg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'scroll',
       }}
     >
+      {/* Static dark veil so cards, text and buttons stay readable on every screen */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.62), rgba(6,8,14,0.78))' }}
+      />
+
       {isLoading ? (
         <LoadingScreen />
       ) : maintenance && !isAdmin ? (
