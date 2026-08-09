@@ -187,65 +187,11 @@ export default function Dashboard() {
         <div className="mt-0.5 h-[2px] w-32 bg-[#00ff88]/60 blur-[2px]" />
       </div>
 
-      {/* The Big Logo */}
-      <div className="flex-[0.82] min-h-0 flex items-center justify-center relative z-10 mt-0 mb-0">
-        {/* Circular clip — crops the rectangular background of the photo */}
-        <div
-          className="rounded-full overflow-hidden relative"
-          style={{
-            width:  'min(300px, 74vw, 34vh)',
-            height: 'min(300px, 74vw, 34vh)',
-            boxShadow:
-              '0 0 70px 16px rgba(255,190,60,0.22), 0 0 140px 40px rgba(255,150,20,0.12), inset 0 0 40px rgba(0,0,0,0.6)',
-          }}
-        >
-          {/* Static housing: full turbine incl. the machined gold ring — never rotates */}
-          <img
-            src={gramLogoImg}
-            alt="gram"
-            className="w-full h-full object-contain"
-            style={{
-              filter: 'brightness(0.94) contrast(1.06) drop-shadow(0 18px 30px rgba(0,0,0,0.65))',
-            }}
-          />
-
-          {/* Rotating inner blades only (clipped inside the static ring) */}
-          <img
-            src={gramLogoImg}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{
-              clipPath: 'circle(34% at 50% 50%)',
-              filter: 'brightness(0.94) contrast(1.06)',
-              animation: isMiningActive && coins > 0 ? 'coin-spin 5s linear infinite' : 'none',
-              transformOrigin: '50% 50%',
-            }}
-          />
-
-          {/* Static center medallion so the gem never spins */}
-          <img
-            src={gramLogoImg}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{ clipPath: 'circle(13% at 50% 50%)', filter: 'brightness(0.98)' }}
-          />
-
-          {/* Golden light emitted by the spinning blades */}
-          <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none rounded-full"
-              style={{
-                background:
-                  'radial-gradient(circle at 50% 50%, rgba(255,200,60,0.35) 0%, rgba(255,170,20,0.12) 42%, transparent 62%)',
-                mixBlendMode: 'screen',
-                animation: isMiningActive && coins > 0 ? 'fan-glow 1.6s ease-in-out infinite' : 'none',
-                opacity: isMiningActive && coins > 0 ? 1 : 0.35,
-              }}
-          />
-        </div>
+      {/* The mine scene — the only animated screen in the app */}
+      <div className="flex-[0.82] min-h-0 relative z-10">
+        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} />
       </div>
+
 
       {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
       <div className="px-4 mb-0 pb-1 relative z-10 shrink-0">
