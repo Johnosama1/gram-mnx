@@ -5,12 +5,11 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
+import MineScene from '@/components/MineScene';
+import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem } from 'lucide-react';
 import { formatGram } from '@/lib/utils';
-import mineBgAsset from '@/assets/mine-bg-v4.webp.asset.json';
-import mineFanAsset from '@/assets/mine-fan-v3.webp.asset.json';
-const mineBgV3 = mineBgAsset.url;
-const gramLogoImg = mineFanAsset.url;
+
 
 /** hh:mm:ss countdown for the 24h mining session */
 function formatCountdown(ms: number): string {
@@ -53,12 +52,19 @@ export default function Dashboard() {
     ? walletAddress.slice(0, 2) + '...' + walletAddress.slice(-2)
     : null;
 
-  // Detect when a claim finishes (isClaiming: true → false).
-  // No longer needed for 24h fetch, kept in case we want to re-sync in future.
+  // Detect when a claim finishes (isClaiming: true → false) and play the
+  // cart → station → balance animation exactly once for that claim.
   const prevIsClaiming = useRef(false);
+  const [claimKey, setClaimKey] = useState(0);
   useEffect(() => {
+    if (prevIsClaiming.current && !isClaiming && !claimError) {
+      setClaimKey((k) => k + 1);
+    }
     prevIsClaiming.current = isClaiming;
-  }, [isClaiming]);
+  }, [isClaiming, claimError]);
+
+  // Balance ticks up coin by coin instead of jumping to the final value.
+  const displayedHolding = useAnimatedNumber(holdingWallet, 1600);
 
   // AdsGram policy: essential actions (mining CLAIM) must never be gated by an ad.
   const handleClaim = () => {
@@ -68,24 +74,17 @@ export default function Dashboard() {
 
   return (
     <div className="h-full min-h-full flex flex-col relative w-full overflow-hidden">
-      {/* Mine-only background (other screens keep the shared shell background) */}
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${mineBgV3})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* Shared mine background comes from the app shell — only a soft dark
+          layer here so the numbers and buttons stay readable. */}
       <div
         aria-hidden
         className="absolute inset-0 z-0"
         style={{
           background:
-            'radial-gradient(circle at 50% 55%, rgba(255,190,70,0.10) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.72) 100%)',
+            'radial-gradient(circle at 50% 55%, rgba(255,190,70,0.08) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.62) 100%)',
         }}
       />
+
 
       {/* User Card */}
       <div className="px-4 pt-2 relative z-10 shrink-0">
@@ -142,7 +141,7 @@ export default function Dashboard() {
                 {t('dashboard_holding_wallet')}
               </div>
               <div className="text-base font-black text-white leading-tight tabular-nums">
-                {formatGram(holdingWallet, 3)}
+                {formatGram(displayedHolding, 3)}
               </div>
               <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
             </div>
@@ -188,65 +187,11 @@ export default function Dashboard() {
         <div className="mt-0.5 h-[2px] w-32 bg-[#00ff88]/60 blur-[2px]" />
       </div>
 
-      {/* The Big Logo */}
-      <div className="flex-[0.82] min-h-0 flex items-center justify-center relative z-10 mt-0 mb-0">
-        {/* Circular clip — crops the rectangular background of the photo */}
-        <div
-          className="rounded-full overflow-hidden relative"
-          style={{
-            width:  'min(300px, 74vw, 34vh)',
-            height: 'min(300px, 74vw, 34vh)',
-            boxShadow:
-              '0 0 70px 16px rgba(255,190,60,0.22), 0 0 140px 40px rgba(255,150,20,0.12), inset 0 0 40px rgba(0,0,0,0.6)',
-          }}
-        >
-          {/* Static housing: full turbine incl. the machined gold ring — never rotates */}
-          <img
-            src={gramLogoImg}
-            alt="gram"
-            className="w-full h-full object-contain"
-            style={{
-              filter: 'brightness(0.94) contrast(1.06) drop-shadow(0 18px 30px rgba(0,0,0,0.65))',
-            }}
-          />
-
-          {/* Rotating inner blades only (clipped inside the static ring) */}
-          <img
-            src={gramLogoImg}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{
-              clipPath: 'circle(34% at 50% 50%)',
-              filter: 'brightness(0.94) contrast(1.06)',
-              animation: isMiningActive && coins > 0 ? 'coin-spin 5s linear infinite' : 'none',
-              transformOrigin: '50% 50%',
-            }}
-          />
-
-          {/* Static center medallion so the gem never spins */}
-          <img
-            src={gramLogoImg}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{ clipPath: 'circle(13% at 50% 50%)', filter: 'brightness(0.98)' }}
-          />
-
-          {/* Golden light emitted by the spinning blades */}
-          <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none rounded-full"
-              style={{
-                background:
-                  'radial-gradient(circle at 50% 50%, rgba(255,200,60,0.35) 0%, rgba(255,170,20,0.12) 42%, transparent 62%)',
-                mixBlendMode: 'screen',
-                animation: isMiningActive && coins > 0 ? 'fan-glow 1.6s ease-in-out infinite' : 'none',
-                opacity: isMiningActive && coins > 0 ? 1 : 0.35,
-              }}
-          />
-        </div>
+      {/* The mine scene — the only animated screen in the app */}
+      <div className="flex-[0.82] min-h-0 relative z-10">
+        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} />
       </div>
+
 
       {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
       <div className="px-4 mb-0 pb-1 relative z-10 shrink-0">

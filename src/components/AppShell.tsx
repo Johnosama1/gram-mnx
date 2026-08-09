@@ -11,7 +11,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
 import { MinersProvider } from '@/context/MinersContext';
-import mineBgAsset from '@/assets/gram-mine-bg-2.png.asset.json';
+import mineBgAsset from '@/assets/mine-scene.png.asset.json';
 const mineBgImg = mineBgAsset.url;
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
@@ -246,8 +246,17 @@ function Shell() {
         backgroundImage: `url(${mineBgImg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'scroll',
       }}
     >
+      {/* Static dark veil so cards, text and buttons stay readable on every screen */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.62), rgba(6,8,14,0.78))' }}
+      />
+
       {isLoading ? (
         <LoadingScreen />
       ) : maintenance && !isAdmin ? (
