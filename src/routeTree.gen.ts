@@ -27,8 +27,6 @@ import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/securit
 import { Route as ApiAdminTaskSubmissionsRouteImport } from './routes/api/admin/task-submissions'
 import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
-import { Route as ApiAdsStatusRouteImport } from './routes/api/ads/status'
-import { Route as ApiAdsWatchedRouteImport } from './routes/api/ads/watched'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
@@ -50,7 +48,6 @@ import { Route as ApiTelegramWithdrawRouteImport } from './routes/api/telegram/w
 import { Route as ApiTournamentActiveRouteImport } from './routes/api/tournament/active'
 import { Route as ApiUserLanguageRouteImport } from './routes/api/user/language'
 import { Route as ApiAdminReferralMilestonesIdRouteImport } from './routes/api/admin/referral-milestones/$id'
-import { Route as ApiPublicAdsgramRewardRouteImport } from './routes/api/public/adsgram/reward'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicTonDepositScanRouteImport } from './routes/api/public/ton/deposit-scan'
 import { Route as ApiTelegramAvatarIdRouteImport } from './routes/api/telegram/avatar/$id'
@@ -155,16 +152,6 @@ const ApiAdminTasksRoute = ApiAdminTasksRouteImport.update({
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
   id: '/api/admin/users',
   path: '/api/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAdsStatusRoute = ApiAdsStatusRouteImport.update({
-  id: '/api/ads/status',
-  path: '/api/ads/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAdsWatchedRoute = ApiAdsWatchedRouteImport.update({
-  id: '/api/ads/watched',
-  path: '/api/ads/watched',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
@@ -273,11 +260,6 @@ const ApiAdminReferralMilestonesIdRoute =
     path: '/$id',
     getParentRoute: () => ApiAdminReferralMilestonesRoute,
   } as any)
-const ApiPublicAdsgramRewardRoute = ApiPublicAdsgramRewardRouteImport.update({
-  id: '/api/public/adsgram/reward',
-  path: '/api/public/adsgram/reward',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -374,8 +356,6 @@ export interface FileRoutesByFullPath {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/ads/status': typeof ApiAdsStatusRoute
-  '/api/ads/watched': typeof ApiAdsWatchedRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -397,7 +377,6 @@ export interface FileRoutesByFullPath {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
-  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -432,8 +411,6 @@ export interface FileRoutesByTo {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/ads/status': typeof ApiAdsStatusRoute
-  '/api/ads/watched': typeof ApiAdsWatchedRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -455,7 +432,6 @@ export interface FileRoutesByTo {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
-  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -491,8 +467,6 @@ export interface FileRoutesById {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/ads/status': typeof ApiAdsStatusRoute
-  '/api/ads/watched': typeof ApiAdsWatchedRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -514,7 +488,6 @@ export interface FileRoutesById {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
-  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -551,8 +524,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/ads/status'
-    | '/api/ads/watched'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -574,7 +545,6 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks/'
     | '/api/admin/referral-milestones/$id'
-    | '/api/public/adsgram/reward'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -609,8 +579,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/ads/status'
-    | '/api/ads/watched'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -632,7 +600,6 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks'
     | '/api/admin/referral-milestones/$id'
-    | '/api/public/adsgram/reward'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -667,8 +634,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/ads/status'
-    | '/api/ads/watched'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -690,7 +655,6 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks/'
     | '/api/admin/referral-milestones/$id'
-    | '/api/public/adsgram/reward'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -726,8 +690,6 @@ export interface RootRouteChildren {
   ApiAdminTaskSubmissionsRoute: typeof ApiAdminTaskSubmissionsRoute
   ApiAdminTasksRoute: typeof ApiAdminTasksRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
-  ApiAdsStatusRoute: typeof ApiAdsStatusRoute
-  ApiAdsWatchedRoute: typeof ApiAdsWatchedRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
   ApiTasksCheckinRoute: typeof ApiTasksCheckinRoute
@@ -748,7 +710,6 @@ export interface RootRouteChildren {
   ApiTournamentActiveRoute: typeof ApiTournamentActiveRoute
   ApiUserLanguageRoute: typeof ApiUserLanguageRoute
   ApiTasksIndexRoute: typeof ApiTasksIndexRoute
-  ApiPublicAdsgramRewardRoute: typeof ApiPublicAdsgramRewardRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicTonDepositScanRoute: typeof ApiPublicTonDepositScanRoute
   ApiTelegramAvatarIdRoute: typeof ApiTelegramAvatarIdRoute
@@ -888,20 +849,6 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/users'
       fullPath: '/api/admin/users'
       preLoaderRoute: typeof ApiAdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ads/status': {
-      id: '/api/ads/status'
-      path: '/api/ads/status'
-      fullPath: '/api/ads/status'
-      preLoaderRoute: typeof ApiAdsStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ads/watched': {
-      id: '/api/ads/watched'
-      path: '/api/ads/watched'
-      fullPath: '/api/ads/watched'
-      preLoaderRoute: typeof ApiAdsWatchedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/health': {
@@ -1050,13 +997,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/referral-milestones/$id'
       preLoaderRoute: typeof ApiAdminReferralMilestonesIdRouteImport
       parentRoute: typeof ApiAdminReferralMilestonesRoute
-    }
-    '/api/public/adsgram/reward': {
-      id: '/api/public/adsgram/reward'
-      path: '/api/public/adsgram/reward'
-      fullPath: '/api/public/adsgram/reward'
-      preLoaderRoute: typeof ApiPublicAdsgramRewardRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
@@ -1217,8 +1157,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTaskSubmissionsRoute: ApiAdminTaskSubmissionsRoute,
   ApiAdminTasksRoute: ApiAdminTasksRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
-  ApiAdsStatusRoute: ApiAdsStatusRoute,
-  ApiAdsWatchedRoute: ApiAdsWatchedRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,
   ApiTasksCheckinRoute: ApiTasksCheckinRoute,
@@ -1239,7 +1177,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTournamentActiveRoute: ApiTournamentActiveRoute,
   ApiUserLanguageRoute: ApiUserLanguageRoute,
   ApiTasksIndexRoute: ApiTasksIndexRoute,
-  ApiPublicAdsgramRewardRoute: ApiPublicAdsgramRewardRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicTonDepositScanRoute: ApiPublicTonDepositScanRoute,
   ApiTelegramAvatarIdRoute: ApiTelegramAvatarIdRoute,
