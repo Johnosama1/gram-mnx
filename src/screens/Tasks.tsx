@@ -2,9 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { cachedFetch, notifyDataChange, onDataChange } from '@/lib/apiCache';
 import { CheckCircle2, Circle, ExternalLink, Loader2, Radio, Users, Twitter, Bot, CalendarCheck } from 'lucide-react';
 import StickerBadge from '@/components/StickerBadge';
-import WatchAdCard from '@/components/WatchAdCard';
 import PromoCodeCard from '@/components/PromoCodeCard';
-import { runAdGate } from '@/lib/adRewardGate';
 import { toast } from 'sonner';
 
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
@@ -85,16 +83,6 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     setClaiming(true);
     setMsg(null);
     try {
-      // Rewarded video (max 20 per 24h) must complete before crediting.
-      const outcome = await runAdGate(t);
-      if (outcome !== 'ok') {
-        toast.error(
-          outcome === 'skip'
-            ? t('ad_watch_full_to_claim')
-            : t('ad_none_available'),
-        );
-        return;
-      }
       const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number; message?: string }>(
         '/tasks/checkin', {},
       );
@@ -779,19 +767,6 @@ export default function Tasks() {
     if (scopes.some((s) => s === 'tasks' || s === 'admin')) void loadCompleted();
   }), [loadCompleted]);
 
-  /** Rewarded video must be watched before any task reward is granted. */
-  const adGate = async (taskId: number): Promise<boolean> => {
-    const outcome = await runAdGate(t);
-    if (outcome === 'ok') return true;
-    setFeedback({
-      id: taskId,
-      msg: `❌ ${outcome === 'skip' ? t('ad_watch_full_to_claim') : t('ad_none_available')}`,
-      ok: false,
-    });
-    setTimeout(() => setFeedback(null), 4000);
-    return false;
-  };
-
   const markDone = (task: Task) => {
     setCompletions((prev) => new Map(prev).set(task.id, { completedAt: new Date(), isDaily: task.isDaily }));
     if (task.slotLimit)
@@ -814,7 +789,6 @@ export default function Tasks() {
         window.open(task.joinLink ?? `https://t.me/${handle}`, '_blank');
         return;
       }
-      if (!(await adGate(task.id))) return;
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/complete', { taskId: task.id });
       if (data.ok) markDone(task);
       else setFeedback({ id: task.id, msg: `❌ ${data.message ?? t('tasks_error')}`, ok: false });
@@ -830,7 +804,6 @@ export default function Tasks() {
     if (completing !== null) return;
     setCompleting(task.id);
     try {
-      if (!(await adGate(task.id))) return;
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/verify-channel', { taskId: task.id });
       if (data.ok) markDone(task);
       else
@@ -852,7 +825,6 @@ export default function Tasks() {
 
   const verifyTwitter = async (task: Task): Promise<string | null> => {
     try {
-      if (!(await adGate(task.id))) return null;
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/verify-twitter', {
         taskId: task.id,
       });
@@ -871,7 +843,6 @@ export default function Tasks() {
 
   const submitProof = async (task: Task, kind: 'twitter' | 'bot', value: string): Promise<string | null> => {
     try {
-      if (!(await adGate(task.id))) return null;
       const data = await telegramApiPost<{ ok: boolean; message?: string; status?: SubStatus['status'] }>(
         kind === 'twitter' ? '/tasks/submit-twitter' : '/tasks/submit-bot',
         kind === 'twitter' ? { taskId: task.id, handle: value } : { taskId: task.id, link: value },
@@ -956,7 +927,6 @@ export default function Tasks() {
         {(tab === 'all' || tab === 'daily') && (
           <>
             <DailyCheckInCard onCoinsEarned={(n) => addCoins(n)} />
-            <WatchAdCard />
             <PromoCodeCard />
           </>
         )}

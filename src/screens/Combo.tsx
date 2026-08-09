@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { cachedFetch, notifyDataChange } from '@/lib/apiCache';
 import { Sparkles, CheckCircle2, XCircle, Loader2, Trophy, Clock } from 'lucide-react';
 import { useCoins } from '@/context/CoinsContext';
-import { runAdGate } from '@/lib/adRewardGate';
 import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -139,12 +138,6 @@ export default function Combo() {
     setSubmitting(true);
     setError('');
     try {
-      // Rewarded video (max 20 per 24h) must complete before submitting.
-      const outcome = await runAdGate(t);
-      if (outcome !== 'ok') {
-        toast.error(outcome === 'skip' ? t('ad_watch_full_to_claim') : t('ad_none_available'));
-        return;
-      }
       const res = await fetch(`${API}/api/tasks?type=combo&action=submit`, {
         method: 'POST',
         headers: {

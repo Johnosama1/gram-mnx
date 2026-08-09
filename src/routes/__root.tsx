@@ -106,10 +106,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       { src: "https://telegram.org/js/telegram-web-app.js", defer: true },
-      // AdsGram SDK — loaded async, never requests an ad on its own.
-      { src: "https://sad.adsgram.ai/js/sad.min.js", async: true },
-      // Adexium SDK — required in <head>; requests ads only on user action.
-      { id: "adexium-sdk", src: "https://cdn.techtg.space/assets/js/tg-ads-co-widget.min.js", async: true },
     ],
   }),
   shellComponent: RootShell,
