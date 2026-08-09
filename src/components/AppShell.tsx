@@ -93,7 +93,7 @@ export function LoadingScreen() {
       style={{ backgroundColor: '#0a0b14' }}
     >
       <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      <span className="text-primary font-bold text-lg tracking-widest animate-pulse">GramMiner</span>
+      <span className="text-primary font-bold text-lg tracking-widest animate-pulse">GRAM MNX</span>
     </div>
   );
 }
@@ -179,7 +179,7 @@ function MaintenanceScreen({ message }: { message: string }) {
       style={{ backgroundColor: '#0a0b14' }}
     >
       <div className="text-5xl">🔧</div>
-      <h2 className="text-white font-black text-xl">GramMiner</h2>
+      <h2 className="text-white font-black text-xl">GRAM MNX</h2>
       <p className="text-muted-foreground text-sm whitespace-pre-line">{message}</p>
     </div>
   );

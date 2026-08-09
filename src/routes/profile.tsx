@@ -5,10 +5,10 @@ export const Route = createFileRoute("/profile")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "GramMiner — Profile" },
-      { name: "description", content: "GramMiner profile page inside the Telegram Mini App." },
-      { property: "og:title", content: "GramMiner — Profile" },
-      { property: "og:description", content: "GramMiner profile page inside the Telegram Mini App." },
+      { title: "GRAM MNX — Profile" },
+      { name: "description", content: "GRAM MNX profile page inside the Telegram Mini App." },
+      { property: "og:title", content: "GRAM MNX — Profile" },
+      { property: "og:description", content: "GRAM MNX profile page inside the Telegram Mini App." },
     ],
   }),
   component: Profile,

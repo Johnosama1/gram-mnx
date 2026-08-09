@@ -177,30 +177,23 @@ function gateText(lang: 'ar' | 'en'): string {
     : '⚠️ Please join these channels first\n\nTap each channel to join, then press "Verify now".';
 }
 
-/** Sends the welcome message with the Open GramMiner button. */
+/** Sends the welcome message with the Open GRAM MNX button. */
 async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en') {
   const welcome = await getWelcomeMessage(from.first_name ?? '', lang);
-  const label = 'Open GramMiner';
+  const label = 'Open GRAM MNX';
   const startBtn = (action: Record<string, unknown>): Record<string, unknown> => ({
     text: label,
     icon_custom_emoji_id: '5852921662776809366',
     ...action,
     style: 'success',
   });
-  // Second row: blue news button pointing to the announcements channel.
-  const newsBtn: Record<string, unknown> = {
-    text: 'GramMiner News',
-    icon_custom_emoji_id: '5424818078833715060',
-    url: 'https://t.me/GramMinerNews',
-    style: 'primary',
-  };
   const res = await send(chatId, welcome, {
-    inline_keyboard: [[startBtn({ web_app: { url: webAppUrl() } })], [newsBtn]],
+    inline_keyboard: [[startBtn({ web_app: { url: webAppUrl() } })]],
   });
   if (!res.ok) {
     // Some clients reject web_app buttons — fall back to a plain URL button.
     await send(chatId, welcome, {
-      inline_keyboard: [[startBtn({ url: webAppUrl() })], [newsBtn]],
+      inline_keyboard: [[startBtn({ url: webAppUrl() })]],
     });
   }
 }
@@ -306,9 +299,9 @@ async function handleBalance(chatId: number, from: TgUser) {
   await send(
     chatId,
     ar
-      ? `💰 <b>رصيدك في GramMiner</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ قيد التعدين: <b>${fmt(accrued.accrued)}</b>`
-      : `💰 <b>Your GramMiner balance</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ Mining now: <b>${fmt(accrued.accrued)}</b>`,
-    { inline_keyboard: [[btn('⛏️ GramMiner', { web_app: { url: webAppUrl() } }, 'success')]] },
+      ? `💰 <b>رصيدك في GRAM MNX</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ قيد التعدين: <b>${fmt(accrued.accrued)}</b>`
+      : `💰 <b>Your GRAM MNX balance</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ Mining now: <b>${fmt(accrued.accrued)}</b>`,
+    { inline_keyboard: [[btn('⛏️ GRAM MNX', { web_app: { url: webAppUrl() } }, 'success')]] },
   );
 }
 
@@ -358,7 +351,7 @@ async function statsText(): Promise<string> {
     count('gm_withdrawals', (q: any) => q.eq('status', 'pending')),
   ]);
   return [
-    '📊 <b>GramMiner stats</b>',
+    '📊 <b>GRAM MNX stats</b>',
     '',
     `👥 Users: <b>${users}</b>`,
     `🟢 Active (24h): <b>${active}</b>`,
@@ -575,7 +568,7 @@ async function handleCallback(update: NonNullable<TgUpdate['callback_query']>) {
   };
 
   if (data === 'admin:back') {
-    await edit(chatId, messageId, '🛠 <b>GramMiner admin panel</b>', adminMenu);
+    await edit(chatId, messageId, '🛠 <b>GRAM MNX admin panel</b>', adminMenu);
     return;
   }
   if (data === 'admin:stats') {
@@ -699,7 +692,7 @@ export async function handleUpdate(update: TgUpdate) {
       await send(chatId, '⛔ This command is for admins only.');
       return;
     }
-    await send(chatId, '🛠 <b>GramMiner admin panel</b>', adminMenu);
+    await send(chatId, '🛠 <b>GRAM MNX admin panel</b>', adminMenu);
     return;
   }
   if ((await isAdmin(from.id)) && !text.startsWith('/')) {
@@ -709,7 +702,7 @@ export async function handleUpdate(update: TgUpdate) {
   if (text === '/help') {
     await send(
       chatId,
-      '⛏️ <b>GramMiner</b>\n\n/start — open the app\n/balance — your balance\n/help — help',
+      '⛏️ <b>GRAM MNX</b>\n\n/start — open the app\n/balance — your balance\n/help — help',
     );
   }
 }
