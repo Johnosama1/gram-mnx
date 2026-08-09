@@ -149,7 +149,7 @@ function MineSceneBase({ active, claimKey }: Props) {
       </div>
 
       {/* ── Cart on its rail ── */}
-      <div className="absolute" style={{ right: '10%', bottom: '4%', width: 'min(24%, 96px)' }}>
+      <div className="absolute" style={{ right: '3%', bottom: '2%', width: 'min(21%, 86px)' }}>
         <div
           style={{
             ['--cart-travel' as string]: '-190%',
