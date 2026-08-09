@@ -5,10 +5,10 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "GramMiner — Admin" },
-      { name: "description", content: "GramMiner admin page inside the Telegram Mini App." },
-      { property: "og:title", content: "GramMiner — Admin" },
-      { property: "og:description", content: "GramMiner admin page inside the Telegram Mini App." },
+      { title: "GRAM MNX — Admin" },
+      { name: "description", content: "GRAM MNX admin page inside the Telegram Mini App." },
+      { property: "og:title", content: "GRAM MNX — Admin" },
+      { property: "og:description", content: "GRAM MNX admin page inside the Telegram Mini App." },
     ],
   }),
   component: Admin,

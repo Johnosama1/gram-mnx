@@ -350,7 +350,7 @@ export async function sendTonPayout(toAddress: string, amountTon: number): Promi
             to: destination,
             value: transferValue,
             bounce: false,
-            body: 'GramMiner withdrawal',
+            body: 'GRAM MNX withdrawal',
           }),
         ],
       }),

@@ -299,9 +299,9 @@ async function handleBalance(chatId: number, from: TgUser) {
   await send(
     chatId,
     ar
-      ? `💰 <b>رصيدك في GramMiner</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ قيد التعدين: <b>${fmt(accrued.accrued)}</b>`
-      : `💰 <b>Your GramMiner balance</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ Mining now: <b>${fmt(accrued.accrued)}</b>`,
-    { inline_keyboard: [[btn('⛏️ GramMiner', { web_app: { url: webAppUrl() } }, 'success')]] },
+      ? `💰 <b>رصيدك في GRAM MNX</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ قيد التعدين: <b>${fmt(accrued.accrued)}</b>`
+      : `💰 <b>Your GRAM MNX balance</b>\n\n💎 gram: <b>${fmt(num(row.balance))}</b>\n🪙 coins: <b>${fmt(num(row.coins))}</b>\n⛏️ Mining now: <b>${fmt(accrued.accrued)}</b>`,
+    { inline_keyboard: [[btn('⛏️ GRAM MNX', { web_app: { url: webAppUrl() } }, 'success')]] },
   );
 }
 
@@ -351,7 +351,7 @@ async function statsText(): Promise<string> {
     count('gm_withdrawals', (q: any) => q.eq('status', 'pending')),
   ]);
   return [
-    '📊 <b>GramMiner stats</b>',
+    '📊 <b>GRAM MNX stats</b>',
     '',
     `👥 Users: <b>${users}</b>`,
     `🟢 Active (24h): <b>${active}</b>`,
@@ -568,7 +568,7 @@ async function handleCallback(update: NonNullable<TgUpdate['callback_query']>) {
   };
 
   if (data === 'admin:back') {
-    await edit(chatId, messageId, '🛠 <b>GramMiner admin panel</b>', adminMenu);
+    await edit(chatId, messageId, '🛠 <b>GRAM MNX admin panel</b>', adminMenu);
     return;
   }
   if (data === 'admin:stats') {
@@ -692,7 +692,7 @@ export async function handleUpdate(update: TgUpdate) {
       await send(chatId, '⛔ This command is for admins only.');
       return;
     }
-    await send(chatId, '🛠 <b>GramMiner admin panel</b>', adminMenu);
+    await send(chatId, '🛠 <b>GRAM MNX admin panel</b>', adminMenu);
     return;
   }
   if ((await isAdmin(from.id)) && !text.startsWith('/')) {
@@ -702,7 +702,7 @@ export async function handleUpdate(update: TgUpdate) {
   if (text === '/help') {
     await send(
       chatId,
-      '⛏️ <b>GramMiner</b>\n\n/start — open the app\n/balance — your balance\n/help — help',
+      '⛏️ <b>GRAM MNX</b>\n\n/start — open the app\n/balance — your balance\n/help — help',
     );
   }
 }

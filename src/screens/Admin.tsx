@@ -261,7 +261,7 @@ function BroadcastSection() {
   const [loading, setLoading] = useState(false);
 
   const openPremiumBroadcast = () => {
-    const url = 'https://t.me/GramMiner1_Bot?start=broadcast';
+    const url = 'https://t.me/GRAM MNX1_Bot?start=broadcast';
     const tg = (window as any)?.Telegram?.WebApp;
     if (tg?.openTelegramLink) tg.openTelegramLink(url);
     else window.open(url, '_blank');
@@ -743,7 +743,7 @@ function TasksSection() {
             {form.category === 'channels' && (
               <>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  اكتب يوزر القناة بدون @ (مثال: GramMinerNews). لازم تضيف البوت كـ«أدمن» في القناة
+                  اكتب يوزر القناة بدون @ (مثال: GRAM MNXNews). لازم تضيف البوت كـ«أدمن» في القناة
                   حتى يتحقق تلقائيًا من انضمام المستخدم.
                 </p>
                 <Input
@@ -1350,7 +1350,7 @@ function UsersSection() {
             </div>
             <Btn variant="ghost" size="sm" className="w-full"
               onClick={() => {
-                const url = `https://t.me/GramMiner1_Bot?start=dm_${u.telegramId}`;
+                const url = `https://t.me/GRAM MNX1_Bot?start=dm_${u.telegramId}`;
                 const tg = (window as any)?.Telegram?.WebApp;
                 if (tg?.openTelegramLink) tg.openTelegramLink(url);
                 else window.open(url, '_blank');
@@ -2312,7 +2312,7 @@ function TournamentSection() {
 
 // ─── Coin Tournament Section ───────────────────────────────────────────────
 // Default prize structure (editable in UI)
-const COIN_TRN_DEFAULT_TITLE = 'GramMiner Coin Tournament';
+const COIN_TRN_DEFAULT_TITLE = 'GRAM MNX Coin Tournament';
 
 const DEFAULT_COIN_PRIZES: Record<number, string> = {
   1: '3500', 2: '2500', 3: '2000',
@@ -2556,7 +2556,7 @@ export default function Admin() {
         </div>
         <div>
           <h1 className="text-lg font-black text-white">{t('admin_dashboard')}</h1>
-          <p className="text-[10px] text-muted-foreground">لوحة إدارة GramMiner</p>
+          <p className="text-[10px] text-muted-foreground">لوحة إدارة GRAM MNX</p>
         </div>
       </div>
 
