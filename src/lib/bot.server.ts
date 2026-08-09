@@ -177,30 +177,23 @@ function gateText(lang: 'ar' | 'en'): string {
     : '⚠️ Please join these channels first\n\nTap each channel to join, then press "Verify now".';
 }
 
-/** Sends the welcome message with the Open GramMiner button. */
+/** Sends the welcome message with the Open GRAM MNX button. */
 async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en') {
   const welcome = await getWelcomeMessage(from.first_name ?? '', lang);
-  const label = 'Open GramMiner';
+  const label = 'Open GRAM MNX';
   const startBtn = (action: Record<string, unknown>): Record<string, unknown> => ({
     text: label,
     icon_custom_emoji_id: '5852921662776809366',
     ...action,
     style: 'success',
   });
-  // Second row: blue news button pointing to the announcements channel.
-  const newsBtn: Record<string, unknown> = {
-    text: 'GramMiner News',
-    icon_custom_emoji_id: '5424818078833715060',
-    url: 'https://t.me/GramMinerNews',
-    style: 'primary',
-  };
   const res = await send(chatId, welcome, {
-    inline_keyboard: [[startBtn({ web_app: { url: webAppUrl() } })], [newsBtn]],
+    inline_keyboard: [[startBtn({ web_app: { url: webAppUrl() } })]],
   });
   if (!res.ok) {
     // Some clients reject web_app buttons — fall back to a plain URL button.
     await send(chatId, welcome, {
-      inline_keyboard: [[startBtn({ url: webAppUrl() })], [newsBtn]],
+      inline_keyboard: [[startBtn({ url: webAppUrl() })]],
     });
   }
 }
