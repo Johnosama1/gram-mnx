@@ -1,0 +1,17 @@
+CREATE INDEX IF NOT EXISTS idx_gm_users_telegram_id ON public.gm_users (telegram_id);
+CREATE INDEX IF NOT EXISTS idx_gm_users_referred_by ON public.gm_users (referred_by);
+CREATE INDEX IF NOT EXISTS idx_gm_withdrawals_tg_created ON public.gm_withdrawals (telegram_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gm_withdrawals_status ON public.gm_withdrawals (status);
+CREATE INDEX IF NOT EXISTS idx_gm_deposits_tg_created ON public.gm_deposits (telegram_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gm_deposits_tx_hash ON public.gm_deposits (tx_hash);
+CREATE INDEX IF NOT EXISTS idx_gm_deposits_status ON public.gm_deposits (status);
+CREATE INDEX IF NOT EXISTS idx_gm_task_completions_tg ON public.gm_task_completions (telegram_id, task_id);
+CREATE INDEX IF NOT EXISTS idx_gm_task_submissions_tg ON public.gm_task_submissions (telegram_id, task_id);
+CREATE INDEX IF NOT EXISTS idx_gm_referrals_referrer ON public.gm_referrals (referrer_id);
+CREATE INDEX IF NOT EXISTS idx_gm_referrals_referred ON public.gm_referrals (referred_id);
+CREATE INDEX IF NOT EXISTS idx_gm_daily_checkins_tg ON public.gm_daily_checkins (telegram_id);
+CREATE INDEX IF NOT EXISTS idx_gm_ad_views_tg_created ON public.gm_ad_views (telegram_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gm_swaps_tg_created ON public.gm_swaps (telegram_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gm_store_purchases_tg ON public.gm_store_purchases (telegram_id);
+CREATE INDEX IF NOT EXISTS idx_gm_user_ips_tg ON public.gm_user_ips (telegram_id);
+CREATE INDEX IF NOT EXISTS idx_gm_tasks_enabled ON public.gm_tasks (is_enabled, category);

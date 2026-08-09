@@ -10,33 +10,756 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SplatRouteImport } from './routes/$'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ComboRouteImport } from './routes/combo'
+import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as MinersRouteImport } from './routes/miners'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as ApiLeaderboardRouteImport } from './routes/api/leaderboard'
+import { Route as ApiPromoRouteImport } from './routes/api/promo'
+import { Route as ApiAdminAdminsRouteImport } from './routes/api/admin/admins'
+import { Route as ApiAdminChannelsRouteImport } from './routes/api/admin/channels'
+import { Route as ApiAdminGeneralRouteImport } from './routes/api/admin/general'
+import { Route as ApiAdminReferralMilestonesRouteImport } from './routes/api/admin/referral-milestones'
+import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/security'
+import { Route as ApiAdminTaskSubmissionsRouteImport } from './routes/api/admin/task-submissions'
+import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
+import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
+import { Route as ApiAdsStatusRouteImport } from './routes/api/ads/status'
+import { Route as ApiAdsWatchedRouteImport } from './routes/api/ads/watched'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
+import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
+import { Route as ApiTasksCheckinRouteImport } from './routes/api/tasks/checkin'
+import { Route as ApiTasksCompleteRouteImport } from './routes/api/tasks/complete'
+import { Route as ApiTasksCompletedRouteImport } from './routes/api/tasks/completed'
+import { Route as ApiTasksSubmissionsRouteImport } from './routes/api/tasks/submissions'
+import { Route as ApiTasksSubmitBotRouteImport } from './routes/api/tasks/submit-bot'
+import { Route as ApiTasksSubmitTwitterRouteImport } from './routes/api/tasks/submit-twitter'
+import { Route as ApiTasksTwitterLinkRouteImport } from './routes/api/tasks/twitter-link'
+import { Route as ApiTasksVerifyChannelRouteImport } from './routes/api/tasks/verify-channel'
+import { Route as ApiTasksVerifyTwitterRouteImport } from './routes/api/tasks/verify-twitter'
+import { Route as ApiTelegramAuthRouteImport } from './routes/api/telegram/auth'
+import { Route as ApiTelegramClaimRouteImport } from './routes/api/telegram/claim'
+import { Route as ApiTelegramReferralsRouteImport } from './routes/api/telegram/referrals'
+import { Route as ApiTelegramSwapRouteImport } from './routes/api/telegram/swap'
+import { Route as ApiTelegramWalletRouteImport } from './routes/api/telegram/wallet'
+import { Route as ApiTelegramWithdrawRouteImport } from './routes/api/telegram/withdraw'
+import { Route as ApiTournamentActiveRouteImport } from './routes/api/tournament/active'
+import { Route as ApiUserLanguageRouteImport } from './routes/api/user/language'
+import { Route as ApiAdminReferralMilestonesIdRouteImport } from './routes/api/admin/referral-milestones/$id'
+import { Route as ApiPublicAdsgramRewardRouteImport } from './routes/api/public/adsgram/reward'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
+import { Route as ApiPublicTonDepositScanRouteImport } from './routes/api/public/ton/deposit-scan'
+import { Route as ApiTelegramAvatarIdRouteImport } from './routes/api/telegram/avatar/$id'
+import { Route as ApiTelegramCoinsSpendRouteImport } from './routes/api/telegram/coins/spend'
+import { Route as ApiTelegramDepositConfigRouteImport } from './routes/api/telegram/deposit/config'
+import { Route as ApiTelegramDepositStatusRouteImport } from './routes/api/telegram/deposit/status'
+import { Route as ApiTelegramDepositTonconnectRouteImport } from './routes/api/telegram/deposit/tonconnect'
+import { Route as ApiTelegramMinersLoadRouteImport } from './routes/api/telegram/miners/load'
+import { Route as ApiTelegramMinersSaveRouteImport } from './routes/api/telegram/miners/save'
+import { Route as ApiTelegramMiningAccruedRouteImport } from './routes/api/telegram/mining/accrued'
+import { Route as ApiTelegramMiningStartRouteImport } from './routes/api/telegram/mining/start'
+import { Route as ApiTelegramSwapHistoryRouteImport } from './routes/api/telegram/swap/history'
+import { Route as ApiTelegramSwapRateRouteImport } from './routes/api/telegram/swap/rate'
+import { Route as ApiTelegramWithdrawStatusRouteImport } from './routes/api/telegram/withdraw/status'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComboRoute = ComboRouteImport.update({
+  id: '/combo',
+  path: '/combo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinersRoute = MinersRouteImport.update({
+  id: '/miners',
+  path: '/miners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeaderboardRoute = ApiLeaderboardRouteImport.update({
+  id: '/api/leaderboard',
+  path: '/api/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPromoRoute = ApiPromoRouteImport.update({
+  id: '/api/promo',
+  path: '/api/promo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminAdminsRoute = ApiAdminAdminsRouteImport.update({
+  id: '/api/admin/admins',
+  path: '/api/admin/admins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminChannelsRoute = ApiAdminChannelsRouteImport.update({
+  id: '/api/admin/channels',
+  path: '/api/admin/channels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminGeneralRoute = ApiAdminGeneralRouteImport.update({
+  id: '/api/admin/general',
+  path: '/api/admin/general',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminReferralMilestonesRoute =
+  ApiAdminReferralMilestonesRouteImport.update({
+    id: '/api/admin/referral-milestones',
+    path: '/api/admin/referral-milestones',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminSecurityRoute = ApiAdminSecurityRouteImport.update({
+  id: '/api/admin/security',
+  path: '/api/admin/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminTaskSubmissionsRoute = ApiAdminTaskSubmissionsRouteImport.update({
+  id: '/api/admin/task-submissions',
+  path: '/api/admin/task-submissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminTasksRoute = ApiAdminTasksRouteImport.update({
+  id: '/api/admin/tasks',
+  path: '/api/admin/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
+  id: '/api/admin/users',
+  path: '/api/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdsStatusRoute = ApiAdsStatusRouteImport.update({
+  id: '/api/ads/status',
+  path: '/api/ads/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdsWatchedRoute = ApiAdsWatchedRouteImport.update({
+  id: '/api/ads/watched',
+  path: '/api/ads/watched',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportSubmitRoute = ApiSupportSubmitRouteImport.update({
+  id: '/api/support/submit',
+  path: '/api/support/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
+  id: '/api/tasks/',
+  path: '/api/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksCheckinRoute = ApiTasksCheckinRouteImport.update({
+  id: '/api/tasks/checkin',
+  path: '/api/tasks/checkin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksCompleteRoute = ApiTasksCompleteRouteImport.update({
+  id: '/api/tasks/complete',
+  path: '/api/tasks/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksCompletedRoute = ApiTasksCompletedRouteImport.update({
+  id: '/api/tasks/completed',
+  path: '/api/tasks/completed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksSubmissionsRoute = ApiTasksSubmissionsRouteImport.update({
+  id: '/api/tasks/submissions',
+  path: '/api/tasks/submissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksSubmitBotRoute = ApiTasksSubmitBotRouteImport.update({
+  id: '/api/tasks/submit-bot',
+  path: '/api/tasks/submit-bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksSubmitTwitterRoute = ApiTasksSubmitTwitterRouteImport.update({
+  id: '/api/tasks/submit-twitter',
+  path: '/api/tasks/submit-twitter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksTwitterLinkRoute = ApiTasksTwitterLinkRouteImport.update({
+  id: '/api/tasks/twitter-link',
+  path: '/api/tasks/twitter-link',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksVerifyChannelRoute = ApiTasksVerifyChannelRouteImport.update({
+  id: '/api/tasks/verify-channel',
+  path: '/api/tasks/verify-channel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksVerifyTwitterRoute = ApiTasksVerifyTwitterRouteImport.update({
+  id: '/api/tasks/verify-twitter',
+  path: '/api/tasks/verify-twitter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramAuthRoute = ApiTelegramAuthRouteImport.update({
+  id: '/api/telegram/auth',
+  path: '/api/telegram/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramClaimRoute = ApiTelegramClaimRouteImport.update({
+  id: '/api/telegram/claim',
+  path: '/api/telegram/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramReferralsRoute = ApiTelegramReferralsRouteImport.update({
+  id: '/api/telegram/referrals',
+  path: '/api/telegram/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramSwapRoute = ApiTelegramSwapRouteImport.update({
+  id: '/api/telegram/swap',
+  path: '/api/telegram/swap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramWalletRoute = ApiTelegramWalletRouteImport.update({
+  id: '/api/telegram/wallet',
+  path: '/api/telegram/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramWithdrawRoute = ApiTelegramWithdrawRouteImport.update({
+  id: '/api/telegram/withdraw',
+  path: '/api/telegram/withdraw',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTournamentActiveRoute = ApiTournamentActiveRouteImport.update({
+  id: '/api/tournament/active',
+  path: '/api/tournament/active',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserLanguageRoute = ApiUserLanguageRouteImport.update({
+  id: '/api/user/language',
+  path: '/api/user/language',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminReferralMilestonesIdRoute =
+  ApiAdminReferralMilestonesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminReferralMilestonesRoute,
+  } as any)
+const ApiPublicAdsgramRewardRoute = ApiPublicAdsgramRewardRouteImport.update({
+  id: '/api/public/adsgram/reward',
+  path: '/api/public/adsgram/reward',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicTonDepositScanRoute = ApiPublicTonDepositScanRouteImport.update({
+  id: '/api/public/ton/deposit-scan',
+  path: '/api/public/ton/deposit-scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramAvatarIdRoute = ApiTelegramAvatarIdRouteImport.update({
+  id: '/api/telegram/avatar/$id',
+  path: '/api/telegram/avatar/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramCoinsSpendRoute = ApiTelegramCoinsSpendRouteImport.update({
+  id: '/api/telegram/coins/spend',
+  path: '/api/telegram/coins/spend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramDepositConfigRoute =
+  ApiTelegramDepositConfigRouteImport.update({
+    id: '/api/telegram/deposit/config',
+    path: '/api/telegram/deposit/config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiTelegramDepositStatusRoute =
+  ApiTelegramDepositStatusRouteImport.update({
+    id: '/api/telegram/deposit/status',
+    path: '/api/telegram/deposit/status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiTelegramDepositTonconnectRoute =
+  ApiTelegramDepositTonconnectRouteImport.update({
+    id: '/api/telegram/deposit/tonconnect',
+    path: '/api/telegram/deposit/tonconnect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiTelegramMinersLoadRoute = ApiTelegramMinersLoadRouteImport.update({
+  id: '/api/telegram/miners/load',
+  path: '/api/telegram/miners/load',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramMinersSaveRoute = ApiTelegramMinersSaveRouteImport.update({
+  id: '/api/telegram/miners/save',
+  path: '/api/telegram/miners/save',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramMiningAccruedRoute =
+  ApiTelegramMiningAccruedRouteImport.update({
+    id: '/api/telegram/mining/accrued',
+    path: '/api/telegram/mining/accrued',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiTelegramMiningStartRoute = ApiTelegramMiningStartRouteImport.update({
+  id: '/api/telegram/mining/start',
+  path: '/api/telegram/mining/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramSwapHistoryRoute = ApiTelegramSwapHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => ApiTelegramSwapRoute,
+} as any)
+const ApiTelegramSwapRateRoute = ApiTelegramSwapRateRouteImport.update({
+  id: '/rate',
+  path: '/rate',
+  getParentRoute: () => ApiTelegramSwapRoute,
+} as any)
+const ApiTelegramWithdrawStatusRoute =
+  ApiTelegramWithdrawStatusRouteImport.update({
+    id: '/status',
+    path: '/status',
+    getParentRoute: () => ApiTelegramWithdrawRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/admin': typeof AdminRoute
+  '/combo': typeof ComboRoute
+  '/friends': typeof FriendsRoute
+  '/miners': typeof MinersRoute
+  '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/promo': typeof ApiPromoRoute
+  '/api/admin/admins': typeof ApiAdminAdminsRoute
+  '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/general': typeof ApiAdminGeneralRoute
+  '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
+  '/api/admin/security': typeof ApiAdminSecurityRoute
+  '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
+  '/api/admin/tasks': typeof ApiAdminTasksRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/ads/status': typeof ApiAdsStatusRoute
+  '/api/ads/watched': typeof ApiAdsWatchedRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/checkin': typeof ApiTasksCheckinRoute
+  '/api/tasks/complete': typeof ApiTasksCompleteRoute
+  '/api/tasks/completed': typeof ApiTasksCompletedRoute
+  '/api/tasks/submissions': typeof ApiTasksSubmissionsRoute
+  '/api/tasks/submit-bot': typeof ApiTasksSubmitBotRoute
+  '/api/tasks/submit-twitter': typeof ApiTasksSubmitTwitterRoute
+  '/api/tasks/twitter-link': typeof ApiTasksTwitterLinkRoute
+  '/api/tasks/verify-channel': typeof ApiTasksVerifyChannelRoute
+  '/api/tasks/verify-twitter': typeof ApiTasksVerifyTwitterRoute
+  '/api/telegram/auth': typeof ApiTelegramAuthRoute
+  '/api/telegram/claim': typeof ApiTelegramClaimRoute
+  '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
+  '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
+  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
+  '/api/tournament/active': typeof ApiTournamentActiveRoute
+  '/api/user/language': typeof ApiUserLanguageRoute
+  '/api/tasks/': typeof ApiTasksIndexRoute
+  '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
+  '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
+  '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
+  '/api/telegram/deposit/status': typeof ApiTelegramDepositStatusRoute
+  '/api/telegram/deposit/tonconnect': typeof ApiTelegramDepositTonconnectRoute
+  '/api/telegram/miners/load': typeof ApiTelegramMinersLoadRoute
+  '/api/telegram/miners/save': typeof ApiTelegramMinersSaveRoute
+  '/api/telegram/mining/accrued': typeof ApiTelegramMiningAccruedRoute
+  '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
+  '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
+  '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/admin': typeof AdminRoute
+  '/combo': typeof ComboRoute
+  '/friends': typeof FriendsRoute
+  '/miners': typeof MinersRoute
+  '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/promo': typeof ApiPromoRoute
+  '/api/admin/admins': typeof ApiAdminAdminsRoute
+  '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/general': typeof ApiAdminGeneralRoute
+  '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
+  '/api/admin/security': typeof ApiAdminSecurityRoute
+  '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
+  '/api/admin/tasks': typeof ApiAdminTasksRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/ads/status': typeof ApiAdsStatusRoute
+  '/api/ads/watched': typeof ApiAdsWatchedRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/checkin': typeof ApiTasksCheckinRoute
+  '/api/tasks/complete': typeof ApiTasksCompleteRoute
+  '/api/tasks/completed': typeof ApiTasksCompletedRoute
+  '/api/tasks/submissions': typeof ApiTasksSubmissionsRoute
+  '/api/tasks/submit-bot': typeof ApiTasksSubmitBotRoute
+  '/api/tasks/submit-twitter': typeof ApiTasksSubmitTwitterRoute
+  '/api/tasks/twitter-link': typeof ApiTasksTwitterLinkRoute
+  '/api/tasks/verify-channel': typeof ApiTasksVerifyChannelRoute
+  '/api/tasks/verify-twitter': typeof ApiTasksVerifyTwitterRoute
+  '/api/telegram/auth': typeof ApiTelegramAuthRoute
+  '/api/telegram/claim': typeof ApiTelegramClaimRoute
+  '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
+  '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
+  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
+  '/api/tournament/active': typeof ApiTournamentActiveRoute
+  '/api/user/language': typeof ApiUserLanguageRoute
+  '/api/tasks': typeof ApiTasksIndexRoute
+  '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
+  '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
+  '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
+  '/api/telegram/deposit/status': typeof ApiTelegramDepositStatusRoute
+  '/api/telegram/deposit/tonconnect': typeof ApiTelegramDepositTonconnectRoute
+  '/api/telegram/miners/load': typeof ApiTelegramMinersLoadRoute
+  '/api/telegram/miners/save': typeof ApiTelegramMinersSaveRoute
+  '/api/telegram/mining/accrued': typeof ApiTelegramMiningAccruedRoute
+  '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
+  '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
+  '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/admin': typeof AdminRoute
+  '/combo': typeof ComboRoute
+  '/friends': typeof FriendsRoute
+  '/miners': typeof MinersRoute
+  '/profile': typeof ProfileRoute
+  '/tasks': typeof TasksRoute
+  '/api/leaderboard': typeof ApiLeaderboardRoute
+  '/api/promo': typeof ApiPromoRoute
+  '/api/admin/admins': typeof ApiAdminAdminsRoute
+  '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/general': typeof ApiAdminGeneralRoute
+  '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
+  '/api/admin/security': typeof ApiAdminSecurityRoute
+  '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
+  '/api/admin/tasks': typeof ApiAdminTasksRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/ads/status': typeof ApiAdsStatusRoute
+  '/api/ads/watched': typeof ApiAdsWatchedRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/checkin': typeof ApiTasksCheckinRoute
+  '/api/tasks/complete': typeof ApiTasksCompleteRoute
+  '/api/tasks/completed': typeof ApiTasksCompletedRoute
+  '/api/tasks/submissions': typeof ApiTasksSubmissionsRoute
+  '/api/tasks/submit-bot': typeof ApiTasksSubmitBotRoute
+  '/api/tasks/submit-twitter': typeof ApiTasksSubmitTwitterRoute
+  '/api/tasks/twitter-link': typeof ApiTasksTwitterLinkRoute
+  '/api/tasks/verify-channel': typeof ApiTasksVerifyChannelRoute
+  '/api/tasks/verify-twitter': typeof ApiTasksVerifyTwitterRoute
+  '/api/telegram/auth': typeof ApiTelegramAuthRoute
+  '/api/telegram/claim': typeof ApiTelegramClaimRoute
+  '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
+  '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
+  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
+  '/api/tournament/active': typeof ApiTournamentActiveRoute
+  '/api/user/language': typeof ApiUserLanguageRoute
+  '/api/tasks/': typeof ApiTasksIndexRoute
+  '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/public/adsgram/reward': typeof ApiPublicAdsgramRewardRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
+  '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
+  '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
+  '/api/telegram/deposit/status': typeof ApiTelegramDepositStatusRoute
+  '/api/telegram/deposit/tonconnect': typeof ApiTelegramDepositTonconnectRoute
+  '/api/telegram/miners/load': typeof ApiTelegramMinersLoadRoute
+  '/api/telegram/miners/save': typeof ApiTelegramMinersSaveRoute
+  '/api/telegram/mining/accrued': typeof ApiTelegramMiningAccruedRoute
+  '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
+  '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
+  '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$'
+    | '/admin'
+    | '/combo'
+    | '/friends'
+    | '/miners'
+    | '/profile'
+    | '/tasks'
+    | '/api/leaderboard'
+    | '/api/promo'
+    | '/api/admin/admins'
+    | '/api/admin/channels'
+    | '/api/admin/general'
+    | '/api/admin/referral-milestones'
+    | '/api/admin/security'
+    | '/api/admin/task-submissions'
+    | '/api/admin/tasks'
+    | '/api/admin/users'
+    | '/api/ads/status'
+    | '/api/ads/watched'
+    | '/api/public/health'
+    | '/api/support/submit'
+    | '/api/tasks/checkin'
+    | '/api/tasks/complete'
+    | '/api/tasks/completed'
+    | '/api/tasks/submissions'
+    | '/api/tasks/submit-bot'
+    | '/api/tasks/submit-twitter'
+    | '/api/tasks/twitter-link'
+    | '/api/tasks/verify-channel'
+    | '/api/tasks/verify-twitter'
+    | '/api/telegram/auth'
+    | '/api/telegram/claim'
+    | '/api/telegram/referrals'
+    | '/api/telegram/swap'
+    | '/api/telegram/wallet'
+    | '/api/telegram/withdraw'
+    | '/api/tournament/active'
+    | '/api/user/language'
+    | '/api/tasks/'
+    | '/api/admin/referral-milestones/$id'
+    | '/api/public/adsgram/reward'
+    | '/api/public/telegram/webhook'
+    | '/api/public/ton/deposit-scan'
+    | '/api/telegram/avatar/$id'
+    | '/api/telegram/coins/spend'
+    | '/api/telegram/deposit/config'
+    | '/api/telegram/deposit/status'
+    | '/api/telegram/deposit/tonconnect'
+    | '/api/telegram/miners/load'
+    | '/api/telegram/miners/save'
+    | '/api/telegram/mining/accrued'
+    | '/api/telegram/mining/start'
+    | '/api/telegram/swap/history'
+    | '/api/telegram/swap/rate'
+    | '/api/telegram/withdraw/status'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$'
+    | '/admin'
+    | '/combo'
+    | '/friends'
+    | '/miners'
+    | '/profile'
+    | '/tasks'
+    | '/api/leaderboard'
+    | '/api/promo'
+    | '/api/admin/admins'
+    | '/api/admin/channels'
+    | '/api/admin/general'
+    | '/api/admin/referral-milestones'
+    | '/api/admin/security'
+    | '/api/admin/task-submissions'
+    | '/api/admin/tasks'
+    | '/api/admin/users'
+    | '/api/ads/status'
+    | '/api/ads/watched'
+    | '/api/public/health'
+    | '/api/support/submit'
+    | '/api/tasks/checkin'
+    | '/api/tasks/complete'
+    | '/api/tasks/completed'
+    | '/api/tasks/submissions'
+    | '/api/tasks/submit-bot'
+    | '/api/tasks/submit-twitter'
+    | '/api/tasks/twitter-link'
+    | '/api/tasks/verify-channel'
+    | '/api/tasks/verify-twitter'
+    | '/api/telegram/auth'
+    | '/api/telegram/claim'
+    | '/api/telegram/referrals'
+    | '/api/telegram/swap'
+    | '/api/telegram/wallet'
+    | '/api/telegram/withdraw'
+    | '/api/tournament/active'
+    | '/api/user/language'
+    | '/api/tasks'
+    | '/api/admin/referral-milestones/$id'
+    | '/api/public/adsgram/reward'
+    | '/api/public/telegram/webhook'
+    | '/api/public/ton/deposit-scan'
+    | '/api/telegram/avatar/$id'
+    | '/api/telegram/coins/spend'
+    | '/api/telegram/deposit/config'
+    | '/api/telegram/deposit/status'
+    | '/api/telegram/deposit/tonconnect'
+    | '/api/telegram/miners/load'
+    | '/api/telegram/miners/save'
+    | '/api/telegram/mining/accrued'
+    | '/api/telegram/mining/start'
+    | '/api/telegram/swap/history'
+    | '/api/telegram/swap/rate'
+    | '/api/telegram/withdraw/status'
+  id:
+    | '__root__'
+    | '/'
+    | '/$'
+    | '/admin'
+    | '/combo'
+    | '/friends'
+    | '/miners'
+    | '/profile'
+    | '/tasks'
+    | '/api/leaderboard'
+    | '/api/promo'
+    | '/api/admin/admins'
+    | '/api/admin/channels'
+    | '/api/admin/general'
+    | '/api/admin/referral-milestones'
+    | '/api/admin/security'
+    | '/api/admin/task-submissions'
+    | '/api/admin/tasks'
+    | '/api/admin/users'
+    | '/api/ads/status'
+    | '/api/ads/watched'
+    | '/api/public/health'
+    | '/api/support/submit'
+    | '/api/tasks/checkin'
+    | '/api/tasks/complete'
+    | '/api/tasks/completed'
+    | '/api/tasks/submissions'
+    | '/api/tasks/submit-bot'
+    | '/api/tasks/submit-twitter'
+    | '/api/tasks/twitter-link'
+    | '/api/tasks/verify-channel'
+    | '/api/tasks/verify-twitter'
+    | '/api/telegram/auth'
+    | '/api/telegram/claim'
+    | '/api/telegram/referrals'
+    | '/api/telegram/swap'
+    | '/api/telegram/wallet'
+    | '/api/telegram/withdraw'
+    | '/api/tournament/active'
+    | '/api/user/language'
+    | '/api/tasks/'
+    | '/api/admin/referral-milestones/$id'
+    | '/api/public/adsgram/reward'
+    | '/api/public/telegram/webhook'
+    | '/api/public/ton/deposit-scan'
+    | '/api/telegram/avatar/$id'
+    | '/api/telegram/coins/spend'
+    | '/api/telegram/deposit/config'
+    | '/api/telegram/deposit/status'
+    | '/api/telegram/deposit/tonconnect'
+    | '/api/telegram/miners/load'
+    | '/api/telegram/miners/save'
+    | '/api/telegram/mining/accrued'
+    | '/api/telegram/mining/start'
+    | '/api/telegram/swap/history'
+    | '/api/telegram/swap/rate'
+    | '/api/telegram/withdraw/status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
+  AdminRoute: typeof AdminRoute
+  ComboRoute: typeof ComboRoute
+  FriendsRoute: typeof FriendsRoute
+  MinersRoute: typeof MinersRoute
+  ProfileRoute: typeof ProfileRoute
+  TasksRoute: typeof TasksRoute
+  ApiLeaderboardRoute: typeof ApiLeaderboardRoute
+  ApiPromoRoute: typeof ApiPromoRoute
+  ApiAdminAdminsRoute: typeof ApiAdminAdminsRoute
+  ApiAdminChannelsRoute: typeof ApiAdminChannelsRoute
+  ApiAdminGeneralRoute: typeof ApiAdminGeneralRoute
+  ApiAdminReferralMilestonesRoute: typeof ApiAdminReferralMilestonesRouteWithChildren
+  ApiAdminSecurityRoute: typeof ApiAdminSecurityRoute
+  ApiAdminTaskSubmissionsRoute: typeof ApiAdminTaskSubmissionsRoute
+  ApiAdminTasksRoute: typeof ApiAdminTasksRoute
+  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+  ApiAdsStatusRoute: typeof ApiAdsStatusRoute
+  ApiAdsWatchedRoute: typeof ApiAdsWatchedRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
+  ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
+  ApiTasksCheckinRoute: typeof ApiTasksCheckinRoute
+  ApiTasksCompleteRoute: typeof ApiTasksCompleteRoute
+  ApiTasksCompletedRoute: typeof ApiTasksCompletedRoute
+  ApiTasksSubmissionsRoute: typeof ApiTasksSubmissionsRoute
+  ApiTasksSubmitBotRoute: typeof ApiTasksSubmitBotRoute
+  ApiTasksSubmitTwitterRoute: typeof ApiTasksSubmitTwitterRoute
+  ApiTasksTwitterLinkRoute: typeof ApiTasksTwitterLinkRoute
+  ApiTasksVerifyChannelRoute: typeof ApiTasksVerifyChannelRoute
+  ApiTasksVerifyTwitterRoute: typeof ApiTasksVerifyTwitterRoute
+  ApiTelegramAuthRoute: typeof ApiTelegramAuthRoute
+  ApiTelegramClaimRoute: typeof ApiTelegramClaimRoute
+  ApiTelegramReferralsRoute: typeof ApiTelegramReferralsRoute
+  ApiTelegramSwapRoute: typeof ApiTelegramSwapRouteWithChildren
+  ApiTelegramWalletRoute: typeof ApiTelegramWalletRoute
+  ApiTelegramWithdrawRoute: typeof ApiTelegramWithdrawRouteWithChildren
+  ApiTournamentActiveRoute: typeof ApiTournamentActiveRoute
+  ApiUserLanguageRoute: typeof ApiUserLanguageRoute
+  ApiTasksIndexRoute: typeof ApiTasksIndexRoute
+  ApiPublicAdsgramRewardRoute: typeof ApiPublicAdsgramRewardRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
+  ApiPublicTonDepositScanRoute: typeof ApiPublicTonDepositScanRoute
+  ApiTelegramAvatarIdRoute: typeof ApiTelegramAvatarIdRoute
+  ApiTelegramCoinsSpendRoute: typeof ApiTelegramCoinsSpendRoute
+  ApiTelegramDepositConfigRoute: typeof ApiTelegramDepositConfigRoute
+  ApiTelegramDepositStatusRoute: typeof ApiTelegramDepositStatusRoute
+  ApiTelegramDepositTonconnectRoute: typeof ApiTelegramDepositTonconnectRoute
+  ApiTelegramMinersLoadRoute: typeof ApiTelegramMinersLoadRoute
+  ApiTelegramMinersSaveRoute: typeof ApiTelegramMinersSaveRoute
+  ApiTelegramMiningAccruedRoute: typeof ApiTelegramMiningAccruedRoute
+  ApiTelegramMiningStartRoute: typeof ApiTelegramMiningStartRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +771,487 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/combo': {
+      id: '/combo'
+      path: '/combo'
+      fullPath: '/combo'
+      preLoaderRoute: typeof ComboRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miners': {
+      id: '/miners'
+      path: '/miners'
+      fullPath: '/miners'
+      preLoaderRoute: typeof MinersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/leaderboard': {
+      id: '/api/leaderboard'
+      path: '/api/leaderboard'
+      fullPath: '/api/leaderboard'
+      preLoaderRoute: typeof ApiLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/promo': {
+      id: '/api/promo'
+      path: '/api/promo'
+      fullPath: '/api/promo'
+      preLoaderRoute: typeof ApiPromoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/admins': {
+      id: '/api/admin/admins'
+      path: '/api/admin/admins'
+      fullPath: '/api/admin/admins'
+      preLoaderRoute: typeof ApiAdminAdminsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/channels': {
+      id: '/api/admin/channels'
+      path: '/api/admin/channels'
+      fullPath: '/api/admin/channels'
+      preLoaderRoute: typeof ApiAdminChannelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/general': {
+      id: '/api/admin/general'
+      path: '/api/admin/general'
+      fullPath: '/api/admin/general'
+      preLoaderRoute: typeof ApiAdminGeneralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/referral-milestones': {
+      id: '/api/admin/referral-milestones'
+      path: '/api/admin/referral-milestones'
+      fullPath: '/api/admin/referral-milestones'
+      preLoaderRoute: typeof ApiAdminReferralMilestonesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/security': {
+      id: '/api/admin/security'
+      path: '/api/admin/security'
+      fullPath: '/api/admin/security'
+      preLoaderRoute: typeof ApiAdminSecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/task-submissions': {
+      id: '/api/admin/task-submissions'
+      path: '/api/admin/task-submissions'
+      fullPath: '/api/admin/task-submissions'
+      preLoaderRoute: typeof ApiAdminTaskSubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/tasks': {
+      id: '/api/admin/tasks'
+      path: '/api/admin/tasks'
+      fullPath: '/api/admin/tasks'
+      preLoaderRoute: typeof ApiAdminTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/users': {
+      id: '/api/admin/users'
+      path: '/api/admin/users'
+      fullPath: '/api/admin/users'
+      preLoaderRoute: typeof ApiAdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ads/status': {
+      id: '/api/ads/status'
+      path: '/api/ads/status'
+      fullPath: '/api/ads/status'
+      preLoaderRoute: typeof ApiAdsStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ads/watched': {
+      id: '/api/ads/watched'
+      path: '/api/ads/watched'
+      fullPath: '/api/ads/watched'
+      preLoaderRoute: typeof ApiAdsWatchedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support/submit': {
+      id: '/api/support/submit'
+      path: '/api/support/submit'
+      fullPath: '/api/support/submit'
+      preLoaderRoute: typeof ApiSupportSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/': {
+      id: '/api/tasks/'
+      path: '/api/tasks'
+      fullPath: '/api/tasks/'
+      preLoaderRoute: typeof ApiTasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/checkin': {
+      id: '/api/tasks/checkin'
+      path: '/api/tasks/checkin'
+      fullPath: '/api/tasks/checkin'
+      preLoaderRoute: typeof ApiTasksCheckinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/complete': {
+      id: '/api/tasks/complete'
+      path: '/api/tasks/complete'
+      fullPath: '/api/tasks/complete'
+      preLoaderRoute: typeof ApiTasksCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/completed': {
+      id: '/api/tasks/completed'
+      path: '/api/tasks/completed'
+      fullPath: '/api/tasks/completed'
+      preLoaderRoute: typeof ApiTasksCompletedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/submissions': {
+      id: '/api/tasks/submissions'
+      path: '/api/tasks/submissions'
+      fullPath: '/api/tasks/submissions'
+      preLoaderRoute: typeof ApiTasksSubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/submit-bot': {
+      id: '/api/tasks/submit-bot'
+      path: '/api/tasks/submit-bot'
+      fullPath: '/api/tasks/submit-bot'
+      preLoaderRoute: typeof ApiTasksSubmitBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/submit-twitter': {
+      id: '/api/tasks/submit-twitter'
+      path: '/api/tasks/submit-twitter'
+      fullPath: '/api/tasks/submit-twitter'
+      preLoaderRoute: typeof ApiTasksSubmitTwitterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/twitter-link': {
+      id: '/api/tasks/twitter-link'
+      path: '/api/tasks/twitter-link'
+      fullPath: '/api/tasks/twitter-link'
+      preLoaderRoute: typeof ApiTasksTwitterLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/verify-channel': {
+      id: '/api/tasks/verify-channel'
+      path: '/api/tasks/verify-channel'
+      fullPath: '/api/tasks/verify-channel'
+      preLoaderRoute: typeof ApiTasksVerifyChannelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/verify-twitter': {
+      id: '/api/tasks/verify-twitter'
+      path: '/api/tasks/verify-twitter'
+      fullPath: '/api/tasks/verify-twitter'
+      preLoaderRoute: typeof ApiTasksVerifyTwitterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/auth': {
+      id: '/api/telegram/auth'
+      path: '/api/telegram/auth'
+      fullPath: '/api/telegram/auth'
+      preLoaderRoute: typeof ApiTelegramAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/claim': {
+      id: '/api/telegram/claim'
+      path: '/api/telegram/claim'
+      fullPath: '/api/telegram/claim'
+      preLoaderRoute: typeof ApiTelegramClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/referrals': {
+      id: '/api/telegram/referrals'
+      path: '/api/telegram/referrals'
+      fullPath: '/api/telegram/referrals'
+      preLoaderRoute: typeof ApiTelegramReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/swap': {
+      id: '/api/telegram/swap'
+      path: '/api/telegram/swap'
+      fullPath: '/api/telegram/swap'
+      preLoaderRoute: typeof ApiTelegramSwapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/wallet': {
+      id: '/api/telegram/wallet'
+      path: '/api/telegram/wallet'
+      fullPath: '/api/telegram/wallet'
+      preLoaderRoute: typeof ApiTelegramWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/withdraw': {
+      id: '/api/telegram/withdraw'
+      path: '/api/telegram/withdraw'
+      fullPath: '/api/telegram/withdraw'
+      preLoaderRoute: typeof ApiTelegramWithdrawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tournament/active': {
+      id: '/api/tournament/active'
+      path: '/api/tournament/active'
+      fullPath: '/api/tournament/active'
+      preLoaderRoute: typeof ApiTournamentActiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/user/language': {
+      id: '/api/user/language'
+      path: '/api/user/language'
+      fullPath: '/api/user/language'
+      preLoaderRoute: typeof ApiUserLanguageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/referral-milestones/$id': {
+      id: '/api/admin/referral-milestones/$id'
+      path: '/$id'
+      fullPath: '/api/admin/referral-milestones/$id'
+      preLoaderRoute: typeof ApiAdminReferralMilestonesIdRouteImport
+      parentRoute: typeof ApiAdminReferralMilestonesRoute
+    }
+    '/api/public/adsgram/reward': {
+      id: '/api/public/adsgram/reward'
+      path: '/api/public/adsgram/reward'
+      fullPath: '/api/public/adsgram/reward'
+      preLoaderRoute: typeof ApiPublicAdsgramRewardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ton/deposit-scan': {
+      id: '/api/public/ton/deposit-scan'
+      path: '/api/public/ton/deposit-scan'
+      fullPath: '/api/public/ton/deposit-scan'
+      preLoaderRoute: typeof ApiPublicTonDepositScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/avatar/$id': {
+      id: '/api/telegram/avatar/$id'
+      path: '/api/telegram/avatar/$id'
+      fullPath: '/api/telegram/avatar/$id'
+      preLoaderRoute: typeof ApiTelegramAvatarIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/coins/spend': {
+      id: '/api/telegram/coins/spend'
+      path: '/api/telegram/coins/spend'
+      fullPath: '/api/telegram/coins/spend'
+      preLoaderRoute: typeof ApiTelegramCoinsSpendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/deposit/config': {
+      id: '/api/telegram/deposit/config'
+      path: '/api/telegram/deposit/config'
+      fullPath: '/api/telegram/deposit/config'
+      preLoaderRoute: typeof ApiTelegramDepositConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/deposit/status': {
+      id: '/api/telegram/deposit/status'
+      path: '/api/telegram/deposit/status'
+      fullPath: '/api/telegram/deposit/status'
+      preLoaderRoute: typeof ApiTelegramDepositStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/deposit/tonconnect': {
+      id: '/api/telegram/deposit/tonconnect'
+      path: '/api/telegram/deposit/tonconnect'
+      fullPath: '/api/telegram/deposit/tonconnect'
+      preLoaderRoute: typeof ApiTelegramDepositTonconnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/miners/load': {
+      id: '/api/telegram/miners/load'
+      path: '/api/telegram/miners/load'
+      fullPath: '/api/telegram/miners/load'
+      preLoaderRoute: typeof ApiTelegramMinersLoadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/miners/save': {
+      id: '/api/telegram/miners/save'
+      path: '/api/telegram/miners/save'
+      fullPath: '/api/telegram/miners/save'
+      preLoaderRoute: typeof ApiTelegramMinersSaveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/mining/accrued': {
+      id: '/api/telegram/mining/accrued'
+      path: '/api/telegram/mining/accrued'
+      fullPath: '/api/telegram/mining/accrued'
+      preLoaderRoute: typeof ApiTelegramMiningAccruedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/mining/start': {
+      id: '/api/telegram/mining/start'
+      path: '/api/telegram/mining/start'
+      fullPath: '/api/telegram/mining/start'
+      preLoaderRoute: typeof ApiTelegramMiningStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/swap/history': {
+      id: '/api/telegram/swap/history'
+      path: '/history'
+      fullPath: '/api/telegram/swap/history'
+      preLoaderRoute: typeof ApiTelegramSwapHistoryRouteImport
+      parentRoute: typeof ApiTelegramSwapRoute
+    }
+    '/api/telegram/swap/rate': {
+      id: '/api/telegram/swap/rate'
+      path: '/rate'
+      fullPath: '/api/telegram/swap/rate'
+      preLoaderRoute: typeof ApiTelegramSwapRateRouteImport
+      parentRoute: typeof ApiTelegramSwapRoute
+    }
+    '/api/telegram/withdraw/status': {
+      id: '/api/telegram/withdraw/status'
+      path: '/status'
+      fullPath: '/api/telegram/withdraw/status'
+      preLoaderRoute: typeof ApiTelegramWithdrawStatusRouteImport
+      parentRoute: typeof ApiTelegramWithdrawRoute
+    }
   }
 }
 
+interface ApiAdminReferralMilestonesRouteChildren {
+  ApiAdminReferralMilestonesIdRoute: typeof ApiAdminReferralMilestonesIdRoute
+}
+
+const ApiAdminReferralMilestonesRouteChildren: ApiAdminReferralMilestonesRouteChildren =
+  {
+    ApiAdminReferralMilestonesIdRoute: ApiAdminReferralMilestonesIdRoute,
+  }
+
+const ApiAdminReferralMilestonesRouteWithChildren =
+  ApiAdminReferralMilestonesRoute._addFileChildren(
+    ApiAdminReferralMilestonesRouteChildren,
+  )
+
+interface ApiTelegramSwapRouteChildren {
+  ApiTelegramSwapHistoryRoute: typeof ApiTelegramSwapHistoryRoute
+  ApiTelegramSwapRateRoute: typeof ApiTelegramSwapRateRoute
+}
+
+const ApiTelegramSwapRouteChildren: ApiTelegramSwapRouteChildren = {
+  ApiTelegramSwapHistoryRoute: ApiTelegramSwapHistoryRoute,
+  ApiTelegramSwapRateRoute: ApiTelegramSwapRateRoute,
+}
+
+const ApiTelegramSwapRouteWithChildren = ApiTelegramSwapRoute._addFileChildren(
+  ApiTelegramSwapRouteChildren,
+)
+
+interface ApiTelegramWithdrawRouteChildren {
+  ApiTelegramWithdrawStatusRoute: typeof ApiTelegramWithdrawStatusRoute
+}
+
+const ApiTelegramWithdrawRouteChildren: ApiTelegramWithdrawRouteChildren = {
+  ApiTelegramWithdrawStatusRoute: ApiTelegramWithdrawStatusRoute,
+}
+
+const ApiTelegramWithdrawRouteWithChildren =
+  ApiTelegramWithdrawRoute._addFileChildren(ApiTelegramWithdrawRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
+  AdminRoute: AdminRoute,
+  ComboRoute: ComboRoute,
+  FriendsRoute: FriendsRoute,
+  MinersRoute: MinersRoute,
+  ProfileRoute: ProfileRoute,
+  TasksRoute: TasksRoute,
+  ApiLeaderboardRoute: ApiLeaderboardRoute,
+  ApiPromoRoute: ApiPromoRoute,
+  ApiAdminAdminsRoute: ApiAdminAdminsRoute,
+  ApiAdminChannelsRoute: ApiAdminChannelsRoute,
+  ApiAdminGeneralRoute: ApiAdminGeneralRoute,
+  ApiAdminReferralMilestonesRoute: ApiAdminReferralMilestonesRouteWithChildren,
+  ApiAdminSecurityRoute: ApiAdminSecurityRoute,
+  ApiAdminTaskSubmissionsRoute: ApiAdminTaskSubmissionsRoute,
+  ApiAdminTasksRoute: ApiAdminTasksRoute,
+  ApiAdminUsersRoute: ApiAdminUsersRoute,
+  ApiAdsStatusRoute: ApiAdsStatusRoute,
+  ApiAdsWatchedRoute: ApiAdsWatchedRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
+  ApiSupportSubmitRoute: ApiSupportSubmitRoute,
+  ApiTasksCheckinRoute: ApiTasksCheckinRoute,
+  ApiTasksCompleteRoute: ApiTasksCompleteRoute,
+  ApiTasksCompletedRoute: ApiTasksCompletedRoute,
+  ApiTasksSubmissionsRoute: ApiTasksSubmissionsRoute,
+  ApiTasksSubmitBotRoute: ApiTasksSubmitBotRoute,
+  ApiTasksSubmitTwitterRoute: ApiTasksSubmitTwitterRoute,
+  ApiTasksTwitterLinkRoute: ApiTasksTwitterLinkRoute,
+  ApiTasksVerifyChannelRoute: ApiTasksVerifyChannelRoute,
+  ApiTasksVerifyTwitterRoute: ApiTasksVerifyTwitterRoute,
+  ApiTelegramAuthRoute: ApiTelegramAuthRoute,
+  ApiTelegramClaimRoute: ApiTelegramClaimRoute,
+  ApiTelegramReferralsRoute: ApiTelegramReferralsRoute,
+  ApiTelegramSwapRoute: ApiTelegramSwapRouteWithChildren,
+  ApiTelegramWalletRoute: ApiTelegramWalletRoute,
+  ApiTelegramWithdrawRoute: ApiTelegramWithdrawRouteWithChildren,
+  ApiTournamentActiveRoute: ApiTournamentActiveRoute,
+  ApiUserLanguageRoute: ApiUserLanguageRoute,
+  ApiTasksIndexRoute: ApiTasksIndexRoute,
+  ApiPublicAdsgramRewardRoute: ApiPublicAdsgramRewardRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
+  ApiPublicTonDepositScanRoute: ApiPublicTonDepositScanRoute,
+  ApiTelegramAvatarIdRoute: ApiTelegramAvatarIdRoute,
+  ApiTelegramCoinsSpendRoute: ApiTelegramCoinsSpendRoute,
+  ApiTelegramDepositConfigRoute: ApiTelegramDepositConfigRoute,
+  ApiTelegramDepositStatusRoute: ApiTelegramDepositStatusRoute,
+  ApiTelegramDepositTonconnectRoute: ApiTelegramDepositTonconnectRoute,
+  ApiTelegramMinersLoadRoute: ApiTelegramMinersLoadRoute,
+  ApiTelegramMinersSaveRoute: ApiTelegramMinersSaveRoute,
+  ApiTelegramMiningAccruedRoute: ApiTelegramMiningAccruedRoute,
+  ApiTelegramMiningStartRoute: ApiTelegramMiningStartRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

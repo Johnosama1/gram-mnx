@@ -1,0 +1,1 @@
+ALTER TABLE public.gm_users ADD COLUMN IF NOT EXISTS mining_coins double precision;

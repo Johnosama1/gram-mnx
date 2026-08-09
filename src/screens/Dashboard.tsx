@@ -1,0 +1,292 @@
+import { useState, useRef, useEffect } from 'react';
+import { useWallet } from '@/context/WalletContext';
+import { useTelegramUser } from '@/context/TelegramUserContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { useCoins } from '@/context/CoinsContext';
+import WalletModal from '@/components/WalletModal';
+import StickerBadge from '@/components/StickerBadge';
+import { ChevronDown, Wallet, TrendingUp, Gem } from 'lucide-react';
+import { formatGram } from '@/lib/utils';
+import mineBgAsset from '@/assets/mine-bg-v4.webp.asset.json';
+import mineFanAsset from '@/assets/mine-fan-v3.webp.asset.json';
+const mineBgV3 = mineBgAsset.url;
+const gramLogoImg = mineFanAsset.url;
+
+/** hh:mm:ss countdown for the 24h mining session */
+function formatCountdown(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(total / 3600)).padStart(2, '0');
+  const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+  const s = String(total % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+export default function Dashboard() {
+  const {
+    holdingWallet, sessionEarnings, poolWallet, walletAddress,
+    isClaiming, claimError, claimEarnings,
+    isMiningActive, miningRemainingMs, isStartingMining, miningCoins,
+    daily24hEarned, showMiningButton, startMining,
+  } = useWallet();
+  const { user: tgUser, avatarUrl } = useTelegramUser();
+  const { t } = useLanguage();
+  const { coins } = useCoins();
+  const [showWallet, setShowWallet] = useState(false);
+
+  // Coin-based daily income: 700 coin = 1 gram, 5% daily → gram/day = coins/14000
+  // Use the rate coins frozen by the server for the running cycle so the shown
+  // 24H value matches exactly what accrues over 86,400 seconds.
+  // Single source of truth: the server's per-second rate × 86,400. This is the
+  // exact amount that accrues over a full 24h cycle, so the displayed target can
+  // never be reached faster than 24 hours.
+  const rateCoins = miningCoins > 0 ? miningCoins : coins;
+  const dailyIncome = daily24hEarned > 0
+    ? daily24hEarned
+    : (rateCoins > 0 ? rateCoins / 14_000 : 0);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+
+  const userName    = tgUser?.first_name || 'Miner';
+  const userInitial = userName[0].toUpperCase();
+  const showAvatar  = Boolean(avatarUrl) && !avatarFailed;
+
+  const shortAddress = walletAddress
+    ? walletAddress.slice(0, 2) + '...' + walletAddress.slice(-2)
+    : null;
+
+  // Detect when a claim finishes (isClaiming: true → false).
+  // No longer needed for 24h fetch, kept in case we want to re-sync in future.
+  const prevIsClaiming = useRef(false);
+  useEffect(() => {
+    prevIsClaiming.current = isClaiming;
+  }, [isClaiming]);
+
+  // AdsGram policy: essential actions (mining CLAIM) must never be gated by an ad.
+  const handleClaim = () => {
+    if (isClaiming) return;
+    claimEarnings();
+  };
+
+  return (
+    <div className="h-full min-h-full flex flex-col relative w-full overflow-hidden">
+      {/* Mine-only background (other screens keep the shared shell background) */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url(${mineBgV3})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 55%, rgba(255,190,70,0.10) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.72) 100%)',
+        }}
+      />
+
+      {/* User Card */}
+      <div className="px-4 pt-2 relative z-10 shrink-0">
+        <div className="bg-secondary/40 backdrop-blur-sm border border-white/5 rounded-2xl p-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 relative overflow-hidden">
+              {showAvatar ? (
+                <img
+                  src={avatarUrl!}
+                  alt={userName}
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarFailed(true)}
+                />
+              ) : (
+                <span className="font-bold text-primary">{userInitial}</span>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background rounded-full flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-success rounded-full animate-pulse shadow-[0_0_8px_rgba(0,255,136,0.8)]" />
+              </div>
+            </div>
+            <div>
+              <div className="font-semibold text-white flex items-center gap-1">
+                {userName}
+                <StickerBadge size={22} />
+              </div>
+              <div className="text-xs text-primary font-bold">
+                {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowWallet(true)}
+            className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 hover:border-primary/30 transition-colors"
+          >
+            <span className={`text-xs font-mono ${walletAddress ? 'text-success' : 'text-primary'}`}>
+              {shortAddress ?? t('dashboard_connect_wallet')}
+            </span>
+            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {/* Balances */}
+      <div className="flex flex-col items-center mt-3 relative z-10 px-4 shrink-0">
+        <div className="flex gap-3 w-full max-w-sm">
+          {/* Holding wallet */}
+          <div className="flex-1 bg-black/55 backdrop-blur-sm border border-[#d9a544]/30 rounded-2xl py-2.5 px-3 flex items-center gap-2.5 shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
+            <div className="w-8 h-8 rounded-full bg-[#d9a544]/15 border border-[#d9a544]/35 flex items-center justify-center shrink-0">
+              <Wallet className="w-4 h-4 text-[#e6b95f]" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[9px] tracking-wider text-[#c9b892]/80 font-semibold">
+                {t('dashboard_holding_wallet')}
+              </div>
+              <div className="text-base font-black text-white leading-tight tabular-nums">
+                {formatGram(holdingWallet, 3)}
+              </div>
+              <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
+            </div>
+          </div>
+          {/* Coin-based 24-hour mining projection */}
+          <div className="flex-1 bg-black/55 backdrop-blur-sm border border-[#d9a544]/30 rounded-2xl py-2.5 px-3 flex items-center gap-2.5 shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
+            <div className="w-8 h-8 rounded-full bg-[#d9a544]/15 border border-[#d9a544]/35 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-4 h-4 text-[#e6b95f]" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[9px] tracking-wider text-[#c9b892]/80 font-semibold">
+                {t('dashboard_24h_label')}
+              </div>
+              <div className="text-base font-black text-success leading-tight tabular-nums">
+                {dailyIncome > 0
+                  ? `+${formatGram(dailyIncome, dailyIncome < 0.0001 ? 8 : 6)}`
+                  : '—'}
+              </div>
+              <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Session Earnings */}
+      <div className="flex flex-col items-center mt-2 relative z-10 px-4 shrink-0">
+        <div className="text-[10px] tracking-[0.3em] font-bold text-[#c9b892]/80 mb-0.5">
+          {t('dashboard_total_earned')}
+        </div>
+        <div
+          className="relative px-8 py-1.5 border-y border-[#d9a544]/60"
+          style={{
+            clipPath: 'polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%)',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.35))',
+          }}
+        >
+          {/* Always 8 decimals so the last digits visibly tick every second
+              instead of looking like a frozen number at low mining rates. */}
+          <div className="text-[clamp(1.2rem,6vw,1.9rem)] font-black text-success glow-text-success tabular-nums">
+            +{formatGram(sessionEarnings, 8)}
+          </div>
+        </div>
+        <div className="mt-0.5 h-[2px] w-32 bg-[#00ff88]/60 blur-[2px]" />
+      </div>
+
+      {/* The Big Logo */}
+      <div className="flex-[0.82] min-h-0 flex items-center justify-center relative z-10 mt-0 mb-0">
+        {/* Circular clip — crops the rectangular background of the photo */}
+        <div
+          className="rounded-full overflow-hidden relative"
+          style={{
+            width:  'min(300px, 74vw, 34vh)',
+            height: 'min(300px, 74vw, 34vh)',
+            boxShadow:
+              '0 0 70px 16px rgba(255,190,60,0.22), 0 0 140px 40px rgba(255,150,20,0.12), inset 0 0 40px rgba(0,0,0,0.6)',
+          }}
+        >
+          {/* Static housing: full turbine incl. the machined gold ring — never rotates */}
+          <img
+            src={gramLogoImg}
+            alt="gram"
+            className="w-full h-full object-contain"
+            style={{
+              filter: 'brightness(0.94) contrast(1.06) drop-shadow(0 18px 30px rgba(0,0,0,0.65))',
+            }}
+          />
+
+          {/* Rotating inner blades only (clipped inside the static ring) */}
+          <img
+            src={gramLogoImg}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{
+              clipPath: 'circle(34% at 50% 50%)',
+              filter: 'brightness(0.94) contrast(1.06)',
+              animation: isMiningActive && coins > 0 ? 'coin-spin 5s linear infinite' : 'none',
+              transformOrigin: '50% 50%',
+            }}
+          />
+
+          {/* Static center medallion so the gem never spins */}
+          <img
+            src={gramLogoImg}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{ clipPath: 'circle(13% at 50% 50%)', filter: 'brightness(0.98)' }}
+          />
+
+          {/* Golden light emitted by the spinning blades */}
+          <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none rounded-full"
+              style={{
+                background:
+                  'radial-gradient(circle at 50% 50%, rgba(255,200,60,0.35) 0%, rgba(255,170,20,0.12) 42%, transparent 62%)',
+                mixBlendMode: 'screen',
+                animation: isMiningActive && coins > 0 ? 'fan-glow 1.6s ease-in-out infinite' : 'none',
+                opacity: isMiningActive && coins > 0 ? 1 : 0.35,
+              }}
+          />
+        </div>
+      </div>
+
+      {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
+      <div className="px-4 mb-0 pb-1 relative z-10 shrink-0">
+        <div className="flex items-stretch gap-2">
+          {showMiningButton && (isMiningActive ? (
+            <div className="w-[38%] shrink-0 rounded-2xl bg-black/55 border border-primary/30 flex flex-col items-center justify-center px-1 py-2">
+              <div className="text-[9px] text-muted-foreground leading-none">{t('dashboard_time_left')}</div>
+              <div className="text-base font-black text-primary tabular-nums leading-tight mt-0.5">
+                {formatCountdown(miningRemainingMs)}
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={startMining}
+              disabled={isStartingMining}
+              className="w-[38%] shrink-0 rounded-2xl bg-gradient-to-r from-[#00c853] to-[#00ff88] text-black font-black text-sm shadow-[0_0_20px_rgba(0,255,136,0.35)] active:scale-95 transition-all disabled:opacity-60 px-1"
+            >
+              {isStartingMining ? '...' : t('dashboard_start_mining')}
+            </button>
+          ))}
+          <button
+            onClick={() => { void handleClaim(); }}
+            disabled={isClaiming}
+            className="flex-1 py-3.5 rounded-2xl border-2 border-[#e6b95f] text-[#f0cd7e] font-black text-xl tracking-[0.14em] flex items-center justify-center gap-2 shadow-[0_0_28px_rgba(230,185,95,0.45),inset_0_0_28px_rgba(230,185,95,0.12)] active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ background: 'linear-gradient(180deg, rgba(40,26,6,0.85), rgba(10,8,4,0.9))' }}
+          >
+            <Gem className="w-5 h-5 text-[#f0cd7e]" />
+            {isClaiming ? '...' : t('dashboard_claim')}
+          </button>
+        </div>
+        {claimError && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 rounded-lg border border-destructive/40 bg-background/95 px-3 py-2 text-center text-xs font-bold text-destructive shadow-lg">
+            {claimError === 'MIN_CLAIM'
+              ? t('dashboard_min_claim')
+              : t('dashboard_claim_failed')}
+          </div>
+        )}
+      </div>
+
+      {showWallet && <WalletModal onClose={() => setShowWallet(false)} />}
+    </div>
+  );
+}
