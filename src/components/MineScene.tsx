@@ -1,9 +1,9 @@
 import { memo, useEffect, useState } from 'react';
-import minerIdleAsset from '@/assets/miner_idle.png.asset.json';
-import minerUpAsset from '@/assets/miner_up.png.asset.json';
-import minerHitAsset from '@/assets/miner_hit.png.asset.json';
-import rockAsset from '@/assets/rock.png.asset.json';
-import cartAsset from '@/assets/cart.png.asset.json';
+import minerIdleAsset from '@/assets/miner_idle_v2.png.asset.json';
+import minerUpAsset from '@/assets/miner_up_v2.png.asset.json';
+import minerHitAsset from '@/assets/miner_hit_v2.png.asset.json';
+import rockAsset from '@/assets/rock_v2.png.asset.json';
+import cartAsset from '@/assets/cart_v2.png.asset.json';
 
 const SWING = '1.5s';
 
@@ -43,7 +43,7 @@ function MineSceneBase({ active, claimKey }: Props) {
       {/* ground haze so the scene reads against the shared background */}
       <div
         className="absolute inset-x-0 bottom-0 h-1/2"
-        style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.45))' }}
+        style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.28))' }}
       />
 
       {/* ── Rock ── */}
