@@ -48,107 +48,40 @@ function MineSceneBase({ active, claimKey }: Props) {
         style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.28))' }}
       />
 
-      {/* ── Rock ── */}
-      <div
-        className="absolute"
-        style={{
-          right: '12%',
-          bottom: '12%',
-          width: 'min(42%, 190px)',
-          animation: active ? `rock-shake ${SWING} ease-in-out infinite` : 'none',
-        }}
-      >
-        <img src={rockAsset.url} alt="" className="w-full h-auto" loading="lazy" />
+      {active ? (
+        /* ── Live mining loop ── */
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={mineLoopAsset.url}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+        />
+      ) : (
+        <>
+          {/* ── Rock ── */}
+          <div
+            className="absolute"
+            style={{ right: '12%', bottom: '12%', width: 'min(42%, 190px)' }}
+          >
+            <img src={rockAsset.url} alt="" className="w-full h-auto" loading="lazy" />
+          </div>
 
-        {/* impact spark */}
-        {active && (
-          <>
-            <div
-              className="absolute"
-              style={{
-                left: '-6%',
-                top: '42%',
-                width: 46,
-                height: 46,
-                background:
-                  'radial-gradient(circle, rgba(255,255,225,0.95) 0%, rgba(255,200,70,0.6) 35%, transparent 70%)',
-                animation: `spark-burst ${SWING} ease-out infinite`,
-              }}
-            />
-            {[
-              { cx: '-18px', cy: '-20px', d: '0s' },
-              { cx: '-26px', cy: '-6px', d: '0.05s' },
-              { cx: '-10px', cy: '-26px', d: '0.1s' },
-            ].map((c, i) => (
-              <span
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  left: '-2%',
-                  top: '46%',
-                  width: 4,
-                  height: 4,
-                  background: '#ffe08a',
-                  boxShadow: '0 0 6px rgba(255,210,90,0.9)',
-                  ['--cx' as string]: c.cx,
-                  ['--cy' as string]: c.cy,
-                  animation: `chip-fly ${SWING} ease-out ${c.d} infinite`,
-                }}
-              />
-            ))}
-
-            {/* coins produced by each strike */}
-            {[
-              { dx: '-12px', d: '0.15s' },
-              { dx: '-22px', d: '0.35s' },
-              { dx: '-4px', d: '0.55s' },
-            ].map((c, i) => (
-              <Coin
-                key={i}
-                style={{
-                  left: '4%',
-                  top: '52%',
-                  ['--dx' as string]: c.dx,
-                  animation: `coin-drop ${SWING} ease-in ${c.d} infinite, coin-shine 1s ease-in-out infinite`,
-                }}
-              />
-            ))}
-          </>
-        )}
-      </div>
-
-      {/* ── Miner ── */}
-      <div
-        className="absolute"
-        style={{ left: '8%', bottom: '11%', width: 'min(40%, 170px)' }}
-      >
-        {active ? (
-          <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
+          {/* ── Miner idle ── */}
+          <div className="absolute" style={{ left: '8%', bottom: '11%', width: 'min(40%, 170px)' }}>
             <img
-              src={minerUpAsset.url}
+              src={minerIdleAsset.url}
               alt=""
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-contain"
-              style={{ animation: `miner-swing-a ${SWING} steps(1, end) infinite` }}
-            />
-            <img
-              src={minerHitAsset.url}
-              alt=""
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-contain"
-              style={{ animation: `miner-swing-b ${SWING} steps(1, end) infinite` }}
+              className="w-full h-auto object-contain"
+              style={{ animation: 'miner-idle-breathe 3.6s ease-in-out infinite', transformOrigin: '50% 100%' }}
             />
           </div>
-        ) : (
-          <img
-            src={minerIdleAsset.url}
-            alt=""
-            loading="lazy"
-            className="w-full h-auto object-contain"
-            style={{ animation: 'miner-idle-breathe 3.6s ease-in-out infinite', transformOrigin: '50% 100%' }}
-          />
-        )}
-      </div>
+        </>
+      )}
+
 
       {/* ── Cart on its rail ── */}
       <div className="absolute" style={{ right: '3%', bottom: '2%', width: 'min(21%, 86px)' }}>
