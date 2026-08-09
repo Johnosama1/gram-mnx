@@ -52,12 +52,19 @@ export default function Dashboard() {
     ? walletAddress.slice(0, 2) + '...' + walletAddress.slice(-2)
     : null;
 
-  // Detect when a claim finishes (isClaiming: true → false).
-  // No longer needed for 24h fetch, kept in case we want to re-sync in future.
+  // Detect when a claim finishes (isClaiming: true → false) and play the
+  // cart → station → balance animation exactly once for that claim.
   const prevIsClaiming = useRef(false);
+  const [claimKey, setClaimKey] = useState(0);
   useEffect(() => {
+    if (prevIsClaiming.current && !isClaiming && !claimError) {
+      setClaimKey((k) => k + 1);
+    }
     prevIsClaiming.current = isClaiming;
-  }, [isClaiming]);
+  }, [isClaiming, claimError]);
+
+  // Balance ticks up coin by coin instead of jumping to the final value.
+  const displayedHolding = useAnimatedNumber(holdingWallet, 1600);
 
   // AdsGram policy: essential actions (mining CLAIM) must never be gated by an ad.
   const handleClaim = () => {
@@ -67,24 +74,17 @@ export default function Dashboard() {
 
   return (
     <div className="h-full min-h-full flex flex-col relative w-full overflow-hidden">
-      {/* Mine-only background (other screens keep the shared shell background) */}
-      <div
-        aria-hidden
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${mineBgV3})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* Shared mine background comes from the app shell — only a soft dark
+          layer here so the numbers and buttons stay readable. */}
       <div
         aria-hidden
         className="absolute inset-0 z-0"
         style={{
           background:
-            'radial-gradient(circle at 50% 55%, rgba(255,190,70,0.10) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.72) 100%)',
+            'radial-gradient(circle at 50% 55%, rgba(255,190,70,0.08) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.62) 100%)',
         }}
       />
+
 
       {/* User Card */}
       <div className="px-4 pt-2 relative z-10 shrink-0">
