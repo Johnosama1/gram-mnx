@@ -5,12 +5,11 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
+import MineScene from '@/components/MineScene';
+import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem } from 'lucide-react';
 import { formatGram } from '@/lib/utils';
-import mineBgAsset from '@/assets/mine-bg-v4.webp.asset.json';
-import mineFanAsset from '@/assets/mine-fan-v3.webp.asset.json';
-const mineBgV3 = mineBgAsset.url;
-const gramLogoImg = mineFanAsset.url;
+
 
 /** hh:mm:ss countdown for the 24h mining session */
 function formatCountdown(ms: number): string {
