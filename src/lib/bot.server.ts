@@ -58,7 +58,7 @@ function stripStyle(kb?: Kb): { kb?: Kb; changed: boolean } {
 function webAppUrl(): string {
   return (
     process.env.WEBAPP_URL ??
-    'https://gramminer.lovable.app'
+    'https://gram-mnx.lovable.app'
   );
 }
 
