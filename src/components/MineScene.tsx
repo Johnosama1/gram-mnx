@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import minerIdleAsset from '@/assets/miner_idle_v3.png.asset.json';
 import rockAsset from '@/assets/rock_v3.png.asset.json';
 import cartAsset from '@/assets/cart_v2.png.asset.json';
-import mineLoopAsset from '@/assets/mine-loop.mp4.asset.json';
+import mineLoopAsset from '@/assets/mine-loop-v2.mp4.asset.json';
 
 
 
