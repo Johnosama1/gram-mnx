@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from 'react';
-import minerIdleAsset from '@/assets/miner_idle_v2.png.asset.json';
-import minerUpAsset from '@/assets/miner_up_v2.png.asset.json';
-import minerHitAsset from '@/assets/miner_hit_v2.png.asset.json';
-import rockAsset from '@/assets/rock_v2.png.asset.json';
+import minerIdleAsset from '@/assets/miner_idle_v3.png.asset.json';
+import minerUpAsset from '@/assets/miner_up_v3.png.asset.json';
+import minerHitAsset from '@/assets/miner_hit_v3.png.asset.json';
+import rockAsset from '@/assets/rock_v3.png.asset.json';
 import cartAsset from '@/assets/cart_v2.png.asset.json';
 
 const SWING = '1.5s';
