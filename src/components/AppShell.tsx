@@ -11,7 +11,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
 import { MinersProvider } from '@/context/MinersContext';
-import mineBgAsset from '@/assets/gram-mine-bg-2.png.asset.json';
+import mineBgAsset from '@/assets/mine-scene.png.asset.json';
 const mineBgImg = mineBgAsset.url;
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
