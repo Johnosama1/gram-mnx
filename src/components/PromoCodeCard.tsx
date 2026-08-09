@@ -5,12 +5,10 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
-import { showRewardedAd } from '@/lib/adsgram';
 
 /**
  * Promo code redemption card (Tasks tab).
  * Visibility is controlled from the admin panel (`promo_section_enabled`).
- * Reward is credited only after the AdsGram rewarded video is completed.
  */
 export default function PromoCodeCard() {
   const { t } = useLanguage();
@@ -53,13 +51,6 @@ export default function PromoCodeCard() {
     try {
       // 1) Validate first so the user never watches an ad for a bad code.
       await telegramApiPost('/promo', { code: value, check: true });
-
-      // 2) Mandatory rewarded video.
-      const outcome = await showRewardedAd();
-      if (outcome !== 'reward') {
-        toast.error(t('promo_watch_full_ad'));
-        return;
-      }
 
       // 3) Credit.
       const data = await telegramApiPost<{ coinsEarned: number }>('/promo', { code: value });
