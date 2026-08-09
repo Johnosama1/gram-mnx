@@ -4,8 +4,10 @@ import minerUpAsset from '@/assets/miner_up_v3.png.asset.json';
 import minerHitAsset from '@/assets/miner_hit_v3.png.asset.json';
 import rockAsset from '@/assets/rock_v3.png.asset.json';
 import cartAsset from '@/assets/cart_v2.png.asset.json';
+import mineLoopAsset from '@/assets/mine-loop.mp4.asset.json';
 
 const SWING = '1.5s';
+
 
 type Props = {
   /** Mining Active → the miner swings, sparks + coins appear. */
