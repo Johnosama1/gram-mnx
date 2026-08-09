@@ -43,7 +43,7 @@ function MineSceneBase({ active, claimKey }: Props) {
       {/* ground haze so the scene reads against the shared background */}
       <div
         className="absolute inset-x-0 bottom-0 h-1/2"
-        style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.45))' }}
+        style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.28))' }}
       />
 
       {/* ── Rock ── */}

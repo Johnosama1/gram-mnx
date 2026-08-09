@@ -254,7 +254,7 @@ function Shell() {
       <div
         aria-hidden
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.62), rgba(6,8,14,0.78))' }}
+        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.38), rgba(6,8,14,0.58))' }}
       />
 
       {isLoading ? (
