@@ -1,0 +1,1 @@
+ALTER TABLE public.gm_withdrawals ADD COLUMN IF NOT EXISTS channel_message_id bigint;

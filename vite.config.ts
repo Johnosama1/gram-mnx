@@ -12,4 +12,21 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    build: {
+      // Smallest possible JS/CSS output.
+      minify: true,
+      cssMinify: true,
+      target: "es2022",
+      sourcemap: false,
+      reportCompressedSize: false,
+      chunkSizeWarningLimit: 1200,
+      rollupOptions: {
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+        },
+      },
+    },
+  },
 });

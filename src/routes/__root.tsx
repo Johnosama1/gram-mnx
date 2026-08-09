@@ -6,11 +6,14 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import AppShell, { LoadingScreen } from "../components/AppShell";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,21 +80,36 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "GramMiner — Mine Gram in Telegram" },
+      { name: "description", content: "Mine Gram, buy miners, finish tasks and invite friends inside the GramMiner Telegram Mini App." },
+      { property: "og:title", content: "GramMiner — Mine Gram in Telegram" },
+      { property: "og:description", content: "Mine Gram, buy miners, finish tasks and invite friends inside the GramMiner Telegram Mini App." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "GramMiner — Mine Gram in Telegram" },
+      { name: "twitter:description", content: "Mine Gram, buy miners, finish tasks and invite friends inside the GramMiner Telegram Mini App." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0dc36ed8-d9d7-4a48-847e-01f447527821/id-preview-75d2df5b--05831a38-7931-45b8-aad7-3fa9e1ead34d.lovable.app-1785500551128.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0dc36ed8-d9d7-4a48-847e-01f447527821/id-preview-75d2df5b--05831a38-7931-45b8-aad7-3fa9e1ead34d.lovable.app-1785500551128.png" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+      },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+    ],
+    scripts: [
+      { src: "https://telegram.org/js/telegram-web-app.js", defer: true },
+      // AdsGram SDK — loaded async, never requests an ad on its own.
+      { src: "https://sad.adsgram.ai/js/sad.min.js", async: true },
+      // Adexium SDK — required in <head>; requests ads only on user action.
+      { id: "adexium-sdk", src: "https://cdn.techtg.space/assets/js/tg-ads-co-widget.min.js", async: true },
     ],
   }),
   shellComponent: RootShell,
@@ -119,8 +137,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <Toaster position="top-center" duration={2200} />
+      {/* Required: nested routes render inside AppShell's <Outlet />. */}
+      <ClientOnly fallback={<LoadingScreen />}>
+        <AppShell />
+      </ClientOnly>
     </QueryClientProvider>
   );
 }
