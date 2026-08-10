@@ -50,7 +50,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
     return () => clearTimeout(id);
   }, [claimKey]);
 
-  const pathAnim = active ? `cart-path ${TRAVEL_SEC}s ease-in-out infinite` : 'none';
+  // The cart stays parked at all times — no travel, even while mining is active.
+  const pathAnim = 'none';
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none select-none">
