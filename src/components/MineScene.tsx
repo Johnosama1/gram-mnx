@@ -50,7 +50,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
     return () => clearTimeout(id);
   }, [claimKey]);
 
-  const pathAnim = active ? `cart-path ${TRAVEL_SEC}s ease-in-out infinite` : 'none';
+  // The cart stays parked at all times — no travel, even while mining is active.
+  const pathAnim = 'none';
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none select-none">
@@ -82,7 +83,7 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
 
             transform: 'translate(-50%, -90%) rotate(-5deg)',
             transformOrigin: '50% 90%',
-            animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
+            animation: 'none',
             willChange: 'transform',
           }}
         >
@@ -92,8 +93,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
             <div className="relative">
               <img src={cartSprite} alt="" className="block w-full" style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.65))' }} />
 
-              {/* rotating wheel spokes sitting exactly over the sprite wheels */}
-              {active &&
+              {/* wheels stay still — the cart is parked */}
+              {false &&
                 [
                   { left: '33.5%', top: '75.5%', w: '13%' },
                   { left: '48.5%', top: '69.5%', w: '11.5%' },
@@ -137,8 +138,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
                 />
               ))}
 
-              {/* dust kicked up behind the wheels */}
-              {active &&
+              {/* no trail dust — the cart doesn't move */}
+              {false &&
                 [0, 1, 2, 3].map((i) => (
                   <span
                     key={`td${i}`}
