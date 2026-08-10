@@ -288,11 +288,11 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  20%       { transform: translate3d(4%, -2.8%, 0); }
-  38%       { transform: translate3d(8.6%, -6%, 0); }
-  50%, 58%  { transform: translate3d(13.5%, -9.4%, 0); }
-  76%       { transform: translate3d(8.6%, -6%, 0); }
-  90%       { transform: translate3d(4%, -2.8%, 0); }
+  20%       { transform: translate3d(-4%, -2.6%, 0); }
+  38%       { transform: translate3d(-8.6%, -5.7%, 0); }
+  50%, 58%  { transform: translate3d(-13.5%, -8.9%, 0); }
+  76%       { transform: translate3d(-8.6%, -5.7%, 0); }
+  90%       { transform: translate3d(-4%, -2.6%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
 /* matching perspective shrink + rail-aligned heading, anchored on the wheel/rail contact line */
