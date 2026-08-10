@@ -236,3 +236,8 @@ body {
   0%, 100% { opacity: 0.35; }
   50%      { opacity: 0.75; }
 }
+
+/* three-phase swing: raise -> strike -> recover */
+@keyframes miner-swing-a { 0%, 45% { opacity: 1; } 46%, 100% { opacity: 0; } }
+@keyframes miner-swing-b { 0%, 45% { opacity: 0; } 46%, 74% { opacity: 1; } 75%, 100% { opacity: 0; } }
+@keyframes miner-swing-c { 0%, 74% { opacity: 0; } 75%, 100% { opacity: 1; } }
