@@ -289,11 +289,11 @@ body {
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
   10%       { transform: translate3d(1.8%, -0.8%, 0); }
-  25%       { transform: translate3d(4.5%, -2%, 0); }
-  40%       { transform: translate3d(9%, -4%, 0); }
-  50%, 58%  { transform: translate3d(18%, -8.1%, 0); }
-  70%       { transform: translate3d(9%, -4%, 0); }
-  85%       { transform: translate3d(4.5%, -2%, 0); }
+  25%       { transform: translate3d(4%, -1.8%, 0); }
+  40%       { transform: translate3d(8%, -3.7%, 0); }
+  50%, 58%  { transform: translate3d(13%, -6%, 0); }
+  70%       { transform: translate3d(8%, -3.7%, 0); }
+  85%       { transform: translate3d(4%, -1.8%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
 /* matching perspective shrink, anchored on the wheels */
@@ -302,7 +302,7 @@ body {
   10%       { transform: translate(-50%, -100%) scale(0.985); }
   25%       { transform: translate(-50%, -100%) scale(0.96); }
   40%       { transform: translate(-50%, -100%) scale(0.87); }
-  50%, 58%  { transform: translate(-50%, -100%) scale(0.72); }
+  50%, 58%  { transform: translate(-50%, -100%) scale(0.79); }
   70%       { transform: translate(-50%, -100%) scale(0.87); }
   85%       { transform: translate(-50%, -100%) scale(0.96); }
   100%      { transform: translate(-50%, -100%) scale(1); }
