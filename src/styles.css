@@ -288,23 +288,24 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  20%       { transform: translate3d(2.8%, -3%, 0); }
-  38%       { transform: translate3d(6.4%, -7%, 0); }
-  50%, 58%  { transform: translate3d(10.4%, -11.6%, 0); }
-  76%       { transform: translate3d(6.4%, -7%, 0); }
-  90%       { transform: translate3d(2.8%, -3%, 0); }
+  20%       { transform: translate3d(-4%, -2.6%, 0); }
+  38%       { transform: translate3d(-8.6%, -5.7%, 0); }
+  50%, 58%  { transform: translate3d(-13.5%, -8.9%, 0); }
+  76%       { transform: translate3d(-8.6%, -5.7%, 0); }
+  90%       { transform: translate3d(-4%, -2.6%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
-/* matching perspective shrink, anchored on the wheel/rail contact line */
+/* matching perspective shrink + rail-aligned heading, anchored on the wheel/rail contact line */
 @keyframes cart-scale {
-  0%        { transform: translate(-50%, -92.5%) scale(1); }
-  20%       { transform: translate(-50%, -92.5%) scale(0.93); }
-  38%       { transform: translate(-50%, -92.5%) scale(0.85); }
-  50%, 58%  { transform: translate(-50%, -92.5%) scale(0.76); }
-  76%       { transform: translate(-50%, -92.5%) scale(0.85); }
-  90%       { transform: translate(-50%, -92.5%) scale(0.93); }
-  100%      { transform: translate(-50%, -92.5%) scale(1); }
+  0%        { transform: translate(-50%, -92.5%) scale(1)    rotate(-26deg); }
+  20%       { transform: translate(-50%, -92.5%) scale(0.9)  rotate(-25deg); }
+  38%       { transform: translate(-50%, -92.5%) scale(0.79) rotate(-24deg); }
+  50%, 58%  { transform: translate(-50%, -92.5%) scale(0.68) rotate(-22.5deg); }
+  76%       { transform: translate(-50%, -92.5%) scale(0.79) rotate(-24deg); }
+  90%       { transform: translate(-50%, -92.5%) scale(0.9)  rotate(-25deg); }
+  100%      { transform: translate(-50%, -92.5%) scale(1)    rotate(-26deg); }
 }
+
 
 
 @keyframes lamp-flicker {

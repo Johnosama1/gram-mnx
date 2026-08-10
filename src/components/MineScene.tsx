@@ -76,11 +76,11 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         <div
           className="absolute"
           style={{
-            left: '51.7%',
-            top: '76.5%',
-            width: '34%',
+            left: '64%',
+            top: '74%',
+            width: '30%',
 
-            transform: 'translate(-50%, -92.5%)',
+            transform: 'translate(-50%, -92.5%) rotate(-26deg)',
             transformOrigin: '50% 92.5%',
             animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
             willChange: 'transform',
