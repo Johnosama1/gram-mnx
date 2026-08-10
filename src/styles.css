@@ -288,29 +288,25 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  15%       { transform: translate3d(2%, -2.4%, 0); }
-  30%       { transform: translate3d(6%, -7%, 0); }
-  38%       { transform: translate3d(10%, -13%, 0); }
-  45%, 55%  { transform: translate3d(15%, -20%, 0); }
-  62%       { transform: translate3d(10%, -13%, 0); }
-  78%       { transform: translate3d(6%, -7%, 0); }
-  90%       { transform: translate3d(2%, -2.4%, 0); }
+  10%       { transform: translate3d(1.8%, -0.8%, 0); }
+  25%       { transform: translate3d(4.5%, -2%, 0); }
+  40%       { transform: translate3d(9%, -4%, 0); }
+  50%, 58%  { transform: translate3d(18%, -8.1%, 0); }
+  70%       { transform: translate3d(9%, -4%, 0); }
+  85%       { transform: translate3d(4.5%, -2%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
 /* matching perspective shrink, anchored on the wheels */
 @keyframes cart-scale {
   0%        { transform: translate(-50%, -100%) scale(1); }
-  15%       { transform: translate(-50%, -100%) scale(0.95); }
-  30%       { transform: translate(-50%, -100%) scale(0.86); }
-  38%       { transform: translate(-50%, -100%) scale(0.72); }
-  45%, 55%  { transform: translate(-50%, -100%) scale(0.52); }
-  62%       { transform: translate(-50%, -100%) scale(0.72); }
-  78%       { transform: translate(-50%, -100%) scale(0.86); }
-  90%       { transform: translate(-50%, -100%) scale(0.95); }
+  10%       { transform: translate(-50%, -100%) scale(0.985); }
+  25%       { transform: translate(-50%, -100%) scale(0.96); }
+  40%       { transform: translate(-50%, -100%) scale(0.87); }
+  50%, 58%  { transform: translate(-50%, -100%) scale(0.72); }
+  70%       { transform: translate(-50%, -100%) scale(0.87); }
+  85%       { transform: translate(-50%, -100%) scale(0.96); }
   100%      { transform: translate(-50%, -100%) scale(1); }
 }
-
-
 @keyframes cart-suspension {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   25%      { transform: translateY(-0.7%) rotate(-0.35deg); }
