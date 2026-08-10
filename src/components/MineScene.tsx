@@ -1,24 +1,16 @@
 import { memo, useEffect, useState } from 'react';
-import minerIdleAsset from '@/assets/miner_idle_v4.png.asset.json';
-import minerUpAsset from '@/assets/miner_up_v4.png.asset.json';
-import minerHitAsset from '@/assets/miner_hit_v4.png.asset.json';
-import rockAsset from '@/assets/rock_v4.png.asset.json';
-import cartAsset from '@/assets/cart_v2.png.asset.json';
+import mineCartAsset from '@/assets/mine_cart_v5.jpg.asset.json';
 
 type Props = {
-  /** Mining Active → the miner swings, sparks + TON particles appear. */
+  /** Mining Active → cart rolls, wheels turn, gems sparkle. */
   active: boolean;
-  /** Increment this to play the one-shot claim (cart → station → balance) run. */
+  /** Increment this to play the one-shot claim (cart → balance) run. */
   claimKey: number;
   /** Real backend mining rate (Gram/s) — used only for the floating labels. */
   gramPerSec?: number;
 };
 
-
-/** One full swing cycle (raise → strike → recover). Everything is timed off this. */
-const SWING = 1.25;
-
-/** Small TON-style gem particle. */
+/** Small TON/MNX-style gem particle. */
 const TonGem = ({ size = 14, style }: { size?: number; style?: React.CSSProperties }) => (
   <span className="absolute" style={{ width: size, height: size, ...style }}>
     <svg viewBox="0 0 24 24" width={size} height={size} style={{ filter: 'drop-shadow(0 0 6px rgba(255,196,74,0.85))' }}>
@@ -29,14 +21,21 @@ const TonGem = ({ size = 14, style }: { size?: number; style?: React.CSSProperti
           <stop offset="100%" stopColor="#c9871a" />
         </linearGradient>
       </defs>
-      <path
-        d="M12 2 2.6 7.2 12 22l9.4-14.8L12 2Zm0 2.9 6.6 3.6L12 18.4 5.4 8.5 12 4.9Z"
-        fill="url(#tonGold)"
-      />
+      <path d="M12 2 2.6 7.2 12 22l9.4-14.8L12 2Zm0 2.9 6.6 3.6L12 18.4 5.4 8.5 12 4.9Z" fill="url(#tonGold)" />
       <path d="M12 4.9 5.4 8.5 12 18.4l6.6-9.9L12 4.9Z" fill="url(#tonGold)" opacity="0.55" />
     </svg>
   </span>
 );
+
+/** Sparkle positions over the gold gems sitting inside the cart. */
+const GEM_SPARKS = [
+  { left: '36%', top: '33%', size: 7, delay: 0 },
+  { left: '46%', top: '30%', size: 9, delay: 0.7 },
+  { left: '55%', top: '34%', size: 6, delay: 1.3 },
+  { left: '42%', top: '37%', size: 8, delay: 1.9 },
+  { left: '60%', top: '31%', size: 7, delay: 2.5 },
+  { left: '50%', top: '36%', size: 6, delay: 3.1 },
+];
 
 function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
   const [claiming, setClaiming] = useState(false);
@@ -45,265 +44,167 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
   useEffect(() => {
     if (!claimKey) return;
     setClaiming(true);
-    const id = setTimeout(() => setClaiming(false), 3400);
+    const id = setTimeout(() => setClaiming(false), 3000);
     return () => clearTimeout(id);
   }, [claimKey]);
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      {/* cinematic light shaft from above + darker floor for depth */}
+      {/* ── Hero mine scene (kept exactly as designed, only gently animated) ── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          animation: active ? 'scene-roll 7.5s ease-in-out infinite' : 'scene-rest 12s ease-in-out infinite',
+          willChange: 'transform',
+        }}
+      >
+        <img
+          src={mineCartAsset.url}
+          alt=""
+          className="absolute left-1/2 top-1/2 w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2"
+          style={{ objectFit: 'contain' }}
+        />
+      </div>
+
+      {/* soft vignette so HUD text on top stays readable */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(120% 70% at 50% 12%, rgba(255,214,140,0.18) 0%, transparent 62%), linear-gradient(180deg, transparent 42%, rgba(0,0,0,0.42) 100%)',
+            'radial-gradient(120% 70% at 50% 45%, transparent 40%, rgba(0,0,0,0.45) 100%), linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 22%, transparent 70%, rgba(0,0,0,0.6) 100%)',
         }}
       />
 
-      {/* floating dust motes — cheap ambience */}
+      {/* ── Lantern flicker ── */}
+      {[
+        { left: '14%', top: '16%', size: 120, dur: 3.4 },
+        { left: '41%', top: '10%', size: 90, dur: 4.6 },
+      ].map((l) => (
+        <span
+          key={l.left}
+          className="absolute rounded-full"
+          style={{
+            left: l.left,
+            top: l.top,
+            width: l.size,
+            height: l.size,
+            marginLeft: -l.size / 2,
+            marginTop: -l.size / 2,
+            background: 'radial-gradient(circle, rgba(255,190,90,0.35) 0%, rgba(255,160,50,0.12) 45%, transparent 72%)',
+            mixBlendMode: 'screen',
+            animation: `lamp-flicker ${l.dur}s ease-in-out infinite`,
+          }}
+        />
+      ))}
+
+      {/* ── Gem sparkles inside the cart ── */}
+      {GEM_SPARKS.map((s, i) => (
+        <span
+          key={`s${i}`}
+          className="absolute"
+          style={{
+            left: s.left,
+            top: s.top,
+            width: s.size,
+            height: s.size,
+            marginLeft: -s.size / 2,
+            marginTop: -s.size / 2,
+            background:
+              'radial-gradient(circle, rgba(255,255,235,0.95) 0%, rgba(255,208,110,0.6) 40%, transparent 70%)',
+            borderRadius: '50%',
+            mixBlendMode: 'screen',
+            animation: `gem-twinkle ${active ? 2.4 : 5}s ease-in-out ${s.delay}s infinite`,
+          }}
+        />
+      ))}
+
+      {/* ── Rail energy pulses running along the track while mining ── */}
+      {active &&
+        [0, 1, 2].map((i) => (
+          <span
+            key={`r${i}`}
+            className="absolute rounded-full"
+            style={{
+              left: '18%',
+              top: `${72 - i * 2}%`,
+              width: '46%',
+              height: 3,
+              background: 'linear-gradient(90deg, transparent, rgba(255,205,110,0.75), transparent)',
+              filter: 'blur(1.5px)',
+              mixBlendMode: 'screen',
+              animation: `rail-pulse ${4 + i * 0.8}s linear ${i * 1.3}s infinite`,
+            }}
+          />
+        ))}
+
+      {/* ── Floating dust motes (always on, very subtle) ── */}
       {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
         <span
           key={`d${i}`}
           className="absolute rounded-full"
           style={{
             left: `${6 + i * 10}%`,
-            bottom: `${8 + (i % 4) * 13}%`,
+            bottom: `${10 + (i % 4) * 14}%`,
             width: 3 + (i % 3),
             height: 3 + (i % 3),
-            background: 'rgba(255,232,180,0.5)',
+            background: 'rgba(255,232,180,0.45)',
             filter: 'blur(0.5px)',
-            animation: `dust-float ${7 + (i % 4)}s ease-in-out ${i * 0.6}s infinite`,
+            animation: `dust-float ${8 + (i % 4)}s ease-in-out ${i * 0.7}s infinite`,
           }}
         />
       ))}
 
-      {/* ── Rock ── */}
-      <div
-        className="absolute"
-        style={{
-          right: '3%',
-          bottom: '20%',
-          width: 'min(48%, 260px)',
-          animation: active ? `rock-shake ${SWING}s ease-in-out infinite` : 'none',
-        }}
-      >
-        <img src={rockAsset.url} alt="" className="w-full h-auto drop-shadow-[0_18px_24px_rgba(0,0,0,0.5)]" />
-        {active && (
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'radial-gradient(circle at 30% 55%, rgba(255,204,90,0.55), rgba(255,170,40,0.18) 45%, transparent 70%)',
-              mixBlendMode: 'screen',
-              animation: `rock-glow-pulse ${SWING}s ease-out infinite`,
-            }}
-          />
-        )}
-      </div>
-
-      {/* ── Miner: whole body + arms + pickaxe move together (lunge into the strike) ── */}
-      <div
-        className="absolute"
-        style={{
-          left: '2%',
-          bottom: '20%',
-          width: 'min(54%, 285px)',
-          transformOrigin: '55% 100%',
-          animation: active ? `miner-lunge ${SWING}s cubic-bezier(0.35,0,0.2,1) infinite` : 'none',
-        }}
-      >
-        {active ? (
-          <div className="relative w-full">
-            {/* raise */}
-            <img
-              src={minerUpAsset.url}
-              alt=""
-              className="w-full h-auto object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.45)]"
-              style={{ animation: `miner-swing-a ${SWING}s steps(1, end) infinite` }}
-            />
-            {/* strike — pick head on the rock face */}
-            <img
-              src={minerHitAsset.url}
-              alt=""
-              className="absolute inset-0 w-full h-auto object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.45)]"
-              style={{ animation: `miner-swing-b ${SWING}s steps(1, end) infinite` }}
-            />
-            {/* recover */}
-            <img
-              src={minerIdleAsset.url}
-              alt=""
-              className="absolute inset-0 w-full h-auto object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.45)]"
-              style={{ animation: `miner-swing-c ${SWING}s steps(1, end) infinite` }}
-            />
-          </div>
-        ) : (
-          <img
-            src={minerIdleAsset.url}
-            alt=""
-            className="w-full h-auto object-contain drop-shadow-[0_16px_20px_rgba(0,0,0,0.45)]"
-            style={{ animation: 'miner-idle-breathe 3.6s ease-in-out infinite', transformOrigin: '50% 100%' }}
-          />
-        )}
-      </div>
-
-      {/* ── Impact FX at the pickaxe/rock contact point ── */}
-      {active && (
-        <div className="absolute" style={{ right: '36%', bottom: '26%' }}>
-          {/* golden flash exactly on contact */}
+      {/* ── Wheel motion blur under the cart while it rolls ── */}
+      {active &&
+        [30, 56].map((leftPct) => (
           <span
+            key={leftPct}
             className="absolute rounded-full"
             style={{
-              width: 52,
-              height: 52,
-              marginLeft: -26,
-              marginBottom: -26,
-              background: 'radial-gradient(circle, rgba(255,240,190,0.95) 0%, rgba(255,186,60,0.5) 45%, transparent 72%)',
-              animation: `spark-burst ${SWING}s ease-out infinite`,
+              left: `${leftPct}%`,
+              top: '60%',
+              width: '11%',
+              aspectRatio: '1 / 1',
+              marginLeft: '-5.5%',
+              mixBlendMode: 'screen',
+              opacity: 0.35,
+              animation: 'wheel-turn 1.6s linear infinite',
+              background:
+                'conic-gradient(from 0deg, rgba(255,206,110,0.35) 0 6deg, transparent 6deg 90deg, rgba(255,206,110,0.35) 90deg 96deg, transparent 96deg 180deg, rgba(255,206,110,0.35) 180deg 186deg, transparent 186deg 270deg, rgba(255,206,110,0.35) 270deg 276deg, transparent 276deg 360deg)',
             }}
           />
-          {/* sparks / stone chips */}
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <span
-              key={`c${i}`}
-              className="absolute rounded-[1px]"
-              style={{
-                width: 4,
-                height: 4,
-                background: i % 2 ? '#ffd873' : '#e8dcc2',
-                boxShadow: '0 0 6px rgba(255,200,90,0.8)',
-                ['--cx' as string]: `${-32 + i * 9}px`,
-                ['--cy' as string]: `${-26 - (i % 3) * 9}px`,
-                animation: `chip-fly ${SWING}s ease-out ${(i % 3) * 0.04}s infinite`,
-              }}
-            />
-          ))}
-          {/* TON gems knocked out of the rock, flying up toward the balance HUD */}
-          {[0, 1, 2, 3].map((i) => (
-            <TonGem
-              key={`t${i}`}
-              size={12 + (i % 2) * 3}
-              style={{
-                ['--tx' as string]: `${-40 - i * 26}px`,
-                ['--ty' as string]: `${-150 - i * 30}px`,
-                animation: `ton-fly ${SWING * 2}s cubic-bezier(0.3,0,0.4,1) ${i * 0.18}s infinite`,
-              }}
-            />
-          ))}
-        </div>
-      )}
+        ))}
 
-      {/* ── Ambient lantern breathing (very subtle, only when the mine is alive) ── */}
-      {active && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(30% 22% at 18% 26%, rgba(255,186,80,0.20), transparent 70%), radial-gradient(26% 18% at 78% 18%, rgba(255,196,110,0.14), transparent 72%)',
-            mixBlendMode: 'screen',
-            animation: 'lantern-breathe 4.5s ease-in-out infinite',
-          }}
-        />
-      )}
-
-      {/* ── Cart on its rail: loops out → pause → back while mining is active ── */}
-      <div className="absolute" style={{ right: '4%', bottom: '15%', width: 'min(22%, 96px)' }}>
-        <div
-          style={{
-            ['--cart-travel' as string]: '-190%',
-            animation: claiming
-              ? 'cart-run 3.2s cubic-bezier(0.45,0,0.35,1) 1'
-              : active
-                ? 'cart-loop 9s cubic-bezier(0.4,0,0.35,1) infinite'
-                : 'none',
-          }}
-        >
-          <div
-            className="relative"
-            style={{ animation: active && !claiming ? 'cart-jiggle 0.42s ease-in-out infinite' : 'none' }}
-          >
-            <img src={cartAsset.url} alt="" loading="lazy" className="w-full h-auto" />
-
-            {/* ore in the cart shakes a little while rolling */}
-            {active && (
-              <span
-                className="absolute left-[18%] right-[18%] top-[6%] h-[18%] rounded-full"
-                style={{
-                  background: 'radial-gradient(circle, rgba(255,214,110,0.55), transparent 70%)',
-                  animation: 'ore-jiggle 0.38s ease-in-out infinite',
-                }}
-              />
-            )}
-
-            {/* spinning wheels */}
-            {active &&
-              [28, 64].map((leftPct) => (
-                <span
-                  key={leftPct}
-                  className="absolute rounded-full"
-                  style={{
-                    left: `${leftPct}%`,
-                    bottom: '2%',
-                    width: '18%',
-                    aspectRatio: '1 / 1',
-                    marginLeft: '-9%',
-                    animation: 'wheel-spin 9s cubic-bezier(0.4,0,0.35,1) infinite',
-                    background:
-                      'conic-gradient(from 0deg, rgba(255,206,110,0.32) 0 8deg, transparent 8deg 90deg, rgba(255,206,110,0.32) 90deg 98deg, transparent 98deg 180deg, rgba(255,206,110,0.32) 180deg 188deg, transparent 188deg 270deg, rgba(255,206,110,0.32) 270deg 278deg, transparent 278deg 360deg)',
-                  }}
-                />
-              ))}
-
-            {/* dust kicked up behind the cart */}
-            {active &&
-              [0, 1, 2].map((i) => (
-                <span
-                  key={`td${i}`}
-                  className="absolute rounded-full"
-                  style={{
-                    right: '-6%',
-                    bottom: `${4 + i * 5}%`,
-                    width: 10 + i * 3,
-                    height: 10 + i * 3,
-                    background: 'rgba(226,206,168,0.35)',
-                    filter: 'blur(3px)',
-                    animation: `trail-dust ${1.1 + i * 0.25}s ease-out ${i * 0.22}s infinite`,
-                  }}
-                />
-              ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Floating "+x Gram" numbers rising from the mining spot ── */}
+      {/* ── Floating "+x Gram" numbers rising from the cart ── */}
       {active && gramPerSec > 0 &&
         [0, 1, 2].map((i) => (
           <span
             key={`g${i}`}
             className="absolute text-[10px] font-black tabular-nums text-[#7dffb0]"
             style={{
-              right: `${30 + i * 7}%`,
-              bottom: '30%',
+              left: `${40 + i * 8}%`,
+              top: '28%',
               textShadow: '0 0 8px rgba(0,255,136,0.55)',
               ['--gx' as string]: `${-6 + i * 8}px`,
-              animation: `gram-float 2.4s ease-out ${i * 0.8}s infinite`,
+              animation: `gram-float 2.6s ease-out ${i * 0.85}s infinite`,
             }}
           >
             +{gramPerSec.toFixed(6)} Gram
           </span>
         ))}
 
-
-      {/* ── Claim: TON gems travelling from the station up to the balance ── */}
+      {/* ── Claim: gems travelling from the cart up to the balance ── */}
       {claiming &&
         [0, 1, 2, 3, 4, 5].map((i) => (
           <TonGem
             key={i}
             size={14}
             style={{
-              left: `${16 + i * 3}%`,
-              bottom: '16%',
+              left: `${38 + i * 4}%`,
+              top: '32%',
               ['--fx' as string]: `${10 + i * 4}px`,
-              ['--fy' as string]: '-46vh',
-              animation: `coin-to-balance 1.1s ease-in ${1.5 + i * 0.12}s 1 both`,
+              ['--fy' as string]: '-32vh',
+              animation: `coin-to-balance 1.2s ease-in ${i * 0.12}s 1 both`,
             }}
           />
         ))}
