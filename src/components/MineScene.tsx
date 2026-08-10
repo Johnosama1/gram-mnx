@@ -38,7 +38,7 @@ const TonGem = ({ size = 14, style }: { size?: number; style?: React.CSSProperti
   </span>
 );
 
-function MineSceneBase({ active, claimKey }: Props) {
+function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
   const [claiming, setClaiming] = useState(false);
 
   // One-shot claim animation — never re-triggers for the same claim.
