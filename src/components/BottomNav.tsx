@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Pickaxe, ShoppingBag, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
+import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const APP_VERSION = 'v1.0.4';
@@ -10,7 +10,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
 
   const navItems = [
     { path: '/',        label: t('nav_mine'),    icon: Pickaxe      },
-    { path: '/miners',  label: t('nav_store'),   icon: ShoppingBag  },
+    { path: '/gift',    label: 'Gift',           icon: Gift         },
     { path: '/tasks',   label: t('nav_tasks'),   icon: ClipboardList },
     { path: '/combo',   label: t('nav_combo'),   icon: Sparkles     },
     { path: '/friends', label: t('nav_friends'), icon: Users        },
