@@ -599,7 +599,7 @@ function PromoSection() {
               <div className="min-w-0 flex-1">
                 <div className="text-white font-bold text-sm tracking-wider truncate">{c.code}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {c.rewardCoins} coin • {c.currentUses} / {c.maxUses || '∞'} •{' '}
+                  {c.rewardCoins} MNX • {c.currentUses} / {c.maxUses || '∞'} •{' '}
                   <span className={full ? 'text-amber-400' : c.isActive ? 'text-emerald-400' : 'text-white/50'}>
                     {label}
                   </span>
@@ -792,7 +792,7 @@ function TasksSection() {
             <div className="flex-1 min-w-0">
               <div className="font-bold text-white text-sm truncate">{t.title}</div>
               <div className="text-xs text-muted-foreground">
-                {t.reward} coin
+                {t.reward} MNX
                 {t.category && t.category !== 'general'
                   ? ` · ${t.category === 'channels' ? (t.slotLimit ? 'قناة محدودة' : 'قناة') : t.category}`
                   : ''}
@@ -1112,7 +1112,7 @@ function MilestonesSection() {
                   </div>
                   <div>
                     <div className="text-white font-black text-sm">{m.inviteCount.toLocaleString()} {t('admin_invite_word')}</div>
-                    <div className="text-primary text-xs font-bold">+{m.rewardCoins.toLocaleString()} coin</div>
+                    <div className="text-primary text-xs font-bold">+{m.rewardCoins.toLocaleString()} MNX</div>
                   </div>
                   {!m.isEnabled && (
                     <span className="text-[10px] bg-white/10 text-white/40 px-2 py-0.5 rounded-full font-bold">{t('admin_hidden')}</span>
@@ -1212,7 +1212,7 @@ function UsersSection() {
           <div className="font-bold text-white text-sm">{r.firstName ?? r.username ?? t('admin_unknown')}</div>
           <div className="text-xs text-muted-foreground font-mono">ID: {r.telegramId} {r.username && `· @${r.username}`}</div>
           <div className="text-xs text-primary font-bold mt-0.5">{Number(r.balance).toFixed(4)} gram</div>
-          <div className="text-xs text-amber-400 font-bold">{Number(r.coins ?? 0).toLocaleString()} coin</div>
+          <div className="text-xs text-amber-400 font-bold">{Number(r.coins ?? 0).toLocaleString()} MNX</div>
         </button>
       ))}
 
@@ -1235,7 +1235,7 @@ function UsersSection() {
 
           <div className="bg-black/40 rounded-xl p-3 text-center space-y-1">
             <div className="text-2xl font-black text-primary">{Number(u.balance).toFixed(4)} gram</div>
-            <div className="text-base font-black text-amber-400">{Number(u.coins ?? 0).toLocaleString()} coin</div>
+            <div className="text-base font-black text-amber-400">{Number(u.coins ?? 0).toLocaleString()} MNX</div>
           </div>
 
           {/* Coins adjustment */}
@@ -1915,7 +1915,7 @@ function ComboDailyInner() {
       const max = Math.max(min, Number(rewardMax) || min);
       await api('POST', '/admin/general?type=combo', { rewardMin: min, rewardMax: max });
       setRewardMin(String(min)); setRewardMax(String(max));
-      setMsg(`تم حفظ نطاق مكافأة الكومبو: ${min} – ${max} coin ✅`);
+      setMsg(`تم حفظ نطاق مكافأة الكومبو: ${min} – ${max} MNX ✅`);
     } catch (e: any) {
       setMsg(e.message);
     } finally {
@@ -2008,7 +2008,7 @@ function ComboDailyInner() {
         <div className="space-y-1.5">
           {COMBO_REWARD_VALUES.map(v => (
             <div key={v} className="flex items-center gap-2">
-              <span className="w-16 text-xs font-bold text-white">{v} coin</span>
+              <span className="w-16 text-xs font-bold text-white">{v} MNX</span>
               <input
                 value={weights[String(v)] ?? '0'}
                 onChange={e => setWeights(prev => ({ ...prev, [String(v)]: e.target.value }))}
@@ -2451,7 +2451,7 @@ function CoinTournamentSection() {
               <div className="flex flex-wrap gap-1">
                 {t.prizes.filter(p => (p.coins ?? p.gram) > 0).slice(0, 6).map(p => (
                   <span key={p.rank} className="text-[10px] bg-black/30 rounded-lg px-2 py-0.5 text-primary font-bold">
-                    {rankLabel(p.rank)} {(p.coins ?? p.gram).toLocaleString()} coin
+                    {rankLabel(p.rank)} {(p.coins ?? p.gram).toLocaleString()} MNX
                   </span>
                 ))}
               </div>
@@ -2499,7 +2499,7 @@ function CoinTournamentSection() {
                   onChange={e => setPrizeValues(p => ({ ...p, [i + 1]: e.target.value }))}
                   className="w-full bg-transparent text-white text-sm focus:outline-none"
                 />
-                <span className="text-[10px] text-primary/60 flex-shrink-0">coin</span>
+                <span className="text-[10px] text-primary/60 flex-shrink-0">MNX</span>
               </div>
             ))}
           </div>
@@ -2697,7 +2697,7 @@ function StoreSettingsSection() {
             onChange={e => setCoinsPerGram(e.target.value)}
             className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
           />
-          <span className="text-white/60 text-sm font-bold whitespace-nowrap">coin = 1 gram</span>
+          <span className="text-white/60 text-sm font-bold whitespace-nowrap">MNX = 1 gram</span>
         </div>
       </div>
 
@@ -2712,7 +2712,7 @@ function StoreSettingsSection() {
           />
           <span className="text-white/60 text-sm font-bold whitespace-nowrap">gram</span>
         </div>
-        <p className="text-xs text-primary/70">= {dailyCoins} coin {t('admin_base_plan_700')}</p>
+        <p className="text-xs text-primary/70">= {dailyCoins} MNX {t('admin_base_plan_700')}</p>
       </div>
 
       {/* Monthly plan */}
@@ -2726,7 +2726,7 @@ function StoreSettingsSection() {
           />
           <span className="text-white/60 text-sm font-bold whitespace-nowrap">gram</span>
         </div>
-        <p className="text-xs text-primary/70">= {monthlyCoins} coin {t('admin_base_plan_700')}</p>
+        <p className="text-xs text-primary/70">= {monthlyCoins} MNX {t('admin_base_plan_700')}</p>
       </div>
 
       <StatusMsg msg={status} isError={status.startsWith('❌')} />

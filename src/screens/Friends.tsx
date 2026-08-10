@@ -328,7 +328,7 @@ function LeaderboardModal({
                     )}
                     {prize !== null && prize > 0 && (
                       <div className="text-[10px] text-primary font-bold mt-0.5">
-                        🎁 +{prize.toLocaleString()} coin
+                        🎁 +{prize.toLocaleString()} MNX
                       </div>
                     )}
                   </div>
@@ -338,7 +338,7 @@ function LeaderboardModal({
                     <div className="text-sm font-black text-primary">
                       {Math.floor(u.balance).toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-white/40 font-semibold">coin</div>
+                    <div className="text-[10px] text-white/40 font-semibold">MNX</div>
                   </div>
                 </div>
               );
@@ -407,7 +407,7 @@ const PodiumSlot = memo(function PodiumSlot({
         {u.username ? `@${u.username}` : `#${u.telegramId}`}
       </div>
       <div className={`mt-0.5 font-black text-primary ${big ? 'text-[14px]' : 'text-[11px]'}`}>
-        {Math.floor(u.balance).toLocaleString()} <span className="text-[9px] text-white/40">coin</span>
+        {Math.floor(u.balance).toLocaleString()} <span className="text-[9px] text-white/40">MNX</span>
       </div>
       {prize !== null && prize > 0 && (
         <div className="text-[10px] font-bold text-primary">🎁 +{prize.toLocaleString()}</div>
@@ -662,7 +662,7 @@ export default function Friends() {
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-bold text-white">{m.inviteCount} {t('friends_invites_word')}</span>
                           <span className={`text-xs font-black ${m.credited ? 'text-success' : m.reached ? 'text-primary' : 'text-white/60'}`}>
-                            +{m.rewardCoins} coin
+                            +{m.rewardCoins} MNX
                           </span>
                         </div>
                         <div className="w-full bg-black/40 rounded-full h-1.5">

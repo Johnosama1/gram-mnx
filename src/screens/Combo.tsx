@@ -279,7 +279,7 @@ export default function Combo() {
                   <>
                     <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
                     <span className="text-xs font-black text-emerald-400">
-                      {t('combo_correct_title')} +{showReward} coin
+                      {t('combo_correct_title')} +{showReward} MNX
                     </span>
                   </>
                 ) : (

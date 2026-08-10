@@ -88,9 +88,9 @@ const MESSAGES = {
     ru: 'Не удалось сопоставить перевод с заявкой на депозит',
   },
   deposit_confirmed: {
-    en: '✅ Your deposit was received.\n💰 {coins} Coin added to your balance.',
-    ar: '✅ تم استلام إيداعك بنجاح.\n💰 تمت إضافة {coins} Coin إلى رصيدك.',
-    ru: '✅ Депозит получен.\n💰 На баланс начислено {coins} Coin.',
+    en: '✅ Your deposit was received.\n💰 {coins} MNX added to your balance.',
+    ar: '✅ تم استلام إيداعك بنجاح.\n💰 تمت إضافة {coins} MNX إلى رصيدك.',
+    ru: '✅ Депозит получен.\n💰 На баланс начислено {coins} MNX.',
   },
   deposit_verifying: {
     en: '⏳ The transfer was sent and is being verified; your balance updates automatically once confirmed.',

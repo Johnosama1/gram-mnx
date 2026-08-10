@@ -88,7 +88,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
       );
       if (data.ok && data.coinsEarned) {
         onCoinsEarned(data.coinsEarned);
-        setMsg({ ok: true, text: `✅ +${data.coinsEarned} coin` });
+        setMsg({ ok: true, text: `✅ +${data.coinsEarned} MNX` });
         notifyDataChange('balance', 'tasks');
       } else {
         setMsg({ ok: false, text: t('tasks_checkin_already') });
@@ -235,7 +235,7 @@ function PartnerTaskCard({
               <p className="text-xs text-white/40 mt-0.5 truncate">{task.description}</p>
             )}
             <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
-              +{task.reward} coin
+              +{task.reward} MNX
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@ function TwitterTaskCard({
     setBusy(true);
     setMsg(null);
     const err = await onVerify();
-    setMsg(err ? { ok: false, text: `❌ ${err}` } : { ok: true, text: `✅ +${task.reward} coin` });
+    setMsg(err ? { ok: false, text: `❌ ${err}` } : { ok: true, text: `✅ +${task.reward} MNX` });
     setBusy(false);
     setTimeout(() => setMsg(null), 5000);
   };
@@ -444,7 +444,7 @@ function TwitterTaskCard({
           </div>
           {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
           <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
-            +{task.reward} coin
+            +{task.reward} MNX
           </div>
         </div>
       </div>
@@ -566,7 +566,7 @@ function SubmissionTaskCard({
           <div className="min-w-0">
             <div className={`font-bold text-sm ${approved ? 'text-white/50 line-through' : 'text-white'}`}>{task.title}</div>
             {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
-            <div className={`text-xs font-black mt-0.5 ${approved ? 'text-white/30' : 'text-primary'}`}>+{task.reward} coin</div>
+            <div className={`text-xs font-black mt-0.5 ${approved ? 'text-white/30' : 'text-primary'}`}>+{task.reward} MNX</div>
           </div>
         </div>
         {openLink && !approved && (
@@ -673,7 +673,7 @@ function FriendsMilestones() {
             </div>
             <div className="min-w-0">
               <div className="text-white font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
-              <div className="text-xs text-primary font-black">+{m.rewardCoins} coin</div>
+              <div className="text-xs text-primary font-black">+{m.rewardCoins} MNX</div>
             </div>
           </div>
           <div className="text-xs font-bold flex-shrink-0" style={{ color: m.reached ? '#4ade80' : 'rgba(255,255,255,0.35)' }}>
@@ -776,7 +776,7 @@ export default function Tasks() {
     addCoins(task.reward);
     // Drop stale task/balance caches and re-sync in the background.
     notifyDataChange('tasks', 'balance');
-    setFeedback({ id: task.id, msg: `✅ +${task.reward} coin`, ok: true });
+    setFeedback({ id: task.id, msg: `✅ +${task.reward} MNX`, ok: true });
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -1026,7 +1026,7 @@ export default function Tasks() {
                     </div>
                     {task.description && <p className="text-xs text-white/40 mt-0.5 truncate">{task.description}</p>}
                     <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
-                      +{task.reward} coin
+                      +{task.reward} MNX
                     </div>
                   </div>
                 </div>
