@@ -2766,7 +2766,11 @@ export default function Admin() {
         <Section title="الإعلانات (AdsGram)" icon={Sparkles}>
           <AdsSection />
         </Section>
+        <Section title="قسم الهدايا (Gift)" icon={Sparkles}>
+          <GiftSection />
+        </Section>
         <Section title="أكواد الخصم (Promo Codes)" icon={Ticket}>
+
           <PromoSection />
         </Section>
         <Section title={t('admin_sec_combo')} icon={Sparkles}>
