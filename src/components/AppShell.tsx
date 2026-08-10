@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet, useRouter } from '@tanstack/react-router';
+import { Outlet, useRouter, useRouterState } from '@tanstack/react-router';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import BottomNav from './BottomNav';
 import ScreenErrorBoundary from './ScreenErrorBoundary';
@@ -11,7 +11,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
 import { MinersProvider } from '@/context/MinersContext';
-import mineBgAsset from '@/assets/mine-scene-v2.jpg.asset.json';
+import mineBgAsset from '@/assets/mine_env_v4.jpg.asset.json';
 const mineBgImg = mineBgAsset.url;
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
@@ -189,6 +189,7 @@ function Shell() {
   const { isAdmin, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const router = useRouter();
+  const routeKey = useRouterState({ select: (st) => st.location.pathname });
 
   // Warm up tab chunks + their read-only data once the first screen is idle so
   // switching tabs renders from cache instead of waiting on the network.
@@ -254,7 +255,7 @@ function Shell() {
       <div
         aria-hidden
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.38), rgba(6,8,14,0.58))' }}
+        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.30), rgba(6,8,14,0.62))' }}
       />
 
       {isLoading ? (
@@ -275,7 +276,9 @@ function Shell() {
             }}
           >
             <ScreenErrorBoundary>
-              <Outlet />
+              <div key={routeKey} className="h-full animate-fade-in">
+                <Outlet />
+              </div>
             </ScreenErrorBoundary>
           </div>
           <BottomNav showAdmin={isAdmin} />
