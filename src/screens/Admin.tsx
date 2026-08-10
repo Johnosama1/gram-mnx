@@ -2625,9 +2625,6 @@ export default function Admin() {
         <Section title={t('admin_sec_gram_tournament')} icon={Trophy}>
           <TournamentSection />
         </Section>
-        <Section title="قسم الهدايا (Gift)" icon={Sparkles}>
-          <GiftSettingsSection />
-        </Section>
 
         <Section title="دول المستخدمين" icon={BarChart3}>
           <CountriesSection />
@@ -2647,75 +2644,6 @@ export default function Admin() {
   );
 }
 
-// ─── Gift Settings Section ─────────────────────────────────────────────────
-function GiftSettingsSection() {
-  const [enabled, setEnabled] = useState(false);
-  const [message, setMessage] = useState('');
-  const [status, setStatus] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api<Record<string, string>>('GET', '/admin/general?type=settings')
-      .then(s => {
-        setEnabled(s['gift_enabled'] === 'true');
-        setMessage(s['gift_message'] ?? '');
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const save = async (nextEnabled = enabled) => {
-    try {
-      await Promise.all([
-        api('POST', '/admin/general?type=settings', { key: 'gift_enabled', value: nextEnabled ? 'true' : 'false' }),
-        api('POST', '/admin/general?type=settings', { key: 'gift_message', value: message }),
-      ]);
-      setStatus('✅ تم الحفظ');
-    } catch { setStatus('❌ فشل الحفظ'); }
-    setTimeout(() => setStatus(''), 2500);
-  };
-
-  if (loading) return <div className="text-muted-foreground text-sm">...</div>;
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between bg-black/40 rounded-xl p-3">
-        <div>
-          <p className="text-sm font-bold text-white">حالة قسم Gift</p>
-          <p className="text-xs text-white/50">{enabled ? '🟢 مفتوح للمستخدمين' : '🔒 مقفل'}</p>
-        </div>
-        <button
-          onClick={() => { const n = !enabled; setEnabled(n); void save(n); }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold border ${
-            enabled
-              ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300'
-              : 'bg-white/5 border-white/15 text-white/60'
-          }`}
-        >
-          {enabled ? 'إقفال' : 'فتح'}
-        </button>
-      </div>
-
-      <div className="bg-black/40 rounded-xl p-3 space-y-2">
-        <p className="text-xs text-white/50 font-bold uppercase tracking-wider">رسالة تظهر للمستخدم</p>
-        <textarea
-          value={message}
-          onChange={e => setMessage(e.target.value)}
-          rows={3}
-          placeholder="مثال: الهدايا هتفتح قريبًا..."
-          className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
-        />
-        <button
-          onClick={() => void save()}
-          className="w-full bg-primary/20 border border-primary/40 text-primary rounded-xl py-2 text-sm font-bold"
-        >
-          حفظ
-        </button>
-      </div>
-
-      {status && <p className="text-xs text-white/70">{status}</p>}
-    </div>
-  );
-}
 
 // ─── Store Settings Section ────────────────────────────────────────────────
 function StoreSettingsSection() {
