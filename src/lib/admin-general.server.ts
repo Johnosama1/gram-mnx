@@ -432,6 +432,42 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
       return json({ error: 'Method not allowed' }, 405);
     }
 
+    // ── Gifts ───────────────────────────────────────────────────────────────
+    if (type === 'gift') {
+      const { getGiftConfig, parseGifts } = await import('@/lib/gift.server');
+      if (method === 'GET') return json(await getGiftConfig());
+
+      if (method === 'POST' && action === 'settings') {
+        await setSetting('gift_enabled', body.enabled === true ? 'true' : 'false');
+        if (typeof body.message === 'string')
+          await setSetting('gift_message', body.message.slice(0, 300));
+        return json({ ok: true });
+      }
+
+      if (method === 'POST') {
+        const title = String(body.title ?? '').trim();
+        if (!title) return json({ error: 'العنوان مطلوب' }, 400);
+        const gifts = parseGifts(await getSetting('gifts'));
+        gifts.unshift({
+          id: Date.now(),
+          title: title.slice(0, 120),
+          description: String(body.description ?? '').slice(0, 500),
+          reward: Math.max(0, Number(body.reward ?? 0) || 0),
+          link: body.link ? String(body.link).slice(0, 300) : null,
+        });
+        await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));
+        return json({ ok: true });
+      }
+
+      if (method === 'DELETE' && id) {
+        const gifts = parseGifts(await getSetting('gifts')).filter((g) => g.id !== id);
+        await setSetting('gifts', JSON.stringify(gifts));
+        return json({ ok: true });
+      }
+      return json({ error: 'Invalid gift request' }, 400);
+    }
+
+
     // ── Promo codes ─────────────────────────────────────────────────────────
     if (type === 'promo') {
       const { mapPromoCode, isPromoSectionEnabled } = await import('@/lib/promo.server');

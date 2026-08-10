@@ -1,6 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 
 const APP_VERSION = 'v1.0.4';
@@ -17,7 +16,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
     { path: '/profile', label: t('nav_profile'), icon: User         },
   ];
 
-  const onSoon = () => toast(t('gift_coming_soon'));
+
 
   return (
     <div
@@ -58,19 +57,28 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
           );
         })}
 
-        {/* Gift placeholder — currently disabled */}
-        <button
-          type="button"
-          onClick={onSoon}
+        <Link
+          to="/gift"
           className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
         >
-          <div className="p-1.5 rounded-xl text-[#c9b892]/50 border border-transparent">
-            <Gift className="w-5 h-5" strokeWidth={2} />
+          <div
+            className={`p-1.5 rounded-xl transition-all duration-200 ${
+              location === '/gift'
+                ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
+                : 'text-[#c9b892]/50 border border-transparent'
+            }`}
+          >
+            <Gift className="w-5 h-5" strokeWidth={location === '/gift' ? 2.5 : 2} />
           </div>
-          <span className="text-[9px] font-bold tracking-wide truncate max-w-full text-[#c9b892]/50">
-            {t('nav_soon')}
+          <span
+            className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
+              location === '/gift' ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
+            }`}
+          >
+            Gift
           </span>
-        </button>
+        </Link>
+
 
         {showAdmin && (
           <Link
