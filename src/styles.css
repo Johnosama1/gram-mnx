@@ -288,30 +288,24 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  10%       { transform: translate3d(1.8%, -0.8%, 0); }
-  25%       { transform: translate3d(4%, -1.8%, 0); }
-  40%       { transform: translate3d(6%, -2.8%, 0); }
-  50%, 58%  { transform: translate3d(9.5%, -4.4%, 0); }
-  70%       { transform: translate3d(6%, -2.8%, 0); }
-  85%       { transform: translate3d(4%, -1.8%, 0); }
+  12%       { transform: translate3d(1.4%, -1%, 0); }
+  28%       { transform: translate3d(3.6%, -2.6%, 0); }
+  42%       { transform: translate3d(6.1%, -4.5%, 0); }
+  50%, 58%  { transform: translate3d(8.2%, -6.2%, 0); }
+  72%       { transform: translate3d(5.2%, -3.8%, 0); }
+  88%       { transform: translate3d(2.1%, -1.5%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
 /* matching perspective shrink, anchored on the wheels */
 @keyframes cart-scale {
-  0%        { transform: translate(-50%, -100%) scale(1); }
-  10%       { transform: translate(-50%, -100%) scale(0.985); }
-  25%       { transform: translate(-50%, -100%) scale(0.96); }
-  40%       { transform: translate(-50%, -100%) scale(0.9); }
-  50%, 58%  { transform: translate(-50%, -100%) scale(0.85); }
-  70%       { transform: translate(-50%, -100%) scale(0.9); }
-  85%       { transform: translate(-50%, -100%) scale(0.96); }
-  100%      { transform: translate(-50%, -100%) scale(1); }
-}
-@keyframes cart-suspension {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25%      { transform: translateY(-0.7%) rotate(-0.35deg); }
-  50%      { transform: translateY(0.35%) rotate(0.25deg); }
-  75%      { transform: translateY(-0.5%) rotate(-0.2deg); }
+  0%        { transform: translate(-50%, -100%) scale(1) rotate(-2deg); }
+  12%       { transform: translate(-50%, -100%) scale(0.975) rotate(-2.4deg); }
+  28%       { transform: translate(-50%, -100%) scale(0.93) rotate(-3deg); }
+  42%       { transform: translate(-50%, -100%) scale(0.875) rotate(-3.8deg); }
+  50%, 58%  { transform: translate(-50%, -100%) scale(0.83) rotate(-4.5deg); }
+  72%       { transform: translate(-50%, -100%) scale(0.89) rotate(-3.6deg); }
+  88%       { transform: translate(-50%, -100%) scale(0.96) rotate(-2.6deg); }
+  100%      { transform: translate(-50%, -100%) scale(1) rotate(-2deg); }
 }
 
 @keyframes lamp-flicker {

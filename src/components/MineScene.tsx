@@ -72,13 +72,13 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
 
       {/* ── The cart: travels along the rail path (translate = % of scene) ── */}
       <div className="absolute inset-0" style={{ animation: pathAnim, willChange: 'transform' }}>
-        {/* perspective scale, anchored on the wheels */}
+        {/* Perspective and steering are anchored at the wheel/rail contact line. */}
         <div
           className="absolute"
           style={{
-            left: '47%',
-            top: '70%',
-            width: '24%',
+            left: '49%',
+            top: '73%',
+            width: '27%',
 
             transform: 'translate(-50%, -100%)',
             transformOrigin: '50% 100%',
@@ -87,13 +87,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
           }}
         >
 
-          {/* suspension bounce while rolling */}
-          <div
-            style={{
-              animation: active ? 'cart-suspension 1.05s ease-in-out infinite' : 'none',
-              willChange: 'transform',
-            }}
-          >
+          {/* Cart and wheels stay rigidly locked together; no vertical bounce. */}
+          <div>
             <div className="relative">
               <img src={cartSprite} alt="" className="block w-full" style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.65))' }} />
 
