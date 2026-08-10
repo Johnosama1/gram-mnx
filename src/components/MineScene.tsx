@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import mineBg from '@/assets/mine_bg_v6.jpg';
-import cartSprite from '@/assets/cart_sprite_v6.png';
+import cartSprite from '@/assets/cart_sprite_v7.png';
 
 type Props = {
   /** Mining Active → cart travels the rails, wheels turn, gems sparkle. */
