@@ -282,3 +282,37 @@ body {
   18%  { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
   100% { opacity: 0; transform: translate3d(var(--gx, 6px), -74px, 0) scale(0.9); }
 }
+
+/* ===== Mine scene v5: live cart hero ===== */
+/* very subtle rolling motion of the whole scene while mining runs */
+@keyframes scene-roll {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
+  25%      { transform: translate3d(-0.6%, -0.35%, 0) scale(1.025); }
+  50%      { transform: translate3d(-1.1%, 0.2%, 0) scale(1.03); }
+  75%      { transform: translate3d(-0.4%, -0.15%, 0) scale(1.024); }
+}
+@keyframes scene-rest {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
+  50%      { transform: translate3d(0, -0.15%, 0) scale(1.022); }
+}
+@keyframes lamp-flicker {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  20%      { opacity: 0.9;  transform: scale(1.06); }
+  38%      { opacity: 0.45; transform: scale(0.98); }
+  62%      { opacity: 0.85; transform: scale(1.04); }
+  80%      { opacity: 0.6;  transform: scale(1); }
+}
+@keyframes gem-twinkle {
+  0%, 100% { opacity: 0;   transform: scale(0.6); }
+  45%      { opacity: 0.95; transform: scale(1.25); }
+  70%      { opacity: 0.25; transform: scale(0.9); }
+}
+@keyframes rail-pulse {
+  0%   { opacity: 0; transform: translate3d(-15%, 0, 0) scaleX(0.6); }
+  25%  { opacity: 0.85; }
+  100% { opacity: 0; transform: translate3d(55%, 6px, 0) scaleX(1.1); }
+}
+@keyframes wheel-turn {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
