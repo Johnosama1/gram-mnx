@@ -187,10 +187,9 @@ export default function Dashboard() {
         <div className="mt-0.5 h-[2px] w-32 bg-[#00ff88]/60 blur-[2px]" />
       </div>
 
-      {/* The mine scene — the only animated screen in the app */}
-      <div className="flex-[0.82] min-h-0 relative z-10">
-        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} />
-      </div>
+      {/* Spacer that lets the full-screen scene breathe under the UI */}
+      <div className="flex-[0.82] min-h-0" />
+
 
 
       {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
