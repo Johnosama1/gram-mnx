@@ -20,10 +20,13 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 bg-[#0a0a0f]/95 backdrop-blur-md border-t border-white/5 flex flex-col items-center z-50"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="absolute bottom-0 left-0 right-0 flex flex-col items-center z-50 rounded-t-2xl border-t border-[#d9a544]/30 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,0,0,0.6)]"
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        background: 'linear-gradient(180deg, rgba(14,12,8,0.82), rgba(4,4,6,0.94))',
+      }}
     >
-      <div className="flex items-center justify-around w-full px-2 min-h-[72px]">
+      <div className="flex items-center justify-around w-full px-1 min-h-[68px]">
         {navItems.map((item) => {
           const isActive = location === item.path;
           const Icon = item.icon;
@@ -32,12 +35,22 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             <Link
               key={item.path}
               to={item.path}
-              className="flex-1 flex flex-col items-center justify-center gap-1.5 py-2 cursor-pointer touch-manipulation"
+              className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
             >
-              <div className={`p-2 rounded-xl transition-colors duration-200 ${isActive ? 'bg-primary/20 text-primary' : 'text-muted-foreground'}`}>
-                <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
+              <div
+                className={`p-1.5 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
+                    : 'text-[#c9b892]/50 border border-transparent'
+                }`}
+              >
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
               </div>
-              <span className={`text-[10px] font-semibold tracking-wider ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+              <span
+                className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
+                  isActive ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
+                }`}
+              >
                 {item.label}
               </span>
             </Link>
@@ -48,3 +61,4 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
     </div>
   );
 }
+
