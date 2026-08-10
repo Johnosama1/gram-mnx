@@ -288,25 +288,24 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  12%       { transform: translate3d(1.4%, -1%, 0); }
-  28%       { transform: translate3d(3.6%, -2.6%, 0); }
-  42%       { transform: translate3d(6.1%, -4.5%, 0); }
-  50%, 58%  { transform: translate3d(8.2%, -6.2%, 0); }
-  72%       { transform: translate3d(5.2%, -3.8%, 0); }
-  88%       { transform: translate3d(2.1%, -1.5%, 0); }
+  20%       { transform: translate3d(2.8%, -3%, 0); }
+  38%       { transform: translate3d(6.4%, -7%, 0); }
+  50%, 58%  { transform: translate3d(10.4%, -11.6%, 0); }
+  76%       { transform: translate3d(6.4%, -7%, 0); }
+  90%       { transform: translate3d(2.8%, -3%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
-/* matching perspective shrink, anchored on the wheels */
+/* matching perspective shrink, anchored on the wheel/rail contact line */
 @keyframes cart-scale {
-  0%        { transform: translate(-50%, -100%) scale(1) rotate(-2deg); }
-  12%       { transform: translate(-50%, -100%) scale(0.975) rotate(-2.4deg); }
-  28%       { transform: translate(-50%, -100%) scale(0.93) rotate(-3deg); }
-  42%       { transform: translate(-50%, -100%) scale(0.875) rotate(-3.8deg); }
-  50%, 58%  { transform: translate(-50%, -100%) scale(0.83) rotate(-4.5deg); }
-  72%       { transform: translate(-50%, -100%) scale(0.89) rotate(-3.6deg); }
-  88%       { transform: translate(-50%, -100%) scale(0.96) rotate(-2.6deg); }
-  100%      { transform: translate(-50%, -100%) scale(1) rotate(-2deg); }
+  0%        { transform: translate(-50%, -100%) scale(1); }
+  20%       { transform: translate(-50%, -100%) scale(0.93); }
+  38%       { transform: translate(-50%, -100%) scale(0.85); }
+  50%, 58%  { transform: translate(-50%, -100%) scale(0.76); }
+  76%       { transform: translate(-50%, -100%) scale(0.85); }
+  90%       { transform: translate(-50%, -100%) scale(0.93); }
+  100%      { transform: translate(-50%, -100%) scale(1); }
 }
+
 
 @keyframes lamp-flicker {
   0%, 100% { opacity: 0.55; transform: scale(1); }
