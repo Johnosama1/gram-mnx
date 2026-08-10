@@ -6,6 +6,8 @@ import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
 import MineScene from '@/components/MineScene';
+import TonIcon from '@/components/TonIcon';
+
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem } from 'lucide-react';
 import { formatGram } from '@/lib/utils';
@@ -65,8 +67,11 @@ export default function Dashboard() {
 
   // Balance ticks up coin by coin instead of jumping to the final value.
   const displayedHolding = useAnimatedNumber(holdingWallet, 1600);
+  // Nothing accrued yet → nothing to claim (pure UI guard, claim logic unchanged).
+  const canClaim = sessionEarnings > 0;
 
   // AdsGram policy: essential actions (mining CLAIM) must never be gated by an ad.
+
   const handleClaim = () => {
     if (isClaiming) return;
     claimEarnings();
