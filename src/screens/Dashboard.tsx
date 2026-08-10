@@ -94,7 +94,7 @@ export default function Dashboard() {
 
       {/* Full-screen mine scene — the only animated screen in the app */}
       <div className="absolute inset-0 z-0">
-        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} />
+        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} gramPerSec={ratePerSec} />
       </div>
 
 
@@ -214,23 +214,27 @@ export default function Dashboard() {
 
       {/* Mining status HUD */}
       <div className="px-3 relative z-10 shrink-0 flex justify-center pb-1.5">
-        <div
-          className="inline-flex items-center gap-2 rounded-full border border-[#d9a544]/35 px-3.5 py-1.5 backdrop-blur-md shadow-[0_6px_18px_rgba(0,0,0,0.5)]"
-          style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.72), rgba(6,6,8,0.85))' }}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${isMiningActive ? 'bg-success animate-pulse shadow-[0_0_10px_rgba(0,255,136,0.9)]' : 'bg-[#c9b892]/40'}`}
-          />
-          <span className={`text-[11px] font-bold ${isMiningActive ? 'text-success' : 'text-[#c9b892]/70'}`}>
-            {isMiningActive ? 'Mining...' : 'Mining Paused'}
-          </span>
-          {isMiningActive && ratePerSec > 0 && (
-            <span className="text-[11px] font-black text-[#f0cd7e] tabular-nums">
-              +{formatGram(ratePerSec, 8)} TON / sec
-            </span>
-          )}
-        </div>
+        {(() => {
+          const mining = isMiningActive && coins > 0;
+          return (
+            <div
+              className="inline-flex items-center gap-2 rounded-full border border-[#d9a544]/35 px-3.5 py-1.5 backdrop-blur-md shadow-[0_6px_18px_rgba(0,0,0,0.5)]"
+              style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.72), rgba(6,6,8,0.85))' }}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${mining ? 'bg-success animate-pulse shadow-[0_0_10px_rgba(0,255,136,0.9)]' : 'bg-destructive shadow-[0_0_8px_rgba(255,80,80,0.7)]'}`}
+              />
+              <span className={`text-[11px] font-bold tracking-wide ${mining ? 'text-success' : 'text-destructive'}`}>
+                {mining ? 'MINING ACTIVE' : 'MINING STOPPED'}
+              </span>
+              <span className="text-[11px] font-black text-[#f0cd7e] tabular-nums">
+                {mining && ratePerSec > 0 ? `+${formatGram(ratePerSec, 8)} Gram/s` : '0 Gram/s'}
+              </span>
+            </div>
+          );
+        })()}
       </div>
+
 
       {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
       <div className="px-3 mb-0 pb-1.5 relative z-10 shrink-0">

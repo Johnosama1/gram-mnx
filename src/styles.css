@@ -241,3 +241,44 @@ body {
 @keyframes miner-swing-a { 0%, 45% { opacity: 1; } 46%, 100% { opacity: 0; } }
 @keyframes miner-swing-b { 0%, 45% { opacity: 0; } 46%, 74% { opacity: 1; } 75%, 100% { opacity: 0; } }
 @keyframes miner-swing-c { 0%, 74% { opacity: 0; } 75%, 100% { opacity: 1; } }
+
+/* ===== Mine scene v3: living cart on the rail (MNX-driven) ===== */
+/* out → pause → back → pause, looped */
+@keyframes cart-loop {
+  0%           { transform: translate3d(0, 0, 0); }
+  38%          { transform: translate3d(var(--cart-travel, -170%), 0, 0); }
+  55%          { transform: translate3d(var(--cart-travel, -170%), 0, 0); }
+  93%, 100%    { transform: translate3d(0, 0, 0); }
+}
+@keyframes cart-jiggle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-1.5px) rotate(-0.5deg); }
+  50%      { transform: translateY(0.5px) rotate(0.4deg); }
+  75%      { transform: translateY(-1px) rotate(-0.3deg); }
+}
+@keyframes wheel-spin {
+  0%   { transform: rotate(0deg); }
+  38%  { transform: rotate(-900deg); }
+  55%  { transform: rotate(-900deg); }
+  93%, 100% { transform: rotate(0deg); }
+}
+@keyframes ore-jiggle {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  30%      { transform: translate3d(0.5px, -2px, 0); }
+  60%      { transform: translate3d(-0.5px, -1px, 0); }
+}
+@keyframes trail-dust {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(0.5); }
+  25%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translate3d(26px, -14px, 0) scale(1.7); }
+}
+@keyframes lantern-breathe {
+  0%, 100% { opacity: 0.35; }
+  45%      { opacity: 0.7; }
+  70%      { opacity: 0.45; }
+}
+@keyframes gram-float {
+  0%   { opacity: 0; transform: translate3d(0, 6px, 0) scale(0.85); }
+  18%  { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  100% { opacity: 0; transform: translate3d(var(--gx, 6px), -74px, 0) scale(0.9); }
+}
