@@ -470,6 +470,159 @@ function AdsSection() {
   );
 }
 
+type GiftItem = { id: number; title: string; description: string; reward: number; link: string | null };
+
+function GiftSection() {
+  const [enabled, setEnabled] = useState(false);
+  const [message, setMessage] = useState('');
+  const [gifts, setGifts] = useState<GiftItem[]>([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [reward, setReward] = useState('0');
+  const [link, setLink] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    try {
+      const data = await api<{ enabled: boolean; message: string; gifts: GiftItem[] }>(
+        'GET', '/admin/general?type=gift',
+      );
+      setEnabled(data.enabled);
+      setMessage(data.message ?? '');
+      setGifts(data.gifts ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const saveSettings = async (nextEnabled = enabled, nextMessage = message) => {
+    try {
+      await api('POST', '/admin/general?type=gift&action=settings', {
+        enabled: nextEnabled,
+        message: nextMessage,
+      });
+      setStatus('✅ تم الحفظ');
+    } catch (e) {
+      setStatus(`❌ ${(e as Error).message}`);
+    }
+    setTimeout(() => setStatus(''), 2000);
+  };
+
+  const toggle = async () => {
+    const next = !enabled;
+    setEnabled(next);
+    await saveSettings(next, message);
+  };
+
+  const addGift = async () => {
+    try {
+      await api('POST', '/admin/general?type=gift', {
+        title,
+        description,
+        reward: Number(reward) || 0,
+        link: link || null,
+      });
+      setTitle(''); setDescription(''); setReward('0'); setLink('');
+      setStatus('✅ تم إضافة الهدية');
+      await load();
+    } catch (e) {
+      setStatus(`❌ ${(e as Error).message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
+
+  const removeGift = async (id: number) => {
+    await api('DELETE', `/admin/general?type=gift&id=${id}`).catch(() => undefined);
+    await load();
+  };
+
+  if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-3">
+        <span className="text-white font-bold text-sm">فتح قسم الهدايا للمستخدمين</span>
+        <button
+          onClick={() => { void toggle(); }}
+          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-white/20'}`}
+        >
+          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? 'right-1' : 'left-1'}`} />
+        </button>
+      </div>
+
+      <label className="text-xs text-muted-foreground block">
+        رسالة القفل (تظهر عندما يكون القسم مغلق)
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onBlur={() => { void saveSettings(); }}
+          placeholder="قريباً — الهدايا لسه مش متاحة"
+          className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+        />
+      </label>
+
+      <div className="space-y-2 bg-black/30 rounded-xl p-3 border border-white/5">
+        <p className="text-white font-bold text-sm">إضافة هدية</p>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="عنوان الهدية"
+          className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+        />
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="وصف الهدية"
+          rows={2}
+          className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+        />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            value={reward}
+            onChange={(e) => setReward(e.target.value)}
+            placeholder="المكافأة (MNX)"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+          <input
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="رابط (اختياري)"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+        </div>
+        <button
+          onClick={() => { void addGift(); }}
+          className="w-full bg-primary text-black font-bold rounded-xl py-2 text-sm flex items-center justify-center gap-1"
+        >
+          <Plus className="w-4 h-4" /> إضافة
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {gifts.map((g) => (
+          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2">
+            <div className="min-w-0">
+              <p className="text-white text-sm font-bold truncate">{g.title}</p>
+              <p className="text-muted-foreground text-xs truncate">{g.description}</p>
+              {g.reward > 0 && <p className="text-primary text-xs font-bold">+{g.reward} MNX</p>}
+            </div>
+            <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+        {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد هدايا مضافة</p>}
+      </div>
+
+      {status && <p className="text-xs text-white">{status}</p>}
+    </div>
+  );
+}
+
+
 type PromoCode = {
   id: number;
   code: string;
