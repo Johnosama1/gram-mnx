@@ -92,11 +92,14 @@ export default function Dashboard() {
 
 
 
-      {/* User Card */}
-      <div className="px-4 pt-2 relative z-10 shrink-0">
-        <div className="bg-secondary/40 backdrop-blur-sm border border-white/5 rounded-2xl p-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 relative overflow-hidden">
+      {/* ── HUD: user strip ── */}
+      <div className="px-3 pt-2 relative z-10 shrink-0">
+        <div
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-[#d9a544]/35 px-3 py-2 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,224,150,0.12)]"
+          style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.72), rgba(6,6,8,0.82))' }}
+        >
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="w-9 h-9 shrink-0 rounded-full bg-[#d9a544]/15 flex items-center justify-center border border-[#d9a544]/40 relative overflow-hidden">
               {showAvatar ? (
                 <img
                   src={avatarUrl!}
@@ -105,18 +108,18 @@ export default function Dashboard() {
                   onError={() => setAvatarFailed(true)}
                 />
               ) : (
-                <span className="font-bold text-primary">{userInitial}</span>
+                <span className="font-bold text-[#e6b95f]">{userInitial}</span>
               )}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background rounded-full flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-success rounded-full animate-pulse shadow-[0_0_8px_rgba(0,255,136,0.8)]" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-black/80 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_8px_rgba(0,255,136,0.8)]" />
               </div>
             </div>
-            <div>
-              <div className="font-semibold text-white flex items-center gap-1">
+            <div className="min-w-0">
+              <div className="truncate font-bold text-white text-sm flex items-center gap-1">
                 {userName}
-                <StickerBadge size={22} />
+                <StickerBadge size={20} />
               </div>
-              <div className="text-xs text-primary font-bold">
+              <div className="truncate text-[11px] text-[#e6b95f]/90 font-semibold">
                 {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
               </div>
             </div>
@@ -124,87 +127,94 @@ export default function Dashboard() {
 
           <button
             onClick={() => setShowWallet(true)}
-            className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 hover:border-primary/30 transition-colors"
+            className="shrink-0 flex items-center gap-1.5 bg-black/50 px-3 py-1.5 rounded-full border border-[#d9a544]/40 hover:border-[#e6b95f] transition-colors"
           >
-            <span className={`text-xs font-mono ${walletAddress ? 'text-success' : 'text-primary'}`}>
+            <span className={`text-[11px] font-mono font-bold ${walletAddress ? 'text-success' : 'text-[#e6b95f]'}`}>
               {shortAddress ?? t('dashboard_connect_wallet')}
             </span>
-            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            <ChevronDown className="w-3 h-3 text-[#c9b892]/70" />
           </button>
         </div>
       </div>
 
-      {/* Balances */}
-      <div className="flex flex-col items-center mt-3 relative z-10 px-4 shrink-0">
-        <div className="flex gap-3 w-full max-w-sm">
+      {/* ── HUD: balances ── */}
+      <div className="flex flex-col items-center mt-2.5 relative z-10 px-3 shrink-0">
+        <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm">
           {/* Holding wallet */}
-          <div className="flex-1 bg-black/55 backdrop-blur-sm border border-[#d9a544]/30 rounded-2xl py-2.5 px-3 flex items-center gap-2.5 shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
-            <div className="w-8 h-8 rounded-full bg-[#d9a544]/15 border border-[#d9a544]/35 flex items-center justify-center shrink-0">
-              <Wallet className="w-4 h-4 text-[#e6b95f]" />
+          <div
+            className="rounded-2xl border border-[#d9a544]/35 px-3 py-2.5 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,224,150,0.1)]"
+            style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.72), rgba(6,6,8,0.82))' }}
+          >
+            <div className="flex items-center gap-1.5 text-[9px] tracking-[0.16em] text-[#e6b95f]/85 font-bold uppercase">
+              <Wallet className="w-3 h-3 shrink-0" />
+              <span className="truncate">{t('dashboard_holding_wallet')}</span>
             </div>
-            <div className="min-w-0">
-              <div className="text-[9px] tracking-wider text-[#c9b892]/80 font-semibold">
-                {t('dashboard_holding_wallet')}
-              </div>
-              <div className="text-base font-black text-white leading-tight tabular-nums">
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <TonIcon size={15} className="text-[#e6b95f] shrink-0 translate-y-[1px]" />
+              <span className="text-[clamp(1rem,5vw,1.35rem)] font-black text-white leading-none tabular-nums drop-shadow-[0_0_10px_rgba(230,185,95,0.35)]">
                 {formatGram(displayedHolding, 3)}
-              </div>
-              <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
+              </span>
             </div>
           </div>
-          {/* Coin-based 24-hour mining projection */}
-          <div className="flex-1 bg-black/55 backdrop-blur-sm border border-[#d9a544]/30 rounded-2xl py-2.5 px-3 flex items-center gap-2.5 shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
-            <div className="w-8 h-8 rounded-full bg-[#d9a544]/15 border border-[#d9a544]/35 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-4 h-4 text-[#e6b95f]" />
+
+          {/* 24-hour projection */}
+          <div
+            className="rounded-2xl border border-[#d9a544]/35 px-3 py-2.5 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,224,150,0.1)]"
+            style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.72), rgba(6,6,8,0.82))' }}
+          >
+            <div className="flex items-center gap-1.5 text-[9px] tracking-[0.16em] text-[#e6b95f]/85 font-bold uppercase">
+              <TrendingUp className="w-3 h-3 shrink-0" />
+              <span className="truncate">{t('dashboard_24h_label')}</span>
             </div>
-            <div className="min-w-0">
-              <div className="text-[9px] tracking-wider text-[#c9b892]/80 font-semibold">
-                {t('dashboard_24h_label')}
-              </div>
-              <div className="text-base font-black text-success leading-tight tabular-nums">
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <TonIcon size={15} className="text-success shrink-0 translate-y-[1px]" />
+              <span className="text-[clamp(0.95rem,4.6vw,1.25rem)] font-black text-success leading-none tabular-nums glow-text-success">
                 {dailyIncome > 0
                   ? `+${formatGram(dailyIncome, dailyIncome < 0.0001 ? 8 : 6)}`
                   : '—'}
-              </div>
-              <div className="text-[9px] tracking-wider text-[#c9b892]/70 font-semibold">GRAM</div>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Session Earnings */}
-      <div className="flex flex-col items-center mt-2 relative z-10 px-4 shrink-0">
-        <div className="text-[10px] tracking-[0.3em] font-bold text-[#c9b892]/80 mb-0.5">
-          {t('dashboard_total_earned')}
-        </div>
+      {/* ── HUD: total earned panel ── */}
+      <div className="flex flex-col items-center mt-2.5 relative z-10 px-3 shrink-0 w-full">
         <div
-          className="relative px-8 py-1.5 border-y border-[#d9a544]/60"
-          style={{
-            clipPath: 'polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%)',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.35))',
-          }}
+          className="relative w-full max-w-sm rounded-2xl border border-[#d9a544]/45 px-4 py-2.5 text-center backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.6),0_0_28px_rgba(230,185,95,0.12),inset_0_1px_0_rgba(255,224,150,0.14)]"
+          style={{ background: 'linear-gradient(180deg, rgba(16,13,8,0.78), rgba(5,5,7,0.86))' }}
         >
-          {/* Always 8 decimals so the last digits visibly tick every second
-              instead of looking like a frozen number at low mining rates. */}
-          <div className="text-[clamp(1.2rem,6vw,1.9rem)] font-black text-success glow-text-success tabular-nums">
-            +{formatGram(sessionEarnings, 8)}
+          <div className="text-[9px] tracking-[0.3em] font-bold text-[#e6b95f]/80 uppercase">
+            {t('dashboard_total_earned')}
           </div>
+          <div className="mt-0.5 flex items-center justify-center gap-2">
+            <TonIcon size={18} className="text-success shrink-0" />
+            {/* Always 8 decimals so the last digits visibly tick every second */}
+            <span className="text-[clamp(1.15rem,5.6vw,1.75rem)] font-black text-success glow-text-success tabular-nums leading-none">
+              +{formatGram(sessionEarnings, 8)}
+            </span>
+          </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-8 -bottom-px h-[2px]"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,255,136,0.7), transparent)', animation: 'hud-sheen 2.6s ease-in-out infinite' }}
+          />
         </div>
-        <div className="mt-0.5 h-[2px] w-32 bg-[#00ff88]/60 blur-[2px]" />
       </div>
 
       {/* Spacer that lets the full-screen scene breathe under the UI */}
       <div className="flex-[0.82] min-h-0" />
 
-
-
       {/* Claim row — timer / start-miner sits beside CLAIM on one line */}
-      <div className="px-4 mb-0 pb-1 relative z-10 shrink-0">
+      <div className="px-3 mb-0 pb-1.5 relative z-10 shrink-0">
         <div className="flex items-stretch gap-2">
           {showMiningButton && (isMiningActive ? (
-            <div className="w-[38%] shrink-0 rounded-2xl bg-black/55 border border-primary/30 flex flex-col items-center justify-center px-1 py-2">
-              <div className="text-[9px] text-muted-foreground leading-none">{t('dashboard_time_left')}</div>
-              <div className="text-base font-black text-primary tabular-nums leading-tight mt-0.5">
+            <div
+              className="w-[38%] shrink-0 rounded-2xl border border-[#d9a544]/40 flex flex-col items-center justify-center px-1 py-2 backdrop-blur-md"
+              style={{ background: 'linear-gradient(180deg, rgba(14,12,8,0.75), rgba(6,6,8,0.85))' }}
+            >
+              <div className="text-[9px] tracking-widest text-[#c9b892]/75 uppercase leading-none">{t('dashboard_time_left')}</div>
+              <div className="text-base font-black text-[#f0cd7e] tabular-nums leading-tight mt-1">
                 {formatCountdown(miningRemainingMs)}
               </div>
             </div>
@@ -212,18 +222,18 @@ export default function Dashboard() {
             <button
               onClick={startMining}
               disabled={isStartingMining}
-              className="w-[38%] shrink-0 rounded-2xl bg-gradient-to-r from-[#00c853] to-[#00ff88] text-black font-black text-sm shadow-[0_0_20px_rgba(0,255,136,0.35)] active:scale-95 transition-all disabled:opacity-60 px-1"
+              className="w-[38%] shrink-0 rounded-2xl bg-gradient-to-b from-[#00e070] to-[#009c48] text-black font-black text-sm border border-[#00ff88]/50 shadow-[0_0_22px_rgba(0,255,136,0.3)] active:scale-95 transition-all disabled:opacity-60 px-1"
             >
               {isStartingMining ? '...' : t('dashboard_start_mining')}
             </button>
           ))}
           <button
             onClick={() => { void handleClaim(); }}
-            disabled={isClaiming}
-            className="flex-1 py-3.5 rounded-2xl border-2 border-[#e6b95f] text-[#f0cd7e] font-black text-xl tracking-[0.14em] flex items-center justify-center gap-2 shadow-[0_0_28px_rgba(230,185,95,0.45),inset_0_0_28px_rgba(230,185,95,0.12)] active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(180deg, rgba(40,26,6,0.85), rgba(10,8,4,0.9))' }}
+            disabled={isClaiming || !canClaim}
+            className="flex-1 py-3.5 rounded-2xl border-2 border-[#e6b95f] text-[#f7dfa5] font-black text-xl tracking-[0.14em] flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(230,185,95,0.45),inset_0_1px_0_rgba(255,235,180,0.25),inset_0_0_28px_rgba(230,185,95,0.12)] active:scale-[0.97] active:shadow-[0_0_14px_rgba(230,185,95,0.3)] hover:brightness-110 transition-all disabled:opacity-45 disabled:shadow-none disabled:cursor-not-allowed"
+            style={{ background: 'linear-gradient(180deg, rgba(58,38,8,0.9), rgba(12,9,4,0.94))' }}
           >
-            <Gem className="w-5 h-5 text-[#f0cd7e]" />
+            <TonIcon size={20} className="text-[#f0cd7e]" />
             {isClaiming ? '...' : t('dashboard_claim')}
           </button>
         </div>
@@ -235,6 +245,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
 
       {showWallet && <WalletModal onClose={() => setShowWallet(false)} />}
     </div>
