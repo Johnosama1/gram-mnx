@@ -71,9 +71,9 @@ function MineSceneBase({ active, claimKey }: Props) {
       <div
         className="absolute"
         style={{
-          right: '8%',
-          bottom: '14%',
-          width: 'min(48%, 260px)',
+          right: '6%',
+          bottom: '22%',
+          width: 'min(46%, 250px)',
           animation: active ? `rock-shake ${SWING}s ease-in-out infinite` : 'none',
         }}
       >
@@ -90,7 +90,7 @@ function MineSceneBase({ active, claimKey }: Props) {
       </div>
 
       {/* ── Miner ── */}
-      <div className="absolute" style={{ left: '6%', bottom: '12%', width: 'min(46%, 240px)' }}>
+      <div className="absolute" style={{ left: '4%', bottom: '20%', width: 'min(46%, 235px)' }}>
         {active ? (
           <div className="relative w-full">
             <img
@@ -118,7 +118,7 @@ function MineSceneBase({ active, claimKey }: Props) {
 
       {/* ── Impact FX at the pickaxe/rock contact point ── */}
       {active && (
-        <div className="absolute" style={{ right: '30%', bottom: '30%' }}>
+        <div className="absolute" style={{ right: '30%', bottom: '38%' }}>
           {/* golden flash */}
           <span
             className="absolute rounded-full"
@@ -161,7 +161,7 @@ function MineSceneBase({ active, claimKey }: Props) {
       )}
 
       {/* ── Cart on its rail ── */}
-      <div className="absolute" style={{ right: '3%', bottom: '3%', width: 'min(24%, 104px)' }}>
+      <div className="absolute" style={{ right: '4%', bottom: '15%', width: 'min(22%, 96px)' }}>
         <div
           style={{
             ['--cart-travel' as string]: '-190%',
