@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import mineBg from '@/assets/mine_bg_v6.jpg';
-import cartSprite from '@/assets/cart_sprite_v7.png';
+import cartSprite from '@/assets/cart_sprite_v8.png';
 
 type Props = {
   /** Mining Active → cart travels the rails, wheels turn, gems sparkle. */
@@ -76,12 +76,12 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         <div
           className="absolute"
           style={{
-            left: '64%',
-            top: '74%',
+            left: '62%',
+            top: '73%',
             width: '30%',
 
-            transform: 'translate(-50%, -92.5%) rotate(-26deg)',
-            transformOrigin: '50% 92.5%',
+            transform: 'translate(-50%, -90%) rotate(-9deg)',
+            transformOrigin: '50% 90%',
             animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
             willChange: 'transform',
           }}
@@ -95,9 +95,10 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
               {/* rotating wheel spokes sitting exactly over the sprite wheels */}
               {active &&
                 [
-                  { left: '15%', top: '64%', w: '13.5%' },
-                  { left: '33.5%', top: '65.5%', w: '13.5%' },
-                  { left: '52%', top: '67%', w: '13.5%' },
+                  { left: '33.5%', top: '75.5%', w: '13%' },
+                  { left: '48.5%', top: '69.5%', w: '11.5%' },
+                  { left: '61.5%', top: '64.5%', w: '10.5%' },
+                  { left: '72.5%', top: '60.5%', w: '9.5%' },
                 ].map((w) => (
                   <span
                     key={w.left}
