@@ -10,7 +10,10 @@ type Props = {
   active: boolean;
   /** Increment this to play the one-shot claim (cart → station → balance) run. */
   claimKey: number;
+  /** Real backend mining rate (Gram/s) — used only for the floating labels. */
+  gramPerSec?: number;
 };
+
 
 /** One full swing cycle (raise → strike → recover). Everything is timed off this. */
 const SWING = 1.25;
