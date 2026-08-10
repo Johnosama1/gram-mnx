@@ -11,7 +11,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
 import { MinersProvider } from '@/context/MinersContext';
-import mineBgAsset from '@/assets/mine-scene-v2.jpg.asset.json';
+import mineBgAsset from '@/assets/mine_env_v4.jpg.asset.json';
 const mineBgImg = mineBgAsset.url;
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
@@ -254,7 +254,7 @@ function Shell() {
       <div
         aria-hidden
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.38), rgba(6,8,14,0.58))' }}
+        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.30), rgba(6,8,14,0.62))' }}
       />
 
       {isLoading ? (
