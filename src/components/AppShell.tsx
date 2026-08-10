@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet, useRouter } from '@tanstack/react-router';
+import { Outlet, useRouter, useRouterState } from '@tanstack/react-router';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import BottomNav from './BottomNav';
 import ScreenErrorBoundary from './ScreenErrorBoundary';
@@ -189,6 +189,7 @@ function Shell() {
   const { isAdmin, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const router = useRouter();
+  const routeKey = useRouterState({ select: (st) => st.location.pathname });
 
   // Warm up tab chunks + their read-only data once the first screen is idle so
   // switching tabs renders from cache instead of waiting on the network.
@@ -275,7 +276,9 @@ function Shell() {
             }}
           >
             <ScreenErrorBoundary>
-              <Outlet />
+              <div key={routeKey} className="h-full animate-fade-in">
+                <Outlet />
+              </div>
             </ScreenErrorBoundary>
           </div>
           <BottomNav showAdmin={isAdmin} />
