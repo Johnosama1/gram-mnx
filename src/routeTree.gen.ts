@@ -14,7 +14,6 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ComboRouteImport } from './routes/combo'
 import { Route as FriendsRouteImport } from './routes/friends'
-import { Route as GiftRouteImport } from './routes/gift'
 import { Route as MinersRouteImport } from './routes/miners'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as TasksRouteImport } from './routes/tasks'
@@ -28,7 +27,6 @@ import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/securit
 import { Route as ApiAdminTaskSubmissionsRouteImport } from './routes/api/admin/task-submissions'
 import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
-import { Route as ApiGiftStatusRouteImport } from './routes/api/gift/status'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
@@ -88,11 +86,6 @@ const ComboRoute = ComboRouteImport.update({
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GiftRoute = GiftRouteImport.update({
-  id: '/gift',
-  path: '/gift',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinersRoute = MinersRouteImport.update({
@@ -159,11 +152,6 @@ const ApiAdminTasksRoute = ApiAdminTasksRouteImport.update({
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
   id: '/api/admin/users',
   path: '/api/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGiftStatusRoute = ApiGiftStatusRouteImport.update({
-  id: '/api/gift/status',
-  path: '/api/gift/status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
@@ -355,7 +343,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
   '/friends': typeof FriendsRoute
-  '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
   '/tasks': typeof TasksRoute
@@ -369,7 +356,6 @@ export interface FileRoutesByFullPath {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -412,7 +398,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
   '/friends': typeof FriendsRoute
-  '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
   '/tasks': typeof TasksRoute
@@ -426,7 +411,6 @@ export interface FileRoutesByTo {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -470,7 +454,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
   '/friends': typeof FriendsRoute
-  '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
   '/tasks': typeof TasksRoute
@@ -484,7 +467,6 @@ export interface FileRoutesById {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
-  '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
@@ -529,7 +511,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/combo'
     | '/friends'
-    | '/gift'
     | '/miners'
     | '/profile'
     | '/tasks'
@@ -543,7 +524,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -586,7 +566,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/combo'
     | '/friends'
-    | '/gift'
     | '/miners'
     | '/profile'
     | '/tasks'
@@ -600,7 +579,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -643,7 +621,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/combo'
     | '/friends'
-    | '/gift'
     | '/miners'
     | '/profile'
     | '/tasks'
@@ -657,7 +634,6 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
-    | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
     | '/api/tasks/checkin'
@@ -701,7 +677,6 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ComboRoute: typeof ComboRoute
   FriendsRoute: typeof FriendsRoute
-  GiftRoute: typeof GiftRoute
   MinersRoute: typeof MinersRoute
   ProfileRoute: typeof ProfileRoute
   TasksRoute: typeof TasksRoute
@@ -715,7 +690,6 @@ export interface RootRouteChildren {
   ApiAdminTaskSubmissionsRoute: typeof ApiAdminTaskSubmissionsRoute
   ApiAdminTasksRoute: typeof ApiAdminTasksRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
-  ApiGiftStatusRoute: typeof ApiGiftStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
   ApiTasksCheckinRoute: typeof ApiTasksCheckinRoute
@@ -784,13 +758,6 @@ declare module '@tanstack/react-router' {
       path: '/friends'
       fullPath: '/friends'
       preLoaderRoute: typeof FriendsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gift': {
-      id: '/gift'
-      path: '/gift'
-      fullPath: '/gift'
-      preLoaderRoute: typeof GiftRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/miners': {
@@ -882,13 +849,6 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/users'
       fullPath: '/api/admin/users'
       preLoaderRoute: typeof ApiAdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/gift/status': {
-      id: '/api/gift/status'
-      path: '/api/gift/status'
-      fullPath: '/api/gift/status'
-      preLoaderRoute: typeof ApiGiftStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/health': {
@@ -1184,7 +1144,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ComboRoute: ComboRoute,
   FriendsRoute: FriendsRoute,
-  GiftRoute: GiftRoute,
   MinersRoute: MinersRoute,
   ProfileRoute: ProfileRoute,
   TasksRoute: TasksRoute,
@@ -1198,7 +1157,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTaskSubmissionsRoute: ApiAdminTaskSubmissionsRoute,
   ApiAdminTasksRoute: ApiAdminTasksRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
-  ApiGiftStatusRoute: ApiGiftStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,
   ApiTasksCheckinRoute: ApiTasksCheckinRoute,
@@ -1234,13 +1192,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
