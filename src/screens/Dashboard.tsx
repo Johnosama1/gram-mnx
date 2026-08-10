@@ -94,7 +94,7 @@ export default function Dashboard() {
 
       {/* Full-screen mine scene — the only animated screen in the app */}
       <div className="absolute inset-0 z-0">
-        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} />
+        <MineScene active={isMiningActive && coins > 0} claimKey={claimKey} gramPerSec={ratePerSec} />
       </div>
 
 
