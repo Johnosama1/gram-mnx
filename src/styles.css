@@ -288,12 +288,12 @@ body {
    foreground (bottom-left) → up and to the right → into the distance. */
 @keyframes cart-path {
   0%        { transform: translate3d(0, 0, 0); }
-  12%       { transform: translate3d(1.4%, -1.5%, 0); }
-  28%       { transform: translate3d(3.6%, -4%, 0); }
-  42%       { transform: translate3d(6.1%, -6.9%, 0); }
-  50%, 58%  { transform: translate3d(8.2%, -9.5%, 0); }
-  72%       { transform: translate3d(5.2%, -5.9%, 0); }
-  88%       { transform: translate3d(2.1%, -2.3%, 0); }
+  12%       { transform: translate3d(1.4%, -1%, 0); }
+  28%       { transform: translate3d(3.6%, -2.6%, 0); }
+  42%       { transform: translate3d(6.1%, -4.5%, 0); }
+  50%, 58%  { transform: translate3d(8.2%, -6.2%, 0); }
+  72%       { transform: translate3d(5.2%, -3.8%, 0); }
+  88%       { transform: translate3d(2.1%, -1.5%, 0); }
   100%      { transform: translate3d(0, 0, 0); }
 }
 /* matching perspective shrink, anchored on the wheels */
