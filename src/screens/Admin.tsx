@@ -2625,9 +2625,6 @@ export default function Admin() {
         <Section title={t('admin_sec_gram_tournament')} icon={Trophy}>
           <TournamentSection />
         </Section>
-        <Section title="قسم الهدايا (Gift)" icon={Sparkles}>
-          <GiftSettingsSection />
-        </Section>
 
         <Section title="دول المستخدمين" icon={BarChart3}>
           <CountriesSection />
