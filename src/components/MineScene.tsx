@@ -77,7 +77,7 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
           className="absolute"
           style={{
             left: '55%',
-            top: '78%',
+            top: '76.5%',
             width: '27%',
 
             transform: 'translate(-50%, -100%)',
