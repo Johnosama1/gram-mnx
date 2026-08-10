@@ -57,8 +57,15 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
       {/* ── Stage: exactly matches the background image box (object-cover math),
              so every % coordinate below maps 1:1 onto the photo. ── */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ aspectRatio: '1200 / 896', minWidth: '100%', minHeight: '100%', width: 'auto', height: 'auto' }}
+        className="absolute left-1/2 top-1/2"
+        style={{
+          aspectRatio: '1200 / 896',
+          minWidth: '100%',
+          minHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          transform: 'translate(-53%, -50%)',
+        }}
       >
         {/* ── Fixed cave / rails plate (never moves) ── */}
         <img src={mineBg} alt="" className="block h-full w-full object-cover" />
@@ -69,9 +76,10 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         <div
           className="absolute"
           style={{
-            left: '43%',
-            top: '89%',
-            width: '46%',
+            left: '53%',
+            top: '76%',
+            width: '33%',
+
             transform: 'translate(-50%, -100%)',
             transformOrigin: '50% 100%',
             animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
