@@ -88,9 +88,9 @@ const MESSAGES = {
     ru: 'Не удалось сопоставить перевод с заявкой на депозит',
   },
   deposit_confirmed: {
-    en: '✅ Your deposit was received.\n💰 {coins} Coin added to your balance.',
-    ar: '✅ تم استلام إيداعك بنجاح.\n💰 تمت إضافة {coins} Coin إلى رصيدك.',
-    ru: '✅ Депозит получен.\n💰 На баланс начислено {coins} Coin.',
+    en: '✅ Your deposit was received.\n💰 {coins} MNX added to your balance.',
+    ar: '✅ تم استلام إيداعك بنجاح.\n💰 تمت إضافة {coins} MNX إلى رصيدك.',
+    ru: '✅ Депозит получен.\n💰 На баланс начислено {coins} MNX.',
   },
   deposit_verifying: {
     en: '⏳ The transfer was sent and is being verified; your balance updates automatically once confirmed.',
@@ -110,9 +110,9 @@ const MESSAGES = {
 
   // ---- swap ----
   swap_one_way: {
-    en: 'Swapping coin back to GRAM is not available',
-    ar: 'التحويل من coin إلى GRAM غير متاح',
-    ru: 'Обмен coin обратно в GRAM недоступен',
+    en: 'Swapping MNX back to GRAM is not available',
+    ar: 'التحويل من MNX إلى GRAM غير متاح',
+    ru: 'Обмен MNX обратно в GRAM недоступен',
   },
   swap_insufficient_gram: {
     en: 'Not enough GRAM balance',

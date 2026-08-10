@@ -119,7 +119,7 @@ function PackageCard({
       >
         {coins.toLocaleString()}
       </div>
-      <div className="text-[10px] font-black tracking-widest text-primary/60 mb-1.5">COIN</div>
+      <div className="text-[10px] font-black tracking-widest text-primary/60 mb-1.5">MNX</div>
       <div
         className="rounded-lg px-2.5 py-0.5 text-[11px] font-bold"
         style={{ background: 'rgba(245,166,35,0.12)', color: '#F5A623', border: '1px solid rgba(245,166,35,0.2)' }}
@@ -227,7 +227,7 @@ function PackageModal({
           </div>
           <div className="flex items-center gap-3 mt-1">
             <div style={{ width: 32, height: 1, background: 'rgba(245,166,35,0.4)' }} />
-            <span className="text-xs font-black tracking-[0.3em] text-primary/70">COIN</span>
+            <span className="text-xs font-black tracking-[0.3em] text-primary/70">MNX</span>
             <div style={{ width: 32, height: 1, background: 'rgba(245,166,35,0.4)' }} />
           </div>
         </div>
@@ -286,7 +286,7 @@ function PackageModal({
                     {dGram.toFixed(2)} Gram
                   </div>
                   <div className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                    {dCoins.toLocaleString()} COIN
+                    {dCoins.toLocaleString()} MNX
                   </div>
                 </div>
               </button>
@@ -328,7 +328,7 @@ function PackageModal({
         )}
         {status === 'ok' && (
           <div className="mx-4 mb-2 rounded-xl p-2.5 text-center text-sm font-bold" style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
-            ✅ {t('store_purchased')} +{coins.toLocaleString()} coin
+            ✅ {t('store_purchased')} +{coins.toLocaleString()} MNX
           </div>
         )}
 
@@ -401,7 +401,7 @@ export default function Store() {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleSuccess = async (coinsAdded: number) => {
-    setToast(`✅ +${coinsAdded.toLocaleString()} coin`);
+    setToast(`✅ +${coinsAdded.toLocaleString()} MNX`);
     await refreshBalance();
     await loadHistory();
     setTimeout(() => setToast(null), 3000);
@@ -417,12 +417,12 @@ export default function Store() {
           <div>
             <h1 className="text-lg font-black text-white">{t('store_title')}</h1>
             <p className="text-[10px] text-white/40 mt-0.5">
-              {settings.coinsPerGram} COIN = 1 GRAM
+              {settings.coinsPerGram} MNX = 1 GRAM
             </p>
           </div>
           <div className="flex items-center gap-1.5 bg-black/60 border border-primary/30 rounded-xl px-3 py-1.5">
             <span className="text-primary font-bold text-sm">{coins.toLocaleString()}</span>
-            <span className="text-white/50 text-xs">coin</span>
+            <span className="text-white/50 text-xs">MNX</span>
           </div>
         </div>
 
@@ -474,7 +474,7 @@ export default function Store() {
                   style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div>
                     <div className="text-white font-bold text-xs">
-                      {h.gram_amount.toFixed(2)} gram → <span className="text-primary">{h.coins_amount.toLocaleString()} coin</span>
+                      {h.gram_amount.toFixed(2)} gram → <span className="text-primary">{h.coins_amount.toLocaleString()} MNX</span>
                     </div>
                     <div className="text-white/30 text-[9px]">{new Date(h.created_at).toLocaleDateString(lang)}</div>
                   </div>
