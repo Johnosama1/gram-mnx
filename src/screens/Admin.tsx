@@ -446,7 +446,7 @@ function AdsSection() {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <label className="text-xs text-muted-foreground">
-          مكافأة الإعلان (coin)
+          مكافأة الإعلان (MNX)
           <input
             value={reward}
             onChange={(e) => setReward(e.target.value)}
@@ -566,7 +566,7 @@ function PromoSection() {
           />
         </label>
         <label className="text-xs text-muted-foreground col-span-1">
-          المكافأة (coin)
+          المكافأة (MNX)
           <input
             value={reward}
             onChange={(e) => setReward(e.target.value)}
@@ -2051,7 +2051,7 @@ function ComboDailyInner() {
             value={reward}
             onChange={e => setReward(e.target.value)}
             inputMode="numeric"
-            placeholder="المكافأة (coin)"
+            placeholder="المكافأة (MNX)"
             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
           />
           <button
@@ -2808,7 +2808,7 @@ function ResetCoinsSection() {
   return (
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground">
-        هيتم تصفير رصيد الـ coin لكل مستخدمي البوت (يرجع 0). الإجراء ده لا يمكن التراجع عنه.
+        هيتم تصفير رصيد الـ MNX لكل مستخدمي البوت (يرجع 0). الإجراء ده لا يمكن التراجع عنه.
       </p>
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       {!confirming ? (

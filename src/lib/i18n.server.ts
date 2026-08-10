@@ -110,9 +110,9 @@ const MESSAGES = {
 
   // ---- swap ----
   swap_one_way: {
-    en: 'Swapping coin back to GRAM is not available',
-    ar: 'التحويل من coin إلى GRAM غير متاح',
-    ru: 'Обмен coin обратно в GRAM недоступен',
+    en: 'Swapping MNX back to GRAM is not available',
+    ar: 'التحويل من MNX إلى GRAM غير متاح',
+    ru: 'Обмен MNX обратно в GRAM недоступен',
   },
   swap_insufficient_gram: {
     en: 'Not enough GRAM balance',
