@@ -297,13 +297,13 @@ body {
 }
 /* matching perspective shrink + rail-aligned heading, anchored on the wheel/rail contact line */
 @keyframes cart-scale {
-  0%        { transform: translate(-50%, -90%) scale(1)    rotate(-9deg); }
-  20%       { transform: translate(-50%, -90%) scale(0.91) rotate(-9deg); }
-  38%       { transform: translate(-50%, -90%) scale(0.81) rotate(-9deg); }
-  50%, 58%  { transform: translate(-50%, -90%) scale(0.7)  rotate(-9deg); }
-  76%       { transform: translate(-50%, -90%) scale(0.81) rotate(-9deg); }
-  90%       { transform: translate(-50%, -90%) scale(0.91) rotate(-9deg); }
-  100%      { transform: translate(-50%, -90%) scale(1)    rotate(-9deg); }
+  0%        { transform: translate(-50%, -90%) scale(1)    rotate(-5deg); }
+  20%       { transform: translate(-50%, -90%) scale(0.91) rotate(-5deg); }
+  38%       { transform: translate(-50%, -90%) scale(0.81) rotate(-5deg); }
+  50%, 58%  { transform: translate(-50%, -90%) scale(0.7)  rotate(-5deg); }
+  76%       { transform: translate(-50%, -90%) scale(0.81) rotate(-5deg); }
+  90%       { transform: translate(-50%, -90%) scale(0.91) rotate(-5deg); }
+  100%      { transform: translate(-50%, -90%) scale(1)    rotate(-5deg); }
 }
 
 
