@@ -138,8 +138,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
                 />
               ))}
 
-              {/* dust kicked up behind the wheels */}
-              {active &&
+              {/* no trail dust — the cart doesn't move */}
+              {false &&
                 [0, 1, 2, 3].map((i) => (
                   <span
                     key={`td${i}`}
