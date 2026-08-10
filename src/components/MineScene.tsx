@@ -1,8 +1,9 @@
 import { memo, useEffect, useState } from 'react';
-import mineCartAsset from '@/assets/mine_cart_v5.jpg.asset.json';
+import mineBg from '@/assets/mine_bg_v6.jpg';
+import cartSprite from '@/assets/cart_sprite_v6.png';
 
 type Props = {
-  /** Mining Active → cart rolls, wheels turn, gems sparkle. */
+  /** Mining Active → cart travels the rails, wheels turn, gems sparkle. */
   active: boolean;
   /** Increment this to play the one-shot claim (cart → balance) run. */
   claimKey: number;
@@ -27,15 +28,16 @@ const TonGem = ({ size = 14, style }: { size?: number; style?: React.CSSProperti
   </span>
 );
 
-/** Sparkle positions over the gold gems sitting inside the cart. */
+/** Sparkles over the gold gems sitting inside the cart (cart-local coords). */
 const GEM_SPARKS = [
-  { left: '36%', top: '33%', size: 7, delay: 0 },
-  { left: '46%', top: '30%', size: 9, delay: 0.7 },
-  { left: '55%', top: '34%', size: 6, delay: 1.3 },
-  { left: '42%', top: '37%', size: 8, delay: 1.9 },
-  { left: '60%', top: '31%', size: 7, delay: 2.5 },
-  { left: '50%', top: '36%', size: 6, delay: 3.1 },
+  { left: '30%', top: '12%', size: 9, delay: 0 },
+  { left: '46%', top: '8%', size: 11, delay: 0.7 },
+  { left: '62%', top: '13%', size: 8, delay: 1.3 },
+  { left: '38%', top: '18%', size: 9, delay: 1.9 },
+  { left: '70%', top: '10%', size: 8, delay: 2.5 },
 ];
+
+const TRAVEL_SEC = 18;
 
 function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
   const [claiming, setClaiming] = useState(false);
@@ -48,22 +50,122 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
     return () => clearTimeout(id);
   }, [claimKey]);
 
+  const pathAnim = active ? `cart-path ${TRAVEL_SEC}s ease-in-out infinite` : 'none';
+
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      {/* ── Hero mine scene (kept exactly as designed, only gently animated) ── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          animation: active ? 'scene-roll 7.5s ease-in-out infinite' : 'scene-rest 12s ease-in-out infinite',
-          willChange: 'transform',
-        }}
-      >
-        <img
-          src={mineCartAsset.url}
-          alt=""
-          className="absolute left-1/2 top-1/2 w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2"
-          style={{ objectFit: 'contain' }}
-        />
+      {/* ── Fixed cave / rails plate (never moves) ── */}
+      <img
+        src={mineBg}
+        alt=""
+        className="absolute left-1/2 top-1/2 h-full w-auto min-w-full max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+      />
+
+      {/* ── The cart: travels along the rail path (translate = % of scene) ── */}
+      <div className="absolute inset-0" style={{ animation: pathAnim, willChange: 'transform' }}>
+        {/* perspective scale, anchored on the wheels */}
+        <div
+          className="absolute"
+          style={{
+            left: '53%',
+            top: '77%',
+            width: '36%',
+            transform: 'translate(-50%, -100%)',
+            transformOrigin: '50% 100%',
+            animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
+            willChange: 'transform',
+          }}
+        >
+          {/* suspension bounce while rolling */}
+          <div
+            style={{
+              animation: active ? 'cart-suspension 1.05s ease-in-out infinite' : 'none',
+              willChange: 'transform',
+            }}
+          >
+            <div className="relative">
+              <img src={cartSprite} alt="" className="block w-full" style={{ filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.65))' }} />
+
+              {/* rotating wheel spokes sitting exactly over the sprite wheels */}
+              {active &&
+                [
+                  { left: '13.5%', top: '70%', w: '15%' },
+                  { left: '61%', top: '69%', w: '20%' },
+                ].map((w) => (
+                  <span
+                    key={w.left}
+                    className="absolute rounded-full"
+                    style={{
+                      left: w.left,
+                      top: w.top,
+                      width: w.w,
+                      aspectRatio: '1 / 1',
+                      opacity: 0.45,
+                      mixBlendMode: 'screen',
+                      animation: 'wheel-turn 1.05s linear infinite',
+                      background:
+                        'conic-gradient(from 0deg, rgba(255,206,110,0.4) 0 5deg, transparent 5deg 60deg, rgba(255,206,110,0.4) 60deg 65deg, transparent 65deg 120deg, rgba(255,206,110,0.4) 120deg 125deg, transparent 125deg 180deg, rgba(255,206,110,0.4) 180deg 185deg, transparent 185deg 240deg, rgba(255,206,110,0.4) 240deg 245deg, transparent 245deg 300deg, rgba(255,206,110,0.4) 300deg 305deg, transparent 305deg 360deg)',
+                    }}
+                  />
+                ))}
+
+              {/* gem sparkles riding with the cart */}
+              {GEM_SPARKS.map((s, i) => (
+                <span
+                  key={`s${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    left: s.left,
+                    top: s.top,
+                    width: s.size,
+                    height: s.size,
+                    marginLeft: -s.size / 2,
+                    marginTop: -s.size / 2,
+                    background:
+                      'radial-gradient(circle, rgba(255,255,235,0.95) 0%, rgba(255,208,110,0.6) 40%, transparent 70%)',
+                    mixBlendMode: 'screen',
+                    animation: `gem-twinkle ${active ? 2.4 : 5}s ease-in-out ${s.delay}s infinite`,
+                  }}
+                />
+              ))}
+
+              {/* dust kicked up behind the wheels */}
+              {active &&
+                [0, 1, 2, 3].map((i) => (
+                  <span
+                    key={`td${i}`}
+                    className="absolute rounded-full"
+                    style={{
+                      left: `${6 + i * 6}%`,
+                      top: '92%',
+                      width: 10 + i * 3,
+                      height: 10 + i * 3,
+                      background: 'radial-gradient(circle, rgba(255,225,170,0.35) 0%, transparent 70%)',
+                      animation: `trail-dust ${2.2 + i * 0.4}s ease-out ${i * 0.5}s infinite`,
+                    }}
+                  />
+                ))}
+
+              {/* floating "+x Gram" numbers rising from the cart */}
+              {active && gramPerSec > 0 &&
+                [0, 1, 2].map((i) => (
+                  <span
+                    key={`g${i}`}
+                    className="absolute text-[10px] font-black tabular-nums text-[#7dffb0]"
+                    style={{
+                      left: `${34 + i * 14}%`,
+                      top: '2%',
+                      textShadow: '0 0 8px rgba(0,255,136,0.55)',
+                      ['--gx' as string]: `${-6 + i * 8}px`,
+                      animation: `gram-float 2.6s ease-out ${i * 0.85}s infinite`,
+                    }}
+                  >
+                    +{gramPerSec.toFixed(6)} Gram
+                  </span>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* soft vignette so HUD text on top stays readable */}
@@ -75,10 +177,10 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         }}
       />
 
-      {/* ── Lantern flicker ── */}
+      {/* ── Lantern flicker (fixed to the cave) ── */}
       {[
-        { left: '14%', top: '16%', size: 120, dur: 3.4 },
-        { left: '41%', top: '10%', size: 90, dur: 4.6 },
+        { left: '15%', top: '15%', size: 120, dur: 3.4 },
+        { left: '41%', top: '9%', size: 90, dur: 4.6 },
       ].map((l) => (
         <span
           key={l.left}
@@ -90,52 +192,12 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
             height: l.size,
             marginLeft: -l.size / 2,
             marginTop: -l.size / 2,
-            background: 'radial-gradient(circle, rgba(255,190,90,0.35) 0%, rgba(255,160,50,0.12) 45%, transparent 72%)',
+            background: 'radial-gradient(circle, rgba(255,190,90,0.32) 0%, rgba(255,160,50,0.1) 45%, transparent 72%)',
             mixBlendMode: 'screen',
             animation: `lamp-flicker ${l.dur}s ease-in-out infinite`,
           }}
         />
       ))}
-
-      {/* ── Gem sparkles inside the cart ── */}
-      {GEM_SPARKS.map((s, i) => (
-        <span
-          key={`s${i}`}
-          className="absolute"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.size,
-            height: s.size,
-            marginLeft: -s.size / 2,
-            marginTop: -s.size / 2,
-            background:
-              'radial-gradient(circle, rgba(255,255,235,0.95) 0%, rgba(255,208,110,0.6) 40%, transparent 70%)',
-            borderRadius: '50%',
-            mixBlendMode: 'screen',
-            animation: `gem-twinkle ${active ? 2.4 : 5}s ease-in-out ${s.delay}s infinite`,
-          }}
-        />
-      ))}
-
-      {/* ── Rail energy pulses running along the track while mining ── */}
-      {active &&
-        [0, 1, 2].map((i) => (
-          <span
-            key={`r${i}`}
-            className="absolute rounded-full"
-            style={{
-              left: '18%',
-              top: `${72 - i * 2}%`,
-              width: '46%',
-              height: 3,
-              background: 'linear-gradient(90deg, transparent, rgba(255,205,110,0.75), transparent)',
-              filter: 'blur(1.5px)',
-              mixBlendMode: 'screen',
-              animation: `rail-pulse ${4 + i * 0.8}s linear ${i * 1.3}s infinite`,
-            }}
-          />
-        ))}
 
       {/* ── Floating dust motes (always on, very subtle) ── */}
       {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -154,45 +216,6 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         />
       ))}
 
-      {/* ── Wheel motion blur under the cart while it rolls ── */}
-      {active &&
-        [30, 56].map((leftPct) => (
-          <span
-            key={leftPct}
-            className="absolute rounded-full"
-            style={{
-              left: `${leftPct}%`,
-              top: '60%',
-              width: '11%',
-              aspectRatio: '1 / 1',
-              marginLeft: '-5.5%',
-              mixBlendMode: 'screen',
-              opacity: 0.35,
-              animation: 'wheel-turn 1.6s linear infinite',
-              background:
-                'conic-gradient(from 0deg, rgba(255,206,110,0.35) 0 6deg, transparent 6deg 90deg, rgba(255,206,110,0.35) 90deg 96deg, transparent 96deg 180deg, rgba(255,206,110,0.35) 180deg 186deg, transparent 186deg 270deg, rgba(255,206,110,0.35) 270deg 276deg, transparent 276deg 360deg)',
-            }}
-          />
-        ))}
-
-      {/* ── Floating "+x Gram" numbers rising from the cart ── */}
-      {active && gramPerSec > 0 &&
-        [0, 1, 2].map((i) => (
-          <span
-            key={`g${i}`}
-            className="absolute text-[10px] font-black tabular-nums text-[#7dffb0]"
-            style={{
-              left: `${40 + i * 8}%`,
-              top: '28%',
-              textShadow: '0 0 8px rgba(0,255,136,0.55)',
-              ['--gx' as string]: `${-6 + i * 8}px`,
-              animation: `gram-float 2.6s ease-out ${i * 0.85}s infinite`,
-            }}
-          >
-            +{gramPerSec.toFixed(6)} Gram
-          </span>
-        ))}
-
       {/* ── Claim: gems travelling from the cart up to the balance ── */}
       {claiming &&
         [0, 1, 2, 3, 4, 5].map((i) => (
@@ -201,7 +224,7 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
             size={14}
             style={{
               left: `${38 + i * 4}%`,
-              top: '32%',
+              top: '42%',
               ['--fx' as string]: `${10 + i * 4}px`,
               ['--fy' as string]: '-32vh',
               animation: `coin-to-balance 1.2s ease-in ${i * 0.12}s 1 both`,
