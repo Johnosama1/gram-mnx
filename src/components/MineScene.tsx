@@ -80,8 +80,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
             top: '76.5%',
             width: '34%',
 
-            transform: 'translate(-50%, -100%)',
-            transformOrigin: '50% 100%',
+            transform: 'translate(-50%, -92.5%)',
+            transformOrigin: '50% 92.5%',
             animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
             willChange: 'transform',
           }}
@@ -95,8 +95,9 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
               {/* rotating wheel spokes sitting exactly over the sprite wheels */}
               {active &&
                 [
-                  { left: '13.5%', top: '70%', w: '15%' },
-                  { left: '61%', top: '69%', w: '20%' },
+                  { left: '15%', top: '64%', w: '13.5%' },
+                  { left: '33.5%', top: '65.5%', w: '13.5%' },
+                  { left: '52%', top: '67%', w: '13.5%' },
                 ].map((w) => (
                   <span
                     key={w.left}
