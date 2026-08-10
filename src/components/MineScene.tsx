@@ -188,17 +188,106 @@ function MineSceneBase({ active, claimKey }: Props) {
         </div>
       )}
 
-      {/* ── Cart on its rail ── */}
+      {/* ── Ambient lantern breathing (very subtle, only when the mine is alive) ── */}
+      {active && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(30% 22% at 18% 26%, rgba(255,186,80,0.20), transparent 70%), radial-gradient(26% 18% at 78% 18%, rgba(255,196,110,0.14), transparent 72%)',
+            mixBlendMode: 'screen',
+            animation: 'lantern-breathe 4.5s ease-in-out infinite',
+          }}
+        />
+      )}
+
+      {/* ── Cart on its rail: loops out → pause → back while mining is active ── */}
       <div className="absolute" style={{ right: '4%', bottom: '15%', width: 'min(22%, 96px)' }}>
         <div
           style={{
             ['--cart-travel' as string]: '-190%',
-            animation: claiming ? 'cart-run 3.2s cubic-bezier(0.45,0,0.35,1) 1' : 'none',
+            animation: claiming
+              ? 'cart-run 3.2s cubic-bezier(0.45,0,0.35,1) 1'
+              : active
+                ? 'cart-loop 9s cubic-bezier(0.4,0,0.35,1) infinite'
+                : 'none',
           }}
         >
-          <img src={cartAsset.url} alt="" loading="lazy" className="w-full h-auto" />
+          <div
+            className="relative"
+            style={{ animation: active && !claiming ? 'cart-jiggle 0.42s ease-in-out infinite' : 'none' }}
+          >
+            <img src={cartAsset.url} alt="" loading="lazy" className="w-full h-auto" />
+
+            {/* ore in the cart shakes a little while rolling */}
+            {active && (
+              <span
+                className="absolute left-[18%] right-[18%] top-[6%] h-[18%] rounded-full"
+                style={{
+                  background: 'radial-gradient(circle, rgba(255,214,110,0.55), transparent 70%)',
+                  animation: 'ore-jiggle 0.38s ease-in-out infinite',
+                }}
+              />
+            )}
+
+            {/* spinning wheels */}
+            {active &&
+              [28, 64].map((leftPct) => (
+                <span
+                  key={leftPct}
+                  className="absolute rounded-full"
+                  style={{
+                    left: `${leftPct}%`,
+                    bottom: '2%',
+                    width: '18%',
+                    aspectRatio: '1 / 1',
+                    marginLeft: '-9%',
+                    animation: 'wheel-spin 9s cubic-bezier(0.4,0,0.35,1) infinite',
+                    background:
+                      'conic-gradient(from 0deg, rgba(255,206,110,0.32) 0 8deg, transparent 8deg 90deg, rgba(255,206,110,0.32) 90deg 98deg, transparent 98deg 180deg, rgba(255,206,110,0.32) 180deg 188deg, transparent 188deg 270deg, rgba(255,206,110,0.32) 270deg 278deg, transparent 278deg 360deg)',
+                  }}
+                />
+              ))}
+
+            {/* dust kicked up behind the cart */}
+            {active &&
+              [0, 1, 2].map((i) => (
+                <span
+                  key={`td${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    right: '-6%',
+                    bottom: `${4 + i * 5}%`,
+                    width: 10 + i * 3,
+                    height: 10 + i * 3,
+                    background: 'rgba(226,206,168,0.35)',
+                    filter: 'blur(3px)',
+                    animation: `trail-dust ${1.1 + i * 0.25}s ease-out ${i * 0.22}s infinite`,
+                  }}
+                />
+              ))}
+          </div>
         </div>
       </div>
+
+      {/* ── Floating "+x Gram" numbers rising from the mining spot ── */}
+      {active && gramPerSec > 0 &&
+        [0, 1, 2].map((i) => (
+          <span
+            key={`g${i}`}
+            className="absolute text-[10px] font-black tabular-nums text-[#7dffb0]"
+            style={{
+              right: `${30 + i * 7}%`,
+              bottom: '30%',
+              textShadow: '0 0 8px rgba(0,255,136,0.55)',
+              ['--gx' as string]: `${-6 + i * 8}px`,
+              animation: `gram-float 2.4s ease-out ${i * 0.8}s infinite`,
+            }}
+          >
+            +{gramPerSec.toFixed(6)} Gram
+          </span>
+        ))}
+
 
       {/* ── Claim: TON gems travelling from the station up to the balance ── */}
       {claiming &&
