@@ -54,12 +54,21 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
 
   return (
     <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-      {/* ── Fixed cave / rails plate (never moves) ── */}
-      <img
-        src={mineBg}
-        alt=""
-        className="absolute left-1/2 top-1/2 h-full w-auto min-w-full max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
-      />
+      {/* ── Stage: exactly matches the background image box (object-cover math),
+             so every % coordinate below maps 1:1 onto the photo. ── */}
+      <div
+        className="absolute left-1/2 top-1/2"
+        style={{
+          aspectRatio: '1200 / 896',
+          minWidth: '100%',
+          minHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          transform: 'translate(-53%, -50%)',
+        }}
+      >
+        {/* ── Fixed cave / rails plate (never moves) ── */}
+        <img src={mineBg} alt="" className="block h-full w-full object-cover" />
 
       {/* ── The cart: travels along the rail path (translate = % of scene) ── */}
       <div className="absolute inset-0" style={{ animation: pathAnim, willChange: 'transform' }}>
@@ -67,15 +76,17 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         <div
           className="absolute"
           style={{
-            left: '53%',
-            top: '77%',
-            width: '36%',
+            left: '55%',
+            top: '76.5%',
+            width: '27%',
+
             transform: 'translate(-50%, -100%)',
             transformOrigin: '50% 100%',
             animation: active ? `cart-scale ${TRAVEL_SEC}s ease-in-out infinite` : 'none',
             willChange: 'transform',
           }}
         >
+
           {/* suspension bounce while rolling */}
           <div
             style={{
@@ -198,6 +209,8 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
           }}
         />
       ))}
+      </div>
+
 
       {/* ── Floating dust motes (always on, very subtle) ── */}
       {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
