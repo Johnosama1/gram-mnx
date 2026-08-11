@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { API_BASE } from '@/lib/telegramApi';
+import { API_BASE, getInitData } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 
 type NavGift = { id: number; imageUrl: string | null };
@@ -25,7 +25,11 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
 
   useEffect(() => {
     let alive = true;
-    fetch(`${API_BASE}/api/gift/status`)
+    fetch(`${API_BASE}/api/gift/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: getInitData() }),
+    })
       .then((r) => r.json())
       .then((d: { enabled?: boolean; gifts?: NavGift[] }) => {
         if (alive) setGifts(d.enabled ? (d.gifts ?? []) : []);
