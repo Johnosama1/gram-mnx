@@ -14,7 +14,7 @@ import inviteFriendSticker from '@/assets/invite-friend-sticker.json.asset.json'
 
 const MEDALS: Record<number, string> = { 1: medal1.url, 2: medal2.url, 3: medal3.url };
 
-const BOT_USERNAME = 'GRAM MNX1_Bot';
+const BOT_USERNAME = 'GRAMMNX1_bot';
 const LEADERBOARD_ICON = 'https://vynex-coin1.vercel.app/sad-icon.png';
 
 interface Milestone {
