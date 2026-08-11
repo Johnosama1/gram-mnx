@@ -4,7 +4,7 @@ import { API_BASE, getInitData } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import { toast } from 'sonner';
 
-const BOT_USERNAME = 'GRAM MNX1_Bot';
+const BOT_USERNAME = 'GRAMMNX1_bot';
 
 type GiftItem = {
   id: number;
@@ -80,6 +80,7 @@ export default function GiftScreen() {
   const [state, setState] = useState<GiftStatus | null>(null);
   const [busy, setBusy] = useState<number | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
+  const [active, setActive] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -107,6 +108,7 @@ export default function GiftScreen() {
       const data = (await res.json()) as GiftStatus & { error?: string };
       if (!res.ok) throw new Error(data.error || 'فشل الاشتراك');
       setState(data);
+      setActive(gift.id);
       toast.success('تم اشتراكك 🎉 ادعُ أصدقاءك لمضاعفة فرصتك في الفوز');
     } catch (e) {
       toast.error((e as Error).message);
@@ -175,9 +177,6 @@ export default function GiftScreen() {
                     {g.description && (
                       <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{g.description}</p>
                     )}
-                    {g.reward > 0 && (
-                      <p className="text-xs font-bold text-[#f0cd7e] mt-1">+{g.reward} MNX</p>
-                    )}
                     {g.link && (
                       <a
                         href={g.link}
@@ -211,24 +210,12 @@ export default function GiftScreen() {
                 </div>
 
                 {g.joined ? (
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center justify-between rounded-xl bg-[#d9a544]/10 border border-[#d9a544]/30 px-3 py-2">
-                      <span className="text-xs text-[#c9b892]/80 flex items-center gap-1">
-                        <Ticket className="w-3.5 h-3.5 text-[#f0cd7e]" /> فرصك في الفوز
-                      </span>
-                      <span className="text-sm font-extrabold text-[#f0cd7e]">×{g.chances}</span>
-                    </div>
-                    <p className="text-[11px] text-[#c9b892]/70">
-                      ادعُ أصدقاءك برابطك الخاص — كل صديق ينضم يزوّد فرصتك (دعوت {g.invitedCount})
-                    </p>
-                    <button
-                      onClick={() => { void copyInvite(g.id); }}
-                      className="w-full rounded-xl bg-[#d9a544] text-black font-bold py-2 text-sm flex items-center justify-center gap-2"
-                    >
-                      {copied === g.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      نسخ رابط الدعوة
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setActive(g.id)}
+                    className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+                  >
+                    <Ticket className="w-4 h-4" /> فتح صفحة المسابقة
+                  </button>
                 ) : (
                   <button
                     disabled={busy === g.id || g.full || g.expired}
