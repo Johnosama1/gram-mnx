@@ -21,7 +21,21 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
     { path: '/friends', label: t('nav_friends'), icon: Users        },
     { path: '/profile', label: t('nav_profile'), icon: User         },
   ];
+  const [gifts, setGifts] = useState<NavGift[]>([]);
 
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API_BASE}/api/gift/status`)
+      .then((r) => r.json())
+      .then((d: { enabled?: boolean; gifts?: NavGift[] }) => {
+        if (alive) setGifts(d.enabled ? (d.gifts ?? []) : []);
+      })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, []);
+
+  const giftCount = gifts.length;
+  const giftThumb = gifts.find((g) => g.imageUrl)?.imageUrl ?? null;
 
 
   return (
