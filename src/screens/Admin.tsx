@@ -530,8 +530,11 @@ function GiftSection() {
         description,
         reward: Number(reward) || 0,
         link: link || null,
+        imageUrl: imageUrl || null,
+        capacity: Number(capacity) || 0,
       });
-      setTitle(''); setDescription(''); setReward('0'); setLink('');
+      setTitle(''); setDescription(''); setReward('0'); setLink(''); setImageUrl(''); setCapacity('0');
+
       setStatus('✅ تم إضافة الهدية');
       await load();
     } catch (e) {
