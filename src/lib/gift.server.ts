@@ -187,9 +187,14 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
       if ((count ?? 0) >= gift.capacity) return json({ error: 'اكتمل العدد' }, 409);
     }
 
-    const rawRef = Number(body.ref ?? 0);
-    const referrer =
-      Number.isFinite(rawRef) && rawRef > 0 && rawRef !== auth.id ? rawRef : null;
+    // The inviter id may arrive from the client or straight from the Mini App start param.
+    let rawRef = Number(body.ref ?? 0);
+    if (!Number.isFinite(rawRef) || rawRef <= 0) {
+      const startParam = initData ? (new URLSearchParams(initData).get('start_param') ?? '') : '';
+      const m = /^gift_(\d+)_(\d+)$/.exec(startParam.trim());
+      rawRef = m ? Number(m[2]) : 0;
+    }
+    const referrer = Number.isFinite(rawRef) && rawRef > 0 && rawRef !== auth.id ? rawRef : null;
 
     const { error } = await db.from('gm_gift_entries').insert({
       gift_id: giftId,
@@ -200,7 +205,7 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
     if (error && !String(error.message).includes('duplicate'))
       return json({ error: error.message }, 500);
 
-    // Credit the inviter one extra chance — only if they already joined.
+    // Credit the inviter one extra chance (create their entry if it is missing).
     if (referrer) {
       const { data: refRow } = await db
         .from('gm_gift_entries')
@@ -216,9 +221,17 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
             invited_count: Number(refRow.invited_count ?? 0) + 1,
           })
           .eq('id', refRow.id);
+      } else {
+        await db.from('gm_gift_entries').insert({
+          gift_id: giftId,
+          telegram_id: referrer,
+          chances: 2,
+          invited_count: 1,
+        });
       }
     }
   }
+
 
   return json(await getGiftState(initData));
 }
