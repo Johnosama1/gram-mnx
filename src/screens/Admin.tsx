@@ -598,7 +598,21 @@ function GiftSection() {
             placeholder="رابط (اختياري)"
             className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
           />
+          <input
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="رابط صورة الهدية (يدعم .json)"
+            dir="ltr"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+          <input
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+            placeholder="عدد المشاركين (0 = بدون حد)"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
         </div>
+
         <button
           onClick={() => { void addGift(); }}
           className="w-full bg-primary text-black font-bold rounded-xl py-2 text-sm flex items-center justify-center gap-1"
