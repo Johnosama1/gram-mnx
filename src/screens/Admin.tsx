@@ -609,19 +609,24 @@ function GiftSection() {
 
       <div className="space-y-2">
         {gifts.map((g) => (
-          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2">
-            <div className="min-w-0">
+          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2 gap-2">
+            <GiftMedia url={g.imageUrl} size={40} />
+            <div className="min-w-0 flex-1">
               <p className="text-white text-sm font-bold truncate">{g.title}</p>
               <p className="text-muted-foreground text-xs truncate">{g.description}</p>
               {g.reward > 0 && <p className="text-primary text-xs font-bold">+{g.reward} MNX</p>}
+              <p className="text-muted-foreground text-[11px]">
+                👥 {g.participants ?? 0}{g.capacity > 0 ? ` / ${g.capacity}` : ' (بدون حد)'}
+              </p>
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
         ))}
-        {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد هدايا مضافة</p>}
+        {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد مسابقات مضافة</p>}
       </div>
+
 
       {status && <p className="text-xs text-white">{status}</p>}
     </div>
