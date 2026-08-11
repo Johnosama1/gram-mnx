@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket } from 'lucide-react';
+import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket, ArrowRight } from 'lucide-react';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import { toast } from 'sonner';
 
-const BOT_USERNAME = 'GRAM MNX1_Bot';
+const BOT_USERNAME = 'GRAMMNX1_bot';
 
 type GiftItem = {
   id: number;
@@ -80,6 +80,7 @@ export default function GiftScreen() {
   const [state, setState] = useState<GiftStatus | null>(null);
   const [busy, setBusy] = useState<number | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
+  const [active, setActive] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -107,6 +108,7 @@ export default function GiftScreen() {
       const data = (await res.json()) as GiftStatus & { error?: string };
       if (!res.ok) throw new Error(data.error || 'فشل الاشتراك');
       setState(data);
+      setActive(gift.id);
       toast.success('تم اشتراكك 🎉 ادعُ أصدقاءك لمضاعفة فرصتك في الفوز');
     } catch (e) {
       toast.error((e as Error).message);
@@ -130,7 +132,65 @@ export default function GiftScreen() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const activeGift = state?.gifts.find((g) => g.id === active) ?? null;
+
+  if (activeGift) {
+    const link = inviteLink(activeGift.id);
+    return (
+      <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
+        <button
+          onClick={() => setActive(null)}
+          className="mb-4 inline-flex items-center gap-1 text-sm text-[#f0cd7e]"
+        >
+          <ArrowRight className="w-4 h-4" /> رجوع
+        </button>
+
+        <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-5 text-center">
+          <div className="flex justify-center mb-3">
+            <GiftMedia url={activeGift.imageUrl} size={110} />
+          </div>
+          <h2 className="text-lg font-extrabold text-[#f0cd7e]">{activeGift.title}</h2>
+          {activeGift.description && (
+            <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
+          )}
+          <p className="text-[11px] text-[#c9b892]/70 mt-2">⏱ {formatDeadline(activeGift.endsAt)}</p>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#c9b892]/70">إحالاتك</p>
+            <p className="text-xl font-extrabold text-[#f0cd7e]">{activeGift.invitedCount}</p>
+          </div>
+          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#c9b892]/70">فرصك في الفوز</p>
+            <p className="text-xl font-extrabold text-[#f0cd7e]">×{activeGift.chances}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-[#d9a544]/30 bg-black/40 p-4">
+          <p className="text-xs text-[#c9b892]/80 mb-2">
+            رابط الإحالة الخاص بك — كل صديق ينضم يزوّد فرصتك
+          </p>
+          <p
+            dir="ltr"
+            className="text-[11px] text-[#f0cd7e] break-all bg-black/50 rounded-xl border border-[#d9a544]/20 px-3 py-2"
+          >
+            {link}
+          </p>
+          <button
+            onClick={() => { void copyInvite(activeGift.id); }}
+            className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+          >
+            {copied === activeGift.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            نسخ رابط الدعوة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
       <header className="flex items-center gap-2 mb-5">
         <GiftIcon className="w-6 h-6 text-[#f0cd7e]" />
@@ -175,9 +235,6 @@ export default function GiftScreen() {
                     {g.description && (
                       <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{g.description}</p>
                     )}
-                    {g.reward > 0 && (
-                      <p className="text-xs font-bold text-[#f0cd7e] mt-1">+{g.reward} MNX</p>
-                    )}
                     {g.link && (
                       <a
                         href={g.link}
@@ -211,24 +268,12 @@ export default function GiftScreen() {
                 </div>
 
                 {g.joined ? (
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center justify-between rounded-xl bg-[#d9a544]/10 border border-[#d9a544]/30 px-3 py-2">
-                      <span className="text-xs text-[#c9b892]/80 flex items-center gap-1">
-                        <Ticket className="w-3.5 h-3.5 text-[#f0cd7e]" /> فرصك في الفوز
-                      </span>
-                      <span className="text-sm font-extrabold text-[#f0cd7e]">×{g.chances}</span>
-                    </div>
-                    <p className="text-[11px] text-[#c9b892]/70">
-                      ادعُ أصدقاءك برابطك الخاص — كل صديق ينضم يزوّد فرصتك (دعوت {g.invitedCount})
-                    </p>
-                    <button
-                      onClick={() => { void copyInvite(g.id); }}
-                      className="w-full rounded-xl bg-[#d9a544] text-black font-bold py-2 text-sm flex items-center justify-center gap-2"
-                    >
-                      {copied === g.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      نسخ رابط الدعوة
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setActive(g.id)}
+                    className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+                  >
+                    <Ticket className="w-4 h-4" /> فتح صفحة المسابقة
+                  </button>
                 ) : (
                   <button
                     disabled={busy === g.id || g.full || g.expired}
