@@ -70,9 +70,13 @@ const REF_KEY = 'gm_gift_ref';
 /** Reads the inviter id from every place Telegram may expose the start param. */
 function getStartRef(): number | null {
   const parse = (param: string) => {
-    const m = /^gift_(\d+)_(\d+)$/.exec(param.trim());
-    return m ? Number(m[2]) : null;
+    const s = param.trim();
+    const short = /^g_?(\d+)$/.exec(s);
+    if (short) return Number(short[1]);
+    const legacy = /^gift_(\d+)_(\d+)$/.exec(s);
+    return legacy ? Number(legacy[2]) : null;
   };
+
   try {
     const wa = window.Telegram?.WebApp as
       | { initDataUnsafe?: { start_param?: string }; initData?: string }
