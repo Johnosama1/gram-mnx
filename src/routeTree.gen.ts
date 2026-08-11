@@ -28,6 +28,7 @@ import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/securit
 import { Route as ApiAdminTaskSubmissionsRouteImport } from './routes/api/admin/task-submissions'
 import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
+import { Route as ApiGiftJoinRouteImport } from './routes/api/gift/join'
 import { Route as ApiGiftStatusRouteImport } from './routes/api/gift/status'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
@@ -159,6 +160,11 @@ const ApiAdminTasksRoute = ApiAdminTasksRouteImport.update({
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
   id: '/api/admin/users',
   path: '/api/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGiftJoinRoute = ApiGiftJoinRouteImport.update({
+  id: '/api/gift/join',
+  path: '/api/gift/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGiftStatusRoute = ApiGiftStatusRouteImport.update({
@@ -369,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -426,6 +433,7 @@ export interface FileRoutesByTo {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -484,6 +492,7 @@ export interface FileRoutesById {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -543,6 +552,7 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -600,6 +610,7 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -657,6 +668,7 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -715,6 +727,7 @@ export interface RootRouteChildren {
   ApiAdminTaskSubmissionsRoute: typeof ApiAdminTaskSubmissionsRoute
   ApiAdminTasksRoute: typeof ApiAdminTasksRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+  ApiGiftJoinRoute: typeof ApiGiftJoinRoute
   ApiGiftStatusRoute: typeof ApiGiftStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
@@ -882,6 +895,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/users'
       fullPath: '/api/admin/users'
       preLoaderRoute: typeof ApiAdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gift/join': {
+      id: '/api/gift/join'
+      path: '/api/gift/join'
+      fullPath: '/api/gift/join'
+      preLoaderRoute: typeof ApiGiftJoinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gift/status': {
@@ -1198,6 +1218,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTaskSubmissionsRoute: ApiAdminTaskSubmissionsRoute,
   ApiAdminTasksRoute: ApiAdminTasksRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
+  ApiGiftJoinRoute: ApiGiftJoinRoute,
   ApiGiftStatusRoute: ApiGiftStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,
@@ -1234,13 +1255,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
