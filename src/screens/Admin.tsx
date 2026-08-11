@@ -470,7 +470,10 @@ function AdsSection() {
   );
 }
 
-type GiftItem = { id: number; title: string; description: string; reward: number; link: string | null };
+type GiftItem = {
+  id: number; title: string; description: string; reward: number; link: string | null;
+  imageUrl: string | null; capacity: number; participants?: number;
+};
 
 function GiftSection() {
   const [enabled, setEnabled] = useState(false);
@@ -480,8 +483,11 @@ function GiftSection() {
   const [description, setDescription] = useState('');
   const [reward, setReward] = useState('0');
   const [link, setLink] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [capacity, setCapacity] = useState('0');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+
 
   const load = useCallback(async () => {
     try {
