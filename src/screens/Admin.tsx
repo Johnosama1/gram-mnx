@@ -262,7 +262,7 @@ function BroadcastSection() {
   const [loading, setLoading] = useState(false);
 
   const openPremiumBroadcast = () => {
-    const url = 'https://t.me/GRAM MNX1_Bot?start=broadcast';
+    const url = 'https://t.me/GRAMMNX1_bot?start=broadcast';
     const tg = (window as any)?.Telegram?.WebApp;
     if (tg?.openTelegramLink) tg.openTelegramLink(url);
     else window.open(url, '_blank');
@@ -1597,7 +1597,7 @@ function UsersSection() {
             </div>
             <Btn variant="ghost" size="sm" className="w-full"
               onClick={() => {
-                const url = `https://t.me/GRAM MNX1_Bot?start=dm_${u.telegramId}`;
+                const url = `https://t.me/GRAMMNX1_bot?start=dm_${u.telegramId}`;
                 const tg = (window as any)?.Telegram?.WebApp;
                 if (tg?.openTelegramLink) tg.openTelegramLink(url);
                 else window.open(url, '_blank');
