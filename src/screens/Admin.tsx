@@ -473,7 +473,7 @@ function AdsSection() {
 
 type GiftItem = {
   id: number; title: string; description: string; reward: number; link: string | null;
-  imageUrl: string | null; capacity: number; participants?: number;
+  imageUrl: string | null; capacity: number; endsAt?: string | null; participants?: number;
 };
 
 function GiftSection() {
