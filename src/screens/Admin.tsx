@@ -575,20 +575,75 @@ function GiftSection() {
       </label>
 
       <div className="space-y-2 bg-black/30 rounded-xl p-3 border border-white/5">
-        <p className="text-white font-bold text-sm">إضافة هدية</p>
+        <p className="text-white font-bold text-sm">إضافة مسابقة / هدية</p>
+
+        <label className="text-[11px] text-muted-foreground block">
+          1) اسم الهدية
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="اسم الهدية في المسابقة"
+            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+        </label>
+
+        <label className="text-[11px] text-muted-foreground block">
+          2) الوصف
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="وصف المسابقة"
+            rows={2}
+            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+        </label>
+
+        <label className="text-[11px] text-muted-foreground block">
+          3) عدد المستخدمين (اكتب $&amp; للعدد اللا نهائي)
+          <input
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+            placeholder="$& = بدون حد"
+            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+        </label>
+
+        <label className="text-[11px] text-muted-foreground block">
+          4) وقت انتهاء المسابقة (اتركه فاضي = بدون وقت محدد)
+          <input
+            type="datetime-local"
+            value={endsAt}
+            onChange={(e) => setEndsAt(e.target.value)}
+            dir="ltr"
+            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+        </label>
+
+        <label className="text-[11px] text-muted-foreground block">
+          5) ملف الهدية (يدعم .json لوتي و png/jpg/webp/gif)
+          <input
+            type="file"
+            accept=".json,image/*"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadFile(f); }}
+            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-xs"
+          />
+        </label>
+        {uploading && <p className="text-[11px] text-muted-foreground">جاري رفع الملف…</p>}
+        {imageUrl && (
+          <div className="flex items-center gap-2">
+            <GiftMedia url={imageUrl} size={40} />
+            <span className="text-[11px] text-muted-foreground truncate flex-1" dir="ltr">{imageUrl}</span>
+            <button onClick={() => setImageUrl('')} className="text-destructive text-xs">حذف</button>
+          </div>
+        )}
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="عنوان الهدية"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="أو ضع رابط الصورة/الملف مباشرة"
+          dir="ltr"
           className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
         />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="وصف الهدية"
-          rows={2}
-          className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
-        />
+
         <div className="grid grid-cols-2 gap-2">
           <input
             value={reward}
@@ -600,19 +655,6 @@ function GiftSection() {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="رابط (اختياري)"
-            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
-          />
-          <input
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="رابط صورة الهدية (يدعم .json)"
-            dir="ltr"
-            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
-          />
-          <input
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
-            placeholder="عدد المشاركين (0 = بدون حد)"
             className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
           />
         </div>
