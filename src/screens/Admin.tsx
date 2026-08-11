@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import arTranslations from '@/locales/ar.json';
 import { notifyDataChange } from '@/lib/apiCache';
+import { GiftMedia } from '@/screens/Gift';
 
 /**
  * Admin panel is Arabic-only: shadow the app-wide language hook with a
