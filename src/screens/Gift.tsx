@@ -19,9 +19,27 @@ type GiftItem = {
   joined: boolean;
   chances: number;
   invitedCount: number;
+  endsAt: string | null;
+  expired: boolean;
 };
 
-type GiftStatus = { enabled: boolean; message: string; gifts: GiftItem[]; telegramId?: number | null };
+type GiftStatus = {
+  enabled: boolean;
+  message: string;
+  gifts: GiftItem[];
+  telegramId?: number | null;
+  adminPreview?: boolean;
+};
+
+function formatDeadline(endsAt: string | null) {
+  if (!endsAt) return 'بدون وقت محدد';
+  const ms = Date.parse(endsAt) - Date.now();
+  if (ms <= 0) return 'انتهت المسابقة';
+  const days = Math.floor(ms / 86400000);
+  const hours = Math.floor((ms % 86400000) / 3600000);
+  const mins = Math.floor((ms % 3600000) / 60000);
+  return days > 0 ? `يتبقى ${days} يوم و${hours} ساعة` : hours > 0 ? `يتبقى ${hours} ساعة و${mins} دقيقة` : `يتبقى ${mins} دقيقة`;
+}
 
 /** Prize artwork — supports Lottie .json files as well as regular images. */
 export function GiftMedia({ url, size = 56 }: { url: string | null; size?: number }) {
@@ -132,6 +150,12 @@ export default function GiftScreen() {
         </div>
       )}
 
+      {state?.adminPreview && (
+        <div className="mb-4 rounded-xl border border-[#d9a544]/40 bg-[#d9a544]/10 px-3 py-2 text-xs text-[#f0cd7e]">
+          القسم مقفول للمستخدمين — أنت تشاهده كأدمن فقط
+        </div>
+      )}
+
       {state?.enabled && state.gifts.length === 0 && (
         <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-8 text-center text-[#c9b892]/70 text-sm">
           لا توجد مسابقات متاحة حالياً
@@ -175,6 +199,7 @@ export default function GiftScreen() {
                     </span>
                     {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
                   </div>
+                  <p className="text-[11px] text-[#c9b892]/70 mb-1">⏱ {formatDeadline(g.endsAt)}</p>
                   {g.capacity > 0 && (
                     <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                       <div
@@ -206,12 +231,12 @@ export default function GiftScreen() {
                   </div>
                 ) : (
                   <button
-                    disabled={busy === g.id || g.full}
+                    disabled={busy === g.id || g.full || g.expired}
                     onClick={() => { void join(g); }}
                     className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {busy === g.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}
+                    {g.expired ? 'انتهت المسابقة' : g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}
                   </button>
                 )}
               </div>
