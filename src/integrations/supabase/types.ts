@@ -176,6 +176,36 @@ export type Database = {
         }
         Relationships: []
       }
+      gm_gift_entries: {
+        Row: {
+          chances: number
+          created_at: string
+          gift_id: number
+          id: number
+          invited_count: number
+          referred_by: number | null
+          telegram_id: number
+        }
+        Insert: {
+          chances?: number
+          created_at?: string
+          gift_id: number
+          id?: number
+          invited_count?: number
+          referred_by?: number | null
+          telegram_id: number
+        }
+        Update: {
+          chances?: number
+          created_at?: string
+          gift_id?: number
+          id?: number
+          invited_count?: number
+          referred_by?: number | null
+          telegram_id?: number
+        }
+        Relationships: []
+      }
       gm_promo_codes: {
         Row: {
           code: string
