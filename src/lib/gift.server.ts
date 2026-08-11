@@ -11,6 +11,8 @@ export type GiftItem = {
   imageUrl: string | null;
   /** 0 = unlimited participants (progress bar hidden on the client). */
   capacity: number;
+  /** ISO date-time when the contest ends. null = no deadline. */
+  endsAt: string | null;
 };
 
 export type GiftConfig = {
@@ -25,6 +27,7 @@ export type GiftPublicItem = GiftItem & {
   joined: boolean;
   chances: number;
   invitedCount: number;
+  expired: boolean;
 };
 
 const DEFAULT_MESSAGE = 'قريباً — الهدايا لسه مش متاحة';
@@ -45,6 +48,7 @@ export function parseGifts(raw: string | null): GiftItem[] {
           link: item.link ? String(item.link).slice(0, 300) : null,
           imageUrl: item.imageUrl ? String(item.imageUrl).slice(0, 500) : null,
           capacity: Math.max(0, Number(item.capacity ?? 0) || 0),
+          endsAt: item.endsAt ? String(item.endsAt).slice(0, 40) : null,
         };
       })
       .filter((g) => g.id > 0 && g.title);
@@ -91,11 +95,19 @@ async function loadEntryStats(giftIds: number[], telegramId: number | null) {
   return { counts, mine };
 }
 
+async function isAdminUser(telegramId: number | null): Promise<boolean> {
+  if (!telegramId) return false;
+  const { getAllAdminIds } = await import('@/lib/admin.server');
+  return (await getAllAdminIds()).includes(telegramId);
+}
+
 export async function getGiftState(initData: string | null) {
   const cfg = await getGiftConfig();
   const auth = resolveTelegramUser(initData);
-  if (!cfg.enabled) {
-    return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[] };
+  const isAdmin = await isAdminUser(auth?.id ?? null);
+  // A locked section stays locked for everyone except admins (preview mode).
+  if (!cfg.enabled && !isAdmin) {
+    return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false };
   }
 
   const ids = cfg.gifts.map((g) => g.id);
@@ -111,10 +123,17 @@ export async function getGiftState(initData: string | null) {
       joined: Boolean(my),
       chances: my?.chances ?? 0,
       invitedCount: my?.invited ?? 0,
+      expired: Boolean(g.endsAt && Date.parse(g.endsAt) < Date.now()),
     };
   });
 
-  return { enabled: true, message: cfg.message, gifts, telegramId: auth?.id ?? null };
+  return {
+    enabled: true,
+    message: cfg.message,
+    gifts,
+    telegramId: auth?.id ?? null,
+    adminPreview: !cfg.enabled && isAdmin,
+  };
 }
 
 /** Public gift status endpoint: GET/POST → { enabled, message, gifts } */
@@ -144,9 +163,12 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
 
   const giftId = Number(body.giftId ?? 0);
   const cfg = await getGiftConfig();
-  if (!cfg.enabled) return json({ error: 'المسابقات غير متاحة حالياً' }, 403);
+  if (!cfg.enabled && !(await isAdminUser(auth.id)))
+    return json({ error: 'المسابقات غير متاحة حالياً' }, 403);
   const gift = cfg.gifts.find((g) => g.id === giftId);
   if (!gift) return json({ error: 'المسابقة غير موجودة' }, 404);
+  if (gift.endsAt && Date.parse(gift.endsAt) < Date.now())
+    return json({ error: 'انتهى وقت المسابقة' }, 409);
 
   const db = (await getDb()) as any;
   const existing = await db
@@ -199,4 +221,23 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
   }
 
   return json(await getGiftState(initData));
+}
+
+/** Serves an uploaded gift media file (private bucket) through our own origin. */
+export async function handleGiftMedia(name: string): Promise<Response> {
+  const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+  const { data, error } = await supabaseAdmin.storage.from('gift-media').download(name);
+  if (error || !data) return new Response('Not found', { status: 404 });
+  const type = name.toLowerCase().endsWith('.json')
+    ? 'application/json'
+    : name.toLowerCase().endsWith('.png')
+      ? 'image/png'
+      : name.toLowerCase().endsWith('.webp')
+        ? 'image/webp'
+        : name.toLowerCase().endsWith('.gif')
+          ? 'image/gif'
+          : 'image/jpeg';
+  return new Response(await data.arrayBuffer(), {
+    headers: { 'content-type': type, 'cache-control': 'public, max-age=31536000, immutable' },
+  });
 }
