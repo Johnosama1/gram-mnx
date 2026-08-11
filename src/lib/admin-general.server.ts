@@ -435,7 +435,20 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
     // ── Gifts ───────────────────────────────────────────────────────────────
     if (type === 'gift') {
       const { getGiftConfig, parseGifts } = await import('@/lib/gift.server');
-      if (method === 'GET') return json(await getGiftConfig());
+      if (method === 'GET') {
+        const cfg = await getGiftConfig();
+        const { data: entries } = await db
+          .from('gm_gift_entries')
+          .select('gift_id')
+          .in('gift_id', cfg.gifts.map((g) => g.id).concat([0]));
+        const counts = new Map<number, number>();
+        for (const r of (entries ?? []) as any[])
+          counts.set(Number(r.gift_id), (counts.get(Number(r.gift_id)) ?? 0) + 1);
+        return json({
+          ...cfg,
+          gifts: cfg.gifts.map((g) => ({ ...g, participants: counts.get(g.id) ?? 0 })),
+        });
+      }
 
       if (method === 'POST' && action === 'settings') {
         await setSetting('gift_enabled', body.enabled === true ? 'true' : 'false');
@@ -454,6 +467,8 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           description: String(body.description ?? '').slice(0, 500),
           reward: Math.max(0, Number(body.reward ?? 0) || 0),
           link: body.link ? String(body.link).slice(0, 300) : null,
+          imageUrl: body.imageUrl ? String(body.imageUrl).slice(0, 500) : null,
+          capacity: Math.max(0, Number(body.capacity ?? 0) || 0),
         });
         await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));
         return json({ ok: true });
@@ -462,6 +477,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
       if (method === 'DELETE' && id) {
         const gifts = parseGifts(await getSetting('gifts')).filter((g) => g.id !== id);
         await setSetting('gifts', JSON.stringify(gifts));
+        await db.from('gm_gift_entries').delete().eq('gift_id', id);
         return json({ ok: true });
       }
       return json({ error: 'Invalid gift request' }, 400);

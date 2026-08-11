@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import arTranslations from '@/locales/ar.json';
 import { notifyDataChange } from '@/lib/apiCache';
+import { GiftMedia } from '@/screens/Gift';
 
 /**
  * Admin panel is Arabic-only: shadow the app-wide language hook with a
@@ -470,7 +471,10 @@ function AdsSection() {
   );
 }
 
-type GiftItem = { id: number; title: string; description: string; reward: number; link: string | null };
+type GiftItem = {
+  id: number; title: string; description: string; reward: number; link: string | null;
+  imageUrl: string | null; capacity: number; participants?: number;
+};
 
 function GiftSection() {
   const [enabled, setEnabled] = useState(false);
@@ -480,8 +484,11 @@ function GiftSection() {
   const [description, setDescription] = useState('');
   const [reward, setReward] = useState('0');
   const [link, setLink] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [capacity, setCapacity] = useState('0');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+
 
   const load = useCallback(async () => {
     try {
@@ -524,8 +531,11 @@ function GiftSection() {
         description,
         reward: Number(reward) || 0,
         link: link || null,
+        imageUrl: imageUrl || null,
+        capacity: Number(capacity) || 0,
       });
-      setTitle(''); setDescription(''); setReward('0'); setLink('');
+      setTitle(''); setDescription(''); setReward('0'); setLink(''); setImageUrl(''); setCapacity('0');
+
       setStatus('✅ تم إضافة الهدية');
       await load();
     } catch (e) {
@@ -592,7 +602,21 @@ function GiftSection() {
             placeholder="رابط (اختياري)"
             className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
           />
+          <input
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="رابط صورة الهدية (يدعم .json)"
+            dir="ltr"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
+          <input
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+            placeholder="عدد المشاركين (0 = بدون حد)"
+            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          />
         </div>
+
         <button
           onClick={() => { void addGift(); }}
           className="w-full bg-primary text-black font-bold rounded-xl py-2 text-sm flex items-center justify-center gap-1"
@@ -603,19 +627,24 @@ function GiftSection() {
 
       <div className="space-y-2">
         {gifts.map((g) => (
-          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2">
-            <div className="min-w-0">
+          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2 gap-2">
+            <GiftMedia url={g.imageUrl} size={40} />
+            <div className="min-w-0 flex-1">
               <p className="text-white text-sm font-bold truncate">{g.title}</p>
               <p className="text-muted-foreground text-xs truncate">{g.description}</p>
               {g.reward > 0 && <p className="text-primary text-xs font-bold">+{g.reward} MNX</p>}
+              <p className="text-muted-foreground text-[11px]">
+                👥 {g.participants ?? 0}{g.capacity > 0 ? ` / ${g.capacity}` : ' (بدون حد)'}
+              </p>
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
         ))}
-        {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد هدايا مضافة</p>}
+        {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد مسابقات مضافة</p>}
       </div>
+
 
       {status && <p className="text-xs text-white">{status}</p>}
     </div>
