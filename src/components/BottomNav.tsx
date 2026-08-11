@@ -82,14 +82,26 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
           className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
         >
           <div
-            className={`p-1.5 rounded-xl transition-all duration-200 ${
+            className={`relative p-1.5 rounded-xl transition-all duration-200 ${
               location === '/gift'
                 ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
                 : 'text-[#c9b892]/50 border border-transparent'
             }`}
           >
             <Gift className="w-5 h-5" strokeWidth={location === '/gift' ? 2.5 : 2} />
+            {giftCount > 0 && (
+              <span className="absolute -top-1.5 -right-2 flex items-center gap-0.5 rounded-full bg-[#d9a544] px-1 py-[1px] shadow-[0_0_10px_rgba(230,185,95,0.5)]">
+                <span className="text-[9px] font-extrabold leading-none text-black">{giftCount}</span>
+                {giftThumb &&
+                  (giftThumb.toLowerCase().endsWith('.json') ? (
+                    <StickerBadge src={giftThumb} size={12} />
+                  ) : (
+                    <img src={giftThumb} alt="" className="w-3 h-3 rounded-full object-cover" />
+                  ))}
+              </span>
+            )}
           </div>
+
           <span
             className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
               location === '/gift' ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
