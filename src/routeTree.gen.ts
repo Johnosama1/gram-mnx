@@ -51,6 +51,7 @@ import { Route as ApiTelegramWithdrawRouteImport } from './routes/api/telegram/w
 import { Route as ApiTournamentActiveRouteImport } from './routes/api/tournament/active'
 import { Route as ApiUserLanguageRouteImport } from './routes/api/user/language'
 import { Route as ApiAdminReferralMilestonesIdRouteImport } from './routes/api/admin/referral-milestones/$id'
+import { Route as ApiGiftMediaNameRouteImport } from './routes/api/gift/media/$name'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicTonDepositScanRouteImport } from './routes/api/public/ton/deposit-scan'
 import { Route as ApiTelegramAvatarIdRouteImport } from './routes/api/telegram/avatar/$id'
@@ -278,6 +279,11 @@ const ApiAdminReferralMilestonesIdRoute =
     path: '/$id',
     getParentRoute: () => ApiAdminReferralMilestonesRoute,
   } as any)
+const ApiGiftMediaNameRoute = ApiGiftMediaNameRouteImport.update({
+  id: '/api/gift/media/$name',
+  path: '/api/gift/media/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -398,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByTo {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -515,6 +523,7 @@ export interface FileRoutesById {
   '/api/user/language': typeof ApiUserLanguageRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/admin/referral-milestones/$id': typeof ApiAdminReferralMilestonesIdRoute
+  '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
@@ -575,6 +584,7 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks/'
     | '/api/admin/referral-milestones/$id'
+    | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks'
     | '/api/admin/referral-milestones/$id'
+    | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/api/user/language'
     | '/api/tasks/'
     | '/api/admin/referral-milestones/$id'
+    | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
     | '/api/telegram/avatar/$id'
@@ -749,6 +761,7 @@ export interface RootRouteChildren {
   ApiTournamentActiveRoute: typeof ApiTournamentActiveRoute
   ApiUserLanguageRoute: typeof ApiUserLanguageRoute
   ApiTasksIndexRoute: typeof ApiTasksIndexRoute
+  ApiGiftMediaNameRoute: typeof ApiGiftMediaNameRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicTonDepositScanRoute: typeof ApiPublicTonDepositScanRoute
   ApiTelegramAvatarIdRoute: typeof ApiTelegramAvatarIdRoute
@@ -1058,6 +1071,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminReferralMilestonesIdRouteImport
       parentRoute: typeof ApiAdminReferralMilestonesRoute
     }
+    '/api/gift/media/$name': {
+      id: '/api/gift/media/$name'
+      path: '/api/gift/media/$name'
+      fullPath: '/api/gift/media/$name'
+      preLoaderRoute: typeof ApiGiftMediaNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
       path: '/api/public/telegram/webhook'
@@ -1240,6 +1260,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTournamentActiveRoute: ApiTournamentActiveRoute,
   ApiUserLanguageRoute: ApiUserLanguageRoute,
   ApiTasksIndexRoute: ApiTasksIndexRoute,
+  ApiGiftMediaNameRoute: ApiGiftMediaNameRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicTonDepositScanRoute: ApiPublicTonDepositScanRoute,
   ApiTelegramAvatarIdRoute: ApiTelegramAvatarIdRoute,
@@ -1255,13 +1276,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

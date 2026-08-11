@@ -450,6 +450,26 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
         });
       }
 
+      // Upload a prize file (Lottie .json / .tgs sticker or image) to private storage.
+      if (method === 'POST' && action === 'upload') {
+        const raw = String(body.data ?? '');
+        const base64 = raw.includes(',') ? raw.slice(raw.indexOf(',') + 1) : raw;
+        if (!base64) return json({ error: 'الملف مطلوب' }, 400);
+        const original = String(body.filename ?? 'file');
+        const ext = (original.split('.').pop() ?? 'json').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+        const { error: upErr } = await supabaseAdmin.storage
+          .from('gift-media')
+          .upload(name, bytes, {
+            contentType: ext === 'json' ? 'application/json' : `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+            upsert: false,
+          });
+        if (upErr) return json({ error: upErr.message }, 500);
+        return json({ url: `/api/gift/media/${name}` });
+      }
+
       if (method === 'POST' && action === 'settings') {
         await setSetting('gift_enabled', body.enabled === true ? 'true' : 'false');
         if (typeof body.message === 'string')
@@ -469,6 +489,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           link: body.link ? String(body.link).slice(0, 300) : null,
           imageUrl: body.imageUrl ? String(body.imageUrl).slice(0, 500) : null,
           capacity: Math.max(0, Number(body.capacity ?? 0) || 0),
+          endsAt: body.endsAt ? String(body.endsAt).slice(0, 40) : null,
         });
         await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));
         return json({ ok: true });
