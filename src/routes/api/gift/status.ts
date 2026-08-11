@@ -4,5 +4,5 @@ import { handleGiftApi } from '@/lib/gift.server';
 const handle = ({ request }: { request: Request }) => handleGiftApi(request);
 
 export const Route = createFileRoute('/api/gift/status')({
-  server: { handlers: { GET: handle } },
+  server: { handlers: { GET: handle, POST: handle } },
 });
