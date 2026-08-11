@@ -191,8 +191,10 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
     let rawRef = Number(body.ref ?? 0);
     if (!Number.isFinite(rawRef) || rawRef <= 0) {
       const startParam = initData ? (new URLSearchParams(initData).get('start_param') ?? '') : '';
-      const m = /^gift_(\d+)_(\d+)$/.exec(startParam.trim());
-      rawRef = m ? Number(m[2]) : 0;
+      const s = startParam.trim();
+      const short = /^g_?(\d+)$/.exec(s);
+      const legacy = /^gift_(\d+)_(\d+)$/.exec(s);
+      rawRef = short ? Number(short[1]) : legacy ? Number(legacy[2]) : 0;
     }
     const referrer = Number.isFinite(rawRef) && rawRef > 0 && rawRef !== auth.id ? rawRef : null;
 
@@ -207,6 +209,7 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
 
     // Credit the inviter one extra chance (create their entry if it is missing).
     if (referrer) {
+      let newChances = 2;
       const { data: refRow } = await db
         .from('gm_gift_entries')
         .select('id,chances,invited_count')
@@ -214,10 +217,11 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
         .eq('telegram_id', referrer)
         .maybeSingle();
       if (refRow) {
+        newChances = Number(refRow.chances ?? 1) + 1;
         await db
           .from('gm_gift_entries')
           .update({
-            chances: Number(refRow.chances ?? 1) + 1,
+            chances: newChances,
             invited_count: Number(refRow.invited_count ?? 0) + 1,
           })
           .eq('id', refRow.id);
@@ -229,8 +233,16 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
           invited_count: 1,
         });
       }
+
+      const { notifyUser } = await import('@/lib/admin.server');
+      const name = auth.username ? `@${auth.username}` : (auth.first_name ?? 'صديق');
+      await notifyUser(
+        referrer,
+        `🎉 تم دعوة شخص جديد للمسابقة!\n\n👤 ${name} انضم عن طريق رابطك\n🎁 المسابقة: ${gift.title}\n🎟 فرصك في الفوز الآن: ×${newChances}`,
+      );
     }
   }
+
 
 
   return json(await getGiftState(initData));
