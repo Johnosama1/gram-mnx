@@ -152,8 +152,9 @@ export default function GiftScreen() {
     }
   };
 
-  const inviteLink = (giftId: number) =>
-    `https://t.me/${BOT_USERNAME}?startapp=gift_${giftId}_${state?.telegramId ?? ''}`;
+  const inviteLink = (_giftId: number) =>
+    `https://t.me/${BOT_USERNAME}?startapp=g_${state?.telegramId ?? ''}`;
+
 
   const copyInvite = async (giftId: number) => {
     const link = inviteLink(giftId);
