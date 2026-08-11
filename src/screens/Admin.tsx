@@ -482,7 +482,6 @@ function GiftSection() {
   const [gifts, setGifts] = useState<GiftItem[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [reward, setReward] = useState('0');
   const [link, setLink] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [capacity, setCapacity] = useState('$&');
@@ -556,13 +555,13 @@ function GiftSection() {
       await api('POST', '/admin/general?type=gift', {
         title,
         description,
-        reward: Number(reward) || 0,
+        reward: 0,
         link: link || null,
         imageUrl: imageUrl || null,
         capacity: cap,
         endsAt: endsAt ? new Date(endsAt).toISOString() : null,
       });
-      setTitle(''); setDescription(''); setReward('0'); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt('');
+      setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt('');
 
       setStatus('✅ تم إضافة الهدية');
       await load();
@@ -672,13 +671,7 @@ function GiftSection() {
           className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
         />
 
-        <div className="grid grid-cols-2 gap-2">
-          <input
-            value={reward}
-            onChange={(e) => setReward(e.target.value)}
-            placeholder="المكافأة (MNX)"
-            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
-          />
+        <div className="grid grid-cols-1 gap-2">
           <input
             value={link}
             onChange={(e) => setLink(e.target.value)}
@@ -702,7 +695,6 @@ function GiftSection() {
             <div className="min-w-0 flex-1">
               <p className="text-white text-sm font-bold truncate">{g.title}</p>
               <p className="text-muted-foreground text-xs truncate">{g.description}</p>
-              {g.reward > 0 && <p className="text-primary text-xs font-bold">+{g.reward} MNX</p>}
               <p className="text-muted-foreground text-[11px]">
                 👥 {g.participants ?? 0}{g.capacity > 0 ? ` / ${g.capacity}` : ' (بدون حد)'}
               </p>

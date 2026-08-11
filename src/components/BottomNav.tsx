@@ -1,12 +1,6 @@
-import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { API_BASE, getInitData } from '@/lib/telegramApi';
-import StickerBadge from '@/components/StickerBadge';
-
-type NavGift = { id: number; imageUrl: string | null };
-
 
 const APP_VERSION = 'v1.0.4';
 
@@ -21,26 +15,6 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
     { path: '/friends', label: t('nav_friends'), icon: Users        },
     { path: '/profile', label: t('nav_profile'), icon: User         },
   ];
-  const [gifts, setGifts] = useState<NavGift[]>([]);
-
-  useEffect(() => {
-    let alive = true;
-    fetch(`${API_BASE}/api/gift/status`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: getInitData() }),
-    })
-      .then((r) => r.json())
-      .then((d: { enabled?: boolean; gifts?: NavGift[] }) => {
-        if (alive) setGifts(d.enabled ? (d.gifts ?? []) : []);
-      })
-      .catch(() => undefined);
-    return () => { alive = false; };
-  }, []);
-
-  const giftCount = gifts.length;
-  const giftThumb = gifts.find((g) => g.imageUrl)?.imageUrl ?? null;
-
 
   return (
     <div
@@ -93,17 +67,6 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             }`}
           >
             <Gift className="w-5 h-5" strokeWidth={location === '/gift' ? 2.5 : 2} />
-            {giftCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 flex items-center gap-0.5 rounded-full bg-[#d9a544] px-1 py-[1px] shadow-[0_0_10px_rgba(230,185,95,0.5)]">
-                <span className="text-[9px] font-extrabold leading-none text-black">{giftCount}</span>
-                {giftThumb &&
-                  (giftThumb.toLowerCase().endsWith('.json') ? (
-                    <StickerBadge src={giftThumb} size={12} />
-                  ) : (
-                    <img src={giftThumb} alt="" className="w-3 h-3 rounded-full object-cover" />
-                  ))}
-              </span>
-            )}
           </div>
 
           <span
