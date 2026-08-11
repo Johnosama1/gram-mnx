@@ -485,7 +485,9 @@ function GiftSection() {
   const [reward, setReward] = useState('0');
   const [link, setLink] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [capacity, setCapacity] = useState('0');
+  const [capacity, setCapacity] = useState('$&');
+  const [endsAt, setEndsAt] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -524,17 +526,43 @@ function GiftSection() {
     await saveSettings(next, message);
   };
 
+  const uploadFile = async (file: File) => {
+    setUploading(true);
+    try {
+      const data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('تعذر قراءة الملف'));
+        reader.readAsDataURL(file);
+      });
+      const res = await api<{ url: string }>('POST', '/admin/general?type=gift&action=upload', {
+        filename: file.name,
+        data,
+      });
+      setImageUrl(res.url);
+      setStatus('✅ تم رفع الملف');
+    } catch (e) {
+      setStatus(`❌ ${(e as Error).message}`);
+    } finally {
+      setUploading(false);
+      setTimeout(() => setStatus(''), 2500);
+    }
+  };
+
   const addGift = async () => {
     try {
+      // "$&" (or empty) means unlimited participants → stored as 0.
+      const cap = capacity.trim() === '$&' || capacity.trim() === '' ? 0 : Math.max(0, Number(capacity) || 0);
       await api('POST', '/admin/general?type=gift', {
         title,
         description,
         reward: Number(reward) || 0,
         link: link || null,
         imageUrl: imageUrl || null,
-        capacity: Number(capacity) || 0,
+        capacity: cap,
+        endsAt: endsAt ? new Date(endsAt).toISOString() : null,
       });
-      setTitle(''); setDescription(''); setReward('0'); setLink(''); setImageUrl(''); setCapacity('0');
+      setTitle(''); setDescription(''); setReward('0'); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt('');
 
       setStatus('✅ تم إضافة الهدية');
       await load();
@@ -677,6 +705,9 @@ function GiftSection() {
               {g.reward > 0 && <p className="text-primary text-xs font-bold">+{g.reward} MNX</p>}
               <p className="text-muted-foreground text-[11px]">
                 👥 {g.participants ?? 0}{g.capacity > 0 ? ` / ${g.capacity}` : ' (بدون حد)'}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                ⏱ {g.endsAt ? new Date(g.endsAt).toLocaleString() : 'بدون وقت محدد'}
               </p>
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
