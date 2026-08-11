@@ -132,7 +132,65 @@ export default function GiftScreen() {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const activeGift = state?.gifts.find((g) => g.id === active) ?? null;
+
+  if (activeGift) {
+    const link = inviteLink(activeGift.id);
+    return (
+      <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
+        <button
+          onClick={() => setActive(null)}
+          className="mb-4 inline-flex items-center gap-1 text-sm text-[#f0cd7e]"
+        >
+          <ArrowRight className="w-4 h-4" /> رجوع
+        </button>
+
+        <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-5 text-center">
+          <div className="flex justify-center mb-3">
+            <GiftMedia url={activeGift.imageUrl} size={110} />
+          </div>
+          <h2 className="text-lg font-extrabold text-[#f0cd7e]">{activeGift.title}</h2>
+          {activeGift.description && (
+            <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
+          )}
+          <p className="text-[11px] text-[#c9b892]/70 mt-2">⏱ {formatDeadline(activeGift.endsAt)}</p>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#c9b892]/70">إحالاتك</p>
+            <p className="text-xl font-extrabold text-[#f0cd7e]">{activeGift.invitedCount}</p>
+          </div>
+          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#c9b892]/70">فرصك في الفوز</p>
+            <p className="text-xl font-extrabold text-[#f0cd7e]">×{activeGift.chances}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-[#d9a544]/30 bg-black/40 p-4">
+          <p className="text-xs text-[#c9b892]/80 mb-2">
+            رابط الإحالة الخاص بك — كل صديق ينضم يزوّد فرصتك
+          </p>
+          <p
+            dir="ltr"
+            className="text-[11px] text-[#f0cd7e] break-all bg-black/50 rounded-xl border border-[#d9a544]/20 px-3 py-2"
+          >
+            {link}
+          </p>
+          <button
+            onClick={() => { void copyInvite(activeGift.id); }}
+            className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+          >
+            {copied === activeGift.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            نسخ رابط الدعوة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
       <header className="flex items-center gap-2 mb-5">
         <GiftIcon className="w-6 h-6 text-[#f0cd7e]" />
