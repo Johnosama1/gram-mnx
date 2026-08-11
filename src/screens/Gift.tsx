@@ -65,16 +65,47 @@ export function GiftMedia({ url, size = 56 }: { url: string | null; size?: numbe
   );
 }
 
+const REF_KEY = 'gm_gift_ref';
+
+/** Reads the inviter id from every place Telegram may expose the start param. */
 function getStartRef(): number | null {
+  const parse = (param: string) => {
+    const m = /^gift_(\d+)_(\d+)$/.exec(param.trim());
+    return m ? Number(m[2]) : null;
+  };
   try {
-    const unsafe = window.Telegram?.WebApp?.initDataUnsafe as { start_param?: string } | undefined;
-    const param = unsafe?.start_param ?? '';
-    const match = /^gift_\d+_(\d+)$/.exec(param);
-    return match ? Number(match[1]) : null;
+    const wa = window.Telegram?.WebApp as
+      | { initDataUnsafe?: { start_param?: string }; initData?: string }
+      | undefined;
+    const sources: string[] = [];
+    if (wa?.initDataUnsafe?.start_param) sources.push(wa.initDataUnsafe.start_param);
+    if (wa?.initData) {
+      const p = new URLSearchParams(wa.initData).get('start_param');
+      if (p) sources.push(p);
+    }
+    const url = new URLSearchParams(window.location.search);
+    for (const key of ['tgWebAppStartParam', 'startapp', 'start', 'ref']) {
+      const v = url.get(key);
+      if (v) sources.push(v);
+    }
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const h = hash.get('tgWebAppStartParam');
+    if (h) sources.push(h);
+
+    for (const s of sources) {
+      const id = parse(s);
+      if (id) {
+        try { localStorage.setItem(REF_KEY, String(id)); } catch { /* ignore */ }
+        return id;
+      }
+    }
+    const stored = Number(localStorage.getItem(REF_KEY) ?? 0);
+    return stored > 0 ? stored : null;
   } catch {
     return null;
   }
 }
+
 
 export default function GiftScreen() {
   const [state, setState] = useState<GiftStatus | null>(null);
