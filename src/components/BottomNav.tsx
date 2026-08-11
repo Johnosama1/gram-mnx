@@ -1,6 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { API_BASE } from '@/lib/telegramApi';
+import StickerBadge from '@/components/StickerBadge';
+
+type NavGift = { id: number; imageUrl: string | null };
+
 
 const APP_VERSION = 'v1.0.4';
 
