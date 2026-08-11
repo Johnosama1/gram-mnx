@@ -49,7 +49,8 @@ export function GiftMedia({ url, size = 56 }: { url: string | null; size?: numbe
 
 function getStartRef(): number | null {
   try {
-    const param = window.Telegram?.WebApp?.initDataUnsafe?.start_param ?? '';
+    const unsafe = window.Telegram?.WebApp?.initDataUnsafe as { start_param?: string } | undefined;
+    const param = unsafe?.start_param ?? '';
     const match = /^gift_\d+_(\d+)$/.exec(param);
     return match ? Number(match[1]) : null;
   } catch {
