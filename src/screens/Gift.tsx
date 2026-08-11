@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket } from 'lucide-react';
+import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket, ArrowRight } from 'lucide-react';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import { toast } from 'sonner';
