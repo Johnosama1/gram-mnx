@@ -428,7 +428,6 @@ function TwitterTaskCard({
   const [opened, setOpened] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const accent = '#1DA1F2';
 
   const openLink =
     task.twitterUrl ??
