@@ -664,30 +664,20 @@ function FriendsMilestones() {
         </div>
       </TaskCard>
       {milestones.map((m) => (
-        <div
-          key={m.id}
-          className="rounded-2xl p-3.5 flex items-center justify-between gap-3"
-          style={{
-            background: m.reached ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)' : 'rgba(0,0,0,0.5)',
-            border: `1px solid ${m.reached ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
-          }}
-        >
+        <TaskCard key={m.id} className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
-            >
-              {m.reached ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : <Users className="w-5 h-5" style={{ color: '#a78bfa' }} />}
-            </div>
+            <TaskIconBox>
+              {m.reached ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Users className="w-5 h-5 text-primary" />}
+            </TaskIconBox>
             <div className="min-w-0">
               <div className="text-white font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
               <div className="text-xs text-primary font-black">+{m.rewardCoins} MNX</div>
             </div>
           </div>
-          <div className="text-xs font-bold flex-shrink-0" style={{ color: m.reached ? '#a78bfa' : 'rgba(255,255,255,0.35)' }}>
+          <div className={`text-xs font-bold flex-shrink-0 ${m.reached ? 'text-primary' : 'text-white/35'}`}>
             {m.reached ? t('tasks_done') : `${count}/${m.inviteCount}`}
           </div>
-        </div>
+        </TaskCard>
       ))}
       {milestones.length === 0 && (
         <div className="text-center text-muted-foreground text-sm py-6">{t('tasks_no_invite_rewards')}</div>
