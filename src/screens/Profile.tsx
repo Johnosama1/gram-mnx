@@ -833,7 +833,7 @@ export default function Profile() {
       </div>
 
       {/* ── Menu cards ── */}
-      <div className="relative z-10 flex-1 space-y-3 pb-8">
+      <div className="relative z-10 flex-1 space-y-3 pb-40">
         {/* Wallet Connection */}
         <div
           onClick={() => setShowWallet(true)}
