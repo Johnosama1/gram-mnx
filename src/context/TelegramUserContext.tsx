@@ -24,6 +24,8 @@ type TelegramUserContextType = {
   user: TelegramUser | null;
   avatarUrl: string | null;
   isVerified: boolean;
+  /** Server said this Telegram account is banned (403 from the API guard). */
+  isBanned: boolean;
   isAdmin: boolean;
   isLoading: boolean;
   notJoinedChannels: UnsubscribedChannel[];
