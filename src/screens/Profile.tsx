@@ -19,7 +19,9 @@ import swapSticker from '@/assets/swap-sticker.json.asset.json';
 import gearSticker from '@/assets/gear-sticker.json.asset.json';
 import downloadSticker from '@/assets/download-sticker.json.asset.json';
 import supportBalloonSticker from '@/assets/support-balloon.json.asset.json';
+import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+
 
 // ─── Swap Panel (Gram ⇄ Coin, both directions) ────────────────────────────────
 type SwapHistoryItem = { id: number; direction: string; gram_amount: number; coins_amount: number; created_at: string };
@@ -811,8 +813,9 @@ export default function Profile() {
         </div>
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-black text-white tracking-tight">{userName}</h1>
-          <StickerBadge size={30} />
+          <StickerBadge src={capWingsSticker.url} size={30} />
         </div>
+
         <div className="text-sm text-primary font-bold mt-1">
           {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
         </div>
