@@ -614,8 +614,20 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
+  );
+
+  if (embedded) return body;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
+        <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
+      </div>
+      {body}
     </div>
   );
+
 }
 
 // ─── Main Profile Page ────────────────────────────────────────────────────────
