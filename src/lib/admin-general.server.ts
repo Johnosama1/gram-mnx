@@ -81,6 +81,14 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
       }
       const { key, value } = body;
       if (!key || value === undefined) return json({ error: 'key and value required' }, 400);
+      if (String(key) === 'mining_daily_pct') {
+        // Settles pending earnings at the old rate, then applies the new percentage to everyone.
+        const pct = Math.max(0, Number(value));
+        if (!Number.isFinite(pct)) return json({ error: 'invalid percentage' }, 400);
+        const { error } = await db.rpc('gm_set_mining_daily_pct', { _pct: pct });
+        if (error) return json({ error: error.message }, 500);
+        return json({ ok: true, key: 'mining_daily_pct', value: String(pct) });
+      }
       await setSetting(String(key), String(value));
       // Read the value back so the UI always reflects what is actually stored.
       const saved = await getSetting(String(key));
@@ -88,6 +96,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
         return json({ error: `Setting "${key}" did not persist` }, 500);
       }
       return json({ ok: true, key: String(key), value: saved });
+
     }
 
 
