@@ -1,13 +1,15 @@
-import { getBotToken, parseInitDataUser, verifyInitData, type TelegramAuthUser } from '@/lib/admin.server';
+import { authenticateInitData, type TelegramAuthUser } from '@/lib/telegram-auth.server';
 
 export const MINING_CAP_SECONDS = 86_400;
 
-/** Resolves the Telegram user from initData (HMAC-verified when BOT_TOKEN is set). */
+/**
+ * Resolves the Telegram user from initData. Fails closed: the signature must
+ * verify against the bot token, otherwise no identity is returned.
+ */
 export function resolveTelegramUser(initData: string | null): TelegramAuthUser | null {
-  if (!initData) return null;
-  const token = getBotToken();
-  return token ? verifyInitData(initData, token) : parseInitDataUser(initData);
+  return authenticateInitData(initData);
 }
+
 
 export async function getDb() {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
