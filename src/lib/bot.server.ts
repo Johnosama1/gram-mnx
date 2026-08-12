@@ -253,7 +253,22 @@ async function handleStart(chatId: number, from: TgUser, text: string, isNewUser
 
   // Referral payload: /start <id> or /start ref_<id>
   const payload = text.split(/\s+/)[1] ?? '';
+
+  // Gift giveaway link (g_<id>): count the invite and open the gift page.
+  const { parseGiftRef, recordGiftInvite } = await import('@/lib/gift.server');
+  const giftRef = parseGiftRef(payload);
+  if (giftRef) {
+    await recordGiftInvite(
+      from.id,
+      giftRef,
+      from.username ? `@${from.username}` : (from.first_name ?? null),
+    ).catch(() => false);
+    await sendWelcome(chatId, from, botLang(), '/gift');
+    return;
+  }
+
   const referrerId = Number(payload.replace(/^ref_?/i, ''));
+
   if (Number.isFinite(referrerId) && referrerId > 0 && referrerId !== from.id) {
     const { registerReferral, creditReferralIfEligible } = await import('@/lib/referral.server');
     // Only a first-ever contact counts; anyone who already used the bot can
