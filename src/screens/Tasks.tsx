@@ -411,7 +411,7 @@ function TwitterLinkCard({
           {msg.text}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
