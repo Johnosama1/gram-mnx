@@ -942,25 +942,30 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Split screen: top half deposit, bottom half withdraw */}
-          <div className="flex-1 grid grid-rows-2 gap-3 px-4 pb-6">
-            <button
-              onClick={() => setShowDeposit(true)}
-              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
-            >
-              <StickerBadge size={64} src={downloadSticker.url} />
-              <div className="text-xl font-black text-white">{t('deposit_title')}</div>
-              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_deposit_desc')}</div>
-            </button>
-            <button
-              onClick={() => setShowWithdraw(true)}
-              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
-            >
-              <StickerBadge size={64} src={purseSticker.url} />
-              <div className="text-xl font-black text-white">{t('profile_withdraw')}</div>
-              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_withdraw_desc')}</div>
-            </button>
+          {/* Tabs: Deposit / Withdraw */}
+          <div className="px-4">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-violet-500/[0.07] border border-violet-500/25">
+              {(['deposit', 'withdraw'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setWalletTab(tab)}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black transition-colors ${
+                    walletTab === tab ? 'bg-primary text-black' : 'text-white/70 hover:bg-violet-500/15'
+                  }`}
+                >
+                  <StickerBadge size={20} src={tab === 'deposit' ? downloadSticker.url : purseSticker.url} />
+                  {tab === 'deposit' ? t('deposit_title') : t('profile_withdraw')}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {walletTab === 'deposit'
+              ? <DepositPanel embedded onClose={() => setShowWalletHub(false)} />
+              : <WithdrawPanel embedded onClose={() => setShowWalletHub(false)} />}
+          </div>
+
         </div>
       )}
       {showSwap     && <SwapPanel onClose={() => setShowSwap(false)} />}
