@@ -360,7 +360,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
         {/* Wallet status */}
-        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-white/5 border-white/10'}`}>
+        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-violet-500/[0.07] border-violet-500/25'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
           {connected ? (
             <div className="flex items-center gap-2">
