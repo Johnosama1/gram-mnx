@@ -79,6 +79,7 @@ export const mapPublicTask = (t: Record<string, any>) => ({
   twitterUrl: t.twitter_url ?? null,
   slotLimit: t.slot_limit ?? null,
   slotsFilled: Number(t.slots_filled ?? 0),
+  iconUrl: t.icon_url ?? null,
 });
 
 /**

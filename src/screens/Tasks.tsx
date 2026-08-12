@@ -27,6 +27,7 @@ interface Task {
   twitterUrl?: string | null;
   slotLimit?: number | null;
   slotsFilled?: number;
+  iconUrl?: string | null;
 }
 
 interface CompletionInfo {
@@ -187,6 +188,56 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
   );
 }
 
+/**
+ * Round task icon: shows the channel picture as a circle when the admin sets
+ * one, otherwise the default icon.
+ */
+function TaskAvatar({
+  task,
+  isDone,
+  fallback,
+}: {
+  task: Task;
+  isDone: boolean;
+  fallback: React.ReactNode;
+}) {
+  const [broken, setBroken] = useState(false);
+  const src = task.iconUrl && !broken ? task.iconUrl : null;
+
+  if (src) {
+    return (
+      <div className="relative w-11 h-11 flex-shrink-0">
+        <img
+          src={src}
+          alt={task.title}
+          loading="lazy"
+          onError={() => setBroken(true)}
+          className={`w-11 h-11 rounded-full object-cover border ${
+            isDone ? 'border-violet-500/30 opacity-60' : 'border-violet-500/40'
+          }`}
+        />
+        {isDone && (
+          <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-black p-0.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-violet-400" />
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{
+        background: 'rgba(139,92,246,0.15)',
+        border: '1px solid rgba(139,92,246,0.3)',
+      }}
+    >
+      {isDone ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : fallback}
+    </div>
+  );
+}
+
 // ─── Partner Task Card ────────────────────────────────────────────────────────
 function PartnerTaskCard({
   task,
@@ -216,17 +267,11 @@ function PartnerTaskCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{
-              background: isDone ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.15)',
-              border: `1px solid ${isDone ? 'rgba(139,92,246,0.3)' : 'rgba(139,92,246,0.3)'}`,
-            }}
-          >
-            {isDone
-              ? <CheckCircle2 className="w-5 h-5 text-violet-400" />
-              : <Radio className="w-5 h-5" style={{ color: '#a78bfa' }} />}
-          </div>
+          <TaskAvatar
+            task={task}
+            isDone={isDone}
+            fallback={<Radio className="w-5 h-5" style={{ color: '#a78bfa' }} />}
+          />
           <div className="min-w-0">
             <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
               {task.title}
@@ -1017,9 +1062,11 @@ export default function Tasks() {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/10">
-                    {isDone ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : <Circle className="w-5 h-5 text-white/30" />}
-                  </div>
+                  <TaskAvatar
+                    task={task}
+                    isDone={isDone}
+                    fallback={<Circle className="w-5 h-5 text-white/30" />}
+                  />
                   <div className="min-w-0">
                     <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
                       {task.title}
