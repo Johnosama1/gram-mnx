@@ -446,16 +446,13 @@ function TwitterTaskCard({
   return (
     <TaskCard>
       <div className="flex items-start gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
-        >
+        <TaskIconBox>
           {isDone ? (
-            <CheckCircle2 className="w-5 h-5 text-violet-400" />
+            <CheckCircle2 className="w-5 h-5 text-primary" />
           ) : (
-            <Twitter className="w-5 h-5" style={{ color: accent }} />
+            <Twitter className="w-5 h-5 text-primary" />
           )}
-        </div>
+        </TaskIconBox>
         <div className="min-w-0 flex-1">
           <div className={`font-bold text-sm ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
             {task.title}
