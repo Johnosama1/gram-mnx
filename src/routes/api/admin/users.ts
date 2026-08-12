@@ -95,7 +95,7 @@ async function handle({ request }: { request: Request }): Promise<Response> {
       if (!q) return json({ error: 'q required' }, 400);
       if (/^\d+$/.test(q)) {
         const { data } = await db.from('gm_users').select('*').eq('telegram_id', Number(q)).limit(1);
-        return json((data ?? []).map(mapUser));
+        return json(await enrich(db, data ?? []));
       }
       const clean = q.replace(/^@/, '');
       const { data } = await db
@@ -103,12 +103,61 @@ async function handle({ request }: { request: Request }): Promise<Response> {
         .select('*')
         .or(`username.ilike.${clean},first_name.ilike.%${clean}%`)
         .limit(20);
-      return json((data ?? []).map(mapUser));
+      return json(await enrich(db, data ?? []));
+    }
+
+    // Full account dossier for one Telegram ID.
+    if (method === 'GET' && action === 'details' && id) {
+      const { data } = await db.from('gm_users').select('*').eq('telegram_id', id).maybeSingle();
+      if (!data) return json({ error: 'User not found' }, 404);
+      const [main] = await enrich(db, [data]);
+      const siblingIds = (main as any).ipSiblings as number[];
+      let siblings: any[] = [];
+      if (siblingIds.length) {
+        const { data: s } = await db
+          .from('gm_users')
+          .select('*')
+          .in('telegram_id', siblingIds)
+          .limit(50);
+        siblings = (s ?? []).map(mapUser);
+      }
+      const [{ count: withdrawals }, { count: deposits }, { count: tasksDone }] = await Promise.all([
+        db.from('gm_withdrawals').select('id', { count: 'exact', head: true }).eq('telegram_id', id),
+        db.from('gm_deposits').select('id', { count: 'exact', head: true }).eq('telegram_id', id),
+        db.from('gm_task_completions').select('id', { count: 'exact', head: true }).eq('telegram_id', id),
+      ]);
+      return json({
+        ...main,
+        walletAddress: (data.wallet_address as string | null) ?? null,
+        referredBy: data.referred_by ? Number(data.referred_by) : null,
+        language: (data.language as string | null) ?? null,
+        createdAt: data.created_at ?? null,
+        lastActiveAt: data.last_active_at ?? null,
+        blockedBot: Boolean(data.blocked_bot),
+        withdrawalsCount: withdrawals ?? 0,
+        depositsCount: deposits ?? 0,
+        tasksCompleted: tasksDone ?? 0,
+        siblings,
+      });
     }
 
     if (method === 'POST' && action === 'ban' && id) {
       await db.from('gm_users').update({ is_banned: Boolean(body.ban) }).eq('telegram_id', id);
       return json({ ok: true });
+    }
+
+    // Ban (or unban) every account that shares an IP with this user, plus the user.
+    if (method === 'POST' && action === 'ban_ip' && id) {
+      const ban = body.ban === undefined ? true : Boolean(body.ban);
+      const { data: mine } = await db.from('gm_user_ips').select('ip').eq('telegram_id', id);
+      const ips = [...new Set((mine ?? []).map((r: any) => String(r.ip)))];
+      const targets = new Set<number>([id]);
+      if (ips.length) {
+        const { data: sib } = await db.from('gm_user_ips').select('telegram_id').in('ip', ips);
+        for (const r of sib ?? []) targets.add(Number(r.telegram_id));
+      }
+      await db.from('gm_users').update({ is_banned: ban }).in('telegram_id', [...targets]);
+      return json({ ok: true, affected: targets.size });
     }
 
     if (method === 'POST' && action === 'restrict' && id) {
