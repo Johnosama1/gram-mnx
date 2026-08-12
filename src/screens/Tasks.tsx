@@ -367,12 +367,9 @@ function TwitterLinkCard({
   return (
     <TaskCard>
       <div className="flex items-center gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(29,161,242,0.15)', border: '1px solid rgba(29,161,242,0.3)' }}
-        >
-          <Twitter className="w-5 h-5" style={{ color: '#1DA1F2' }} />
-        </div>
+        <TaskIconBox>
+          <Twitter className="w-5 h-5 text-primary" />
+        </TaskIconBox>
         <div className="min-w-0">
           <div className="font-bold text-sm text-white">{t('tasks_x_account')}</div>
           <p className="text-xs text-white/50 mt-0.5">
