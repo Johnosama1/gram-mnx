@@ -10,7 +10,7 @@ import crystalBase from '@/assets/crystal-base.png';
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
-import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight } from 'lucide-react';
+import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight, Layers } from 'lucide-react';
 import { formatGram } from '@/lib/utils';
 
 /** hh:mm:ss countdown for the 24h mining session */
