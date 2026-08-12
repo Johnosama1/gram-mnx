@@ -178,7 +178,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
           {msg.text}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
