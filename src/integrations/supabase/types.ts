@@ -206,6 +206,24 @@ export type Database = {
         }
         Relationships: []
       }
+      gm_gift_invites: {
+        Row: {
+          created_at: string
+          invitee_id: number
+          referrer_id: number
+        }
+        Insert: {
+          created_at?: string
+          invitee_id: number
+          referrer_id: number
+        }
+        Update: {
+          created_at?: string
+          invitee_id?: number
+          referrer_id?: number
+        }
+        Relationships: []
+      }
       gm_promo_codes: {
         Row: {
           code: string
