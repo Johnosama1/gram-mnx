@@ -89,6 +89,8 @@ export type Accrued = {
   miningStartedAt: string | null;
   /** When false, the Start-Mining button is hidden and mining runs automatically */
   miningButtonEnabled: boolean;
+  /** Admin-configurable daily mining percentage (e.g. 5 = 5%/day of coins) */
+  miningDailyPct: number;
 };
 
 /**
@@ -152,6 +154,7 @@ export async function computeAccrued(telegramId: number): Promise<Accrued> {
     remainingSeconds: 0,
     miningStartedAt: new Date(startedAt).toISOString(),
     miningButtonEnabled,
+    miningDailyPct,
   };
 }
 
