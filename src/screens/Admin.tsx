@@ -84,7 +84,13 @@ interface Stats { totalUsers: number; blockedUsers: number; activeUsers: number 
 interface Task  { id: number; title: string; description: string; reward: number; isDaily: boolean; isHidden: boolean; channelUsername?: string | null; category?: string | null; botUsername?: string | null; twitterUrl?: string | null; slotLimit?: number | null; slotsFilled?: number; iconUrl?: string | null }
 interface Withdrawal { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Channel { id: number; channelUsername: string; channelName: string }
-interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean }
+interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean; ips?: string[]; referralCount?: number; ipSiblingCount?: number; ipSiblings?: number[] }
+interface UserDetails extends User {
+  walletAddress: string|null; referredBy: number|null; language: string|null;
+  createdAt: string|null; lastActiveAt: string|null;
+  withdrawalsCount: number; depositsCount: number; tasksCompleted: number;
+  siblings: User[];
+}
 interface Miner { id: number; name: string; baseCost: number; dailyPct: number; description: string }
 interface SubAdmin { telegramId: number; username: string; permissions: string[] }
 
@@ -1666,6 +1672,18 @@ function UsersSection() {
             <Btn variant={u.isBanned ? 'success' : 'danger'} size="sm"
               onClick={() => act(`/admin/users?action=ban&id=${u.telegramId}`, { ban: !u.isBanned }, u.isBanned ? t('admin_unbanned') : t('admin_banned_done'))}>
               <Ban className="w-3 h-3" />{u.isBanned ? t('admin_unban_user') : t('admin_ban_user')}
+            </Btn>
+            <Btn variant="danger" size="sm"
+              onClick={() => {
+                const n = (details?.ipSiblingCount ?? u.ipSiblingCount ?? 0) + 1;
+                if (!window.confirm(`حظر كل الحسابات المرتبطة بنفس الـ IP (${n} حساب)؟`)) return;
+                act(`/admin/users?action=ban_ip&id=${u.telegramId}`, { ban: true }, `تم حظر ${n} حساب`);
+              }}>
+              <Ban className="w-3 h-3" />حظر كل حسابات نفس الـ IP
+            </Btn>
+            <Btn variant="success" size="sm"
+              onClick={() => act(`/admin/users?action=ban_ip&id=${u.telegramId}`, { ban: false }, 'تم فك الحظر عن حسابات نفس الـ IP')}>
+              <Check className="w-3 h-3" />فك حظر نفس الـ IP
             </Btn>
             <Btn variant={u.restrictWithdrawal ? 'success' : 'ghost'} size="sm"
               onClick={() => act(`/admin/users?action=restrict&id=${u.telegramId}`, { restrict: !u.restrictWithdrawal }, u.restrictWithdrawal ? t('admin_restrict_lifted') : t('admin_restrict_done'))}>
