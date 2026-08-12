@@ -37,45 +37,46 @@
      Includes the nav's own min-height (~72px) + version line + safe-area inset.
      Overlays/sheets use this to sit on top of the nav instead of behind it. */
   --nav-height: calc(80px + env(safe-area-inset-bottom, 0px));
-  --background: 240 20% 5%;
-  --foreground: 0 0% 100%;
-  --border: 240 10% 15%;
-  
-  --primary: 40 96% 55%;
-  --primary-foreground: 240 20% 5%;
-  
-  --secondary: 240 10% 12%;
-  --secondary-foreground: 0 0% 95%;
-  
-  --muted: 240 10% 15%;
-  --muted-foreground: 240 5% 65%;
-  
-  --accent: 51 100% 50%;
-  --accent-foreground: 240 20% 5%;
-  
-  --success: 152 100% 50%;
-  --destructive: 0 100% 60%;
+  --background: 250 40% 98%;
+  --foreground: 258 30% 14%;
+  --border: 255 30% 92%;
+
+  --primary: 262 83% 62%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 258 60% 96%;
+  --secondary-foreground: 262 60% 35%;
+
+  --muted: 255 30% 95%;
+  --muted-foreground: 255 10% 45%;
+
+  --accent: 262 90% 70%;
+  --accent-foreground: 0 0% 100%;
+
+  --success: 152 62% 40%;
+  --destructive: 0 72% 52%;
 
   --app-font-sans: 'Inter', sans-serif;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .dark {
-  --background: 240 20% 5%;
-  --foreground: 0 0% 100%;
-  --border: 240 10% 15%;
-  --primary: 40 96% 55%;
-  --primary-foreground: 240 20% 5%;
-  --secondary: 240 10% 12%;
-  --secondary-foreground: 0 0% 95%;
-  --muted: 240 10% 15%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 51 100% 50%;
-  --accent-foreground: 240 20% 5%;
-  --success: 152 100% 50%;
-  --destructive: 0 100% 60%;
+  --background: 250 40% 98%;
+  --foreground: 258 30% 14%;
+  --border: 255 30% 92%;
+  --primary: 262 83% 62%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 258 60% 96%;
+  --secondary-foreground: 262 60% 35%;
+  --muted: 255 30% 95%;
+  --muted-foreground: 255 10% 45%;
+  --accent: 262 90% 70%;
+  --accent-foreground: 0 0% 100%;
+  --success: 152 62% 40%;
+  --destructive: 0 72% 52%;
 }
+
 
 @layer base {
   * {
