@@ -1,5 +1,6 @@
 import { json, getSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 export type PromoCodeRow = {
   id: number;
@@ -29,13 +30,9 @@ export async function isPromoSectionEnabled(): Promise<boolean> {
 async function addCoins(telegramId: number, amount: number) {
   if (!amount) return;
   const db = (await getDb()) as any;
-  const { data } = await db
-    .from('gm_users')
-    .select('coins')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-  const next = Number(data?.coins ?? 0) + amount;
-  await db.from('gm_users').update({ coins: next }).eq('telegram_id', telegramId);
+  // Atomic increment (row-locked in SQL) — a read-modify-write here could be
+  // raced by parallel requests and credit the reward twice.
+  await db.rpc('gm_add_coins', { _telegram_id: telegramId, _amount: amount });
 }
 
 /**
@@ -61,8 +58,13 @@ export async function handlePromoApi(request: Request): Promise<Response> {
   await upsertUser(auth);
   if (!enabled) return json({ ok: false, message: 'promo_disabled' }, 400);
 
-  const code = String(body.code ?? '').trim();
+  const code = String(body.code ?? '')
+    .trim()
+    .slice(0, 64);
   if (!code) return json({ ok: false, message: 'promo_invalid' }, 400);
+  // Brute-force guard on code guessing.
+  if (!(await rateLimit(`promo:${auth.id}`, 15, 60)))
+    return json({ ok: false, message: 'promo_invalid' }, 429);
 
   const db = (await getDb()) as any;
   const { data: row } = await db

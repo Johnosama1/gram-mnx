@@ -286,6 +286,24 @@ export type Database = {
           },
         ]
       }
+      gm_rate_limits: {
+        Row: {
+          bucket: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          window_start?: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       gm_referral_milestone_credits: {
         Row: {
           credited_at: string
@@ -816,6 +834,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gm_add_balance: {
+        Args: { _amount: number; _telegram_id: number }
+        Returns: number
+      }
+      gm_add_coins: {
+        Args: { _amount: number; _telegram_id: number }
+        Returns: number
+      }
       gm_claim_passive_mining: {
         Args: { _minimum_claim?: number; _telegram_id: number }
         Returns: {
@@ -825,10 +851,29 @@ export type Database = {
           new_mining_rate: number
         }[]
       }
+      gm_debit_balance: {
+        Args: { _amount: number; _telegram_id: number }
+        Returns: number
+      }
       gm_mining_daily_pct: { Args: never; Returns: number }
       gm_mining_rate_for_coins: { Args: { _coins: number }; Returns: number }
+      gm_rate_limit_hit: {
+        Args: { _bucket: string; _limit: number; _window_seconds: number }
+        Returns: boolean
+      }
       gm_recalc_all_mining_rates: { Args: never; Returns: undefined }
       gm_set_mining_daily_pct: { Args: { _pct: number }; Returns: number }
+      gm_spend_coins: {
+        Args: { _amount: number; _telegram_id: number }
+        Returns: number
+      }
+      gm_swap_gram_to_coins: {
+        Args: { _coins: number; _gram: number; _telegram_id: number }
+        Returns: {
+          new_balance: number
+          new_coins: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

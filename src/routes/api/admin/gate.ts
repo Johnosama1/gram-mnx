@@ -27,6 +27,10 @@ async function unlock({ request }: { request: Request }) {
   const auth = await requireAdmin(request, { requireGate: false });
   if (auth instanceof Response) return auth;
 
+  // Brute-force guard on the password itself (per verified Telegram admin id).
+  const { rateLimit, tooMany } = await import('@/lib/rate-limit.server');
+  if (!(await rateLimit(`admin-gate:${auth.user.id}`, 10, 300))) return tooMany();
+
   const expected = process.env['ADMIN_PANEL_PASSWORD'];
   if (!expected) {
     return Response.json({ error: 'كلمة سر لوحة الأدمن غير مُعدّة' }, { status: 500 });

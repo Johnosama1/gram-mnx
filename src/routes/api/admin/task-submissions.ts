@@ -96,15 +96,7 @@ async function handle({ request }: { request: Request }): Promise<Response> {
       await db
         .from('gm_task_completions')
         .insert({ telegram_id: sub.telegram_id, task_id: sub.task_id });
-      const { data: u } = await db
-        .from('gm_users')
-        .select('coins')
-        .eq('telegram_id', sub.telegram_id)
-        .maybeSingle();
-      await db
-        .from('gm_users')
-        .update({ coins: Number(u?.coins ?? 0) + reward })
-        .eq('telegram_id', sub.telegram_id);
+      await db.rpc('gm_add_coins', { _telegram_id: sub.telegram_id, _amount: reward });
     }
 
     await notifyUser(

@@ -1,6 +1,7 @@
 import { json, getSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 import { reqLang, tr } from '@/lib/i18n.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 export const DEFAULT_GRAM_TO_COINS = 700;
 
@@ -45,6 +46,11 @@ export async function handleSwap(request: Request) {
   }
   const direction = 'gram_to_coins' as const;
 
+  // Abuse guard: swapping is a balance-moving operation.
+  if (!(await rateLimit(`swap:${user.id}`, 20, 60))) {
+    return json({ message: tr(lang, 'invalid_amount') }, 429);
+  }
+
   const rate = await getGramToCoins();
 
   await upsertUser(user);
@@ -64,11 +70,17 @@ export async function handleSwap(request: Request) {
   const gramAmount = amount;
   const coinsAmount = Math.floor(amount * rate);
   if (coinsAmount <= 0) return json({ message: tr(lang, 'swap_amount_too_small') }, 400);
-  const newBalance = round12(balance - amount);
-  const newCoins = round12(coins + coinsAmount);
-
-
-  await db.from('gm_users').update({ balance: newBalance, coins: newCoins }).eq('telegram_id', user.id);
+  // Atomic, row-locked debit+credit. Two parallel swap requests can no longer
+  // both pass the balance check and spend the same GRAM twice.
+  const { data: swapped } = await db.rpc('gm_swap_gram_to_coins', {
+    _telegram_id: user.id,
+    _gram: gramAmount,
+    _coins: coinsAmount,
+  });
+  const settled = Array.isArray(swapped) ? swapped[0] : swapped;
+  if (!settled) return json({ message: tr(lang, 'swap_insufficient_gram') }, 400);
+  const newBalance = Number(settled.new_balance);
+  const newCoins = Number(settled.new_coins);
   await db.from('gm_swaps').insert({
     telegram_id: user.id,
     direction,

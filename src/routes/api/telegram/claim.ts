@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@/lib/admin.server';
 import { computeAccrued, getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 export const Route = createFileRoute('/api/telegram/claim')({
   server: {
@@ -10,6 +11,12 @@ export const Route = createFileRoute('/api/telegram/claim')({
         const initData = body.initData ?? request.headers.get('x-init-data');
         const user = resolveTelegramUser(initData);
         if (!user) return json({ error: 'Invalid or expired Telegram initData' }, 401);
+
+        // Replay/abuse guard: claims are settled atomically in SQL, this just
+        // stops a client from hammering the endpoint.
+        if (!(await rateLimit(`claim:${user.id}`, 30, 60))) {
+          return json({ error: 'RATE_LIMITED' }, 429);
+        }
 
         const row = await upsertUser(user);
         // The client-sent amount is never trusted — the server computes it.

@@ -136,15 +136,8 @@ export async function reviewWithdrawal(
 
   if (action === 'reject') {
     const why = (reason ?? '').trim() || 'Rejected by an administrator';
-    const { data: u } = await db
-      .from('gm_users')
-      .select('balance')
-      .eq('telegram_id', w.telegram_id)
-      .maybeSingle();
-    await db
-      .from('gm_users')
-      .update({ balance: Number(u?.balance ?? 0) + Number(w.amount) })
-      .eq('telegram_id', w.telegram_id);
+    // Atomic refund (row-locked) so a concurrent balance change is not lost.
+    await db.rpc('gm_add_balance', { _telegram_id: w.telegram_id, _amount: Number(w.amount) });
     await db
       .from('gm_withdrawals')
       .update({ status: 'rejected', rejection_reason: why, processed_at: new Date().toISOString() })

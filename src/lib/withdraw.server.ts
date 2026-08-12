@@ -1,6 +1,7 @@
 import { json, getSetting } from '@/lib/admin.server';
 import { reqLang, tr } from '@/lib/i18n.server';
 import { computeAccrued, getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 const DEFAULT_MAX_ACCOUNTS_PER_IP = 10;
 const DEFAULT_MAX_ACCOUNTS_PER_WALLET = 1;
@@ -152,6 +153,12 @@ export async function handleWithdraw(request: Request) {
   const amount = Number(body.amount);
   if (!Number.isFinite(amount) || amount <= 0) return json({ message: tr(lang, 'invalid_amount') }, 400);
 
+  // Anti-abuse / anti-replay: a burst of identical withdrawal requests is
+  // rejected before any balance work happens.
+  if (!(await rateLimit(`withdraw:${user.id}`, 5, 60))) {
+    return json({ message: tr(lang, 'invalid_amount') }, 429);
+  }
+
   await upsertUser(user);
   const ip = getClientIp(request);
   await recordUserIp(user.id, ip);
@@ -246,12 +253,23 @@ export async function handleWithdraw(request: Request) {
   const min = await getMinWithdraw();
   if (amount < min) return json({ message: tr(lang, 'min_withdraw', { min }) }, 400);
 
-  const newBalance = Math.round((balance - amount) * 1_000_000_000_000) / 1_000_000_000_000;
-  const { error: balanceError } = await db
-    .from('gm_users')
-    .update({ balance: newBalance })
-    .eq('telegram_id', user.id);
-  if (balanceError) return json({ message: tr(lang, 'withdraw_deduct_failed') }, 500);
+  // Atomic, row-locked debit: the balance re-check and the deduction happen in
+  // one transaction, so two concurrent withdrawals cannot both be funded from
+  // the same balance (double-spend / race condition).
+  const { data: debited } = await db.rpc('gm_debit_balance', {
+    _telegram_id: user.id,
+    _amount: amount,
+  });
+  if (debited === null || debited === undefined) {
+    return json(
+      {
+        message: tr(lang, 'withdraw_insufficient', { balance: balance.toFixed(4), amount: amount.toFixed(4) }),
+        balance,
+      },
+      400,
+    );
+  }
+  const newBalance = Number(debited);
   const { data: req, error: requestError } = await db
     .from('gm_withdrawals')
     .insert({
@@ -264,7 +282,7 @@ export async function handleWithdraw(request: Request) {
     .maybeSingle();
 
   if (requestError || !req?.id) {
-    await db.from('gm_users').update({ balance }).eq('telegram_id', user.id);
+    await db.rpc('gm_add_balance', { _telegram_id: user.id, _amount: amount });
     return json({ message: tr(lang, 'withdraw_create_failed') }, 500);
   }
 
@@ -334,7 +352,7 @@ export async function handleWithdraw(request: Request) {
       })
       .eq('id', Number(req.id))
       .eq('status', 'pending');
-    await db.from('gm_users').update({ balance }).eq('telegram_id', user.id);
+    await db.rpc('gm_add_balance', { _telegram_id: user.id, _amount: amount });
     await review.notifyAdminsPendingWithdraw({
       requestId: Number(req.id),
       telegramId: user.id,

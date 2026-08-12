@@ -226,6 +226,10 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
   if (!auth) return json({ error: 'Unauthorized' }, 401);
   await upsertUser(auth);
 
+  const { rateLimit } = await import('@/lib/rate-limit.server');
+  if (!(await rateLimit(`giftjoin:${auth.id}`, 20, 60)))
+    return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
+
   const giftId = Number(body.giftId ?? 0);
   const cfg = await getGiftConfig();
   if (!cfg.enabled && !(await isAdminUser(auth.id)))

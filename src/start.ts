@@ -53,11 +53,36 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
+// Baseline security headers on every response + no-store for API payloads so
+// no proxy or shared cache can retain another user's data.
+const securityHeaders = createMiddleware().server(async ({ next, request }) => {
+  const result = await next();
+  const res = (result as unknown as { response?: Response })?.response;
+  const target = res instanceof Response ? res : (result as unknown as Response);
+  if (target instanceof Response) {
+    try {
+      target.headers.set("X-Content-Type-Options", "nosniff");
+      target.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+      target.headers.set("X-Permitted-Cross-Domain-Policies", "none");
+      target.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
+      const p = new URL(request.url).pathname;
+      const isCacheableAsset =
+        p.startsWith("/api/telegram/avatar/") || p.startsWith("/api/gift/media/");
+      if (p.startsWith("/api/") && !isCacheableAsset) {
+        target.headers.set("Cache-Control", "no-store");
+      }
+    } catch {
+      /* immutable headers on some responses — never break the request */
+    }
+  }
+  return result;
+});
+
 export const startInstance = createStart(() => ({
   // No createServerFn in this app (all backend calls go through /api routes),
   // so the Supabase auth attacher is intentionally omitted: it would ship the
   // whole supabase-js client into the browser bundle for nothing.
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware, telegramApiGuard],
+  requestMiddleware: [errorMiddleware, securityHeaders, csrfMiddleware, telegramApiGuard],
 }));
 
