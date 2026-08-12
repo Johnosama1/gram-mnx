@@ -813,8 +813,9 @@ export default function Profile() {
         </div>
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-black text-white tracking-tight">{userName}</h1>
-          <StickerBadge size={30} />
+          <StickerBadge src={capWingsSticker.url} size={30} />
         </div>
+
         <div className="text-sm text-primary font-bold mt-1">
           {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
         </div>
