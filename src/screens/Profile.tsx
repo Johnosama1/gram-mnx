@@ -917,7 +917,52 @@ export default function Profile() {
       </div>
 
       {/* ── Modals / Panels ── */}
-      {showWallet   && <WalletModal onClose={() => setShowWallet(false)} />}
+      {showWallet   && (
+        <WalletModal
+          onClose={() => {
+            setShowWallet(false);
+            if (walletAddress) setShowWalletHub(true);
+          }}
+        />
+      )}
+      {showWalletHub && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+          <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+            <button
+              onClick={() => setShowWalletHub(false)}
+              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+            >‹</button>
+            <h2 className="text-lg font-black text-white">Wallet</h2>
+          </div>
+
+          <div className="px-4 py-4">
+            <div className="rounded-2xl bg-violet-500/[0.07] border border-violet-500/25 p-3 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-bold uppercase">{t('profile_wallet_connection')}</span>
+              <span className="font-mono text-[11px] text-white">{shortAddr ?? '—'}</span>
+            </div>
+          </div>
+
+          {/* Split screen: top half deposit, bottom half withdraw */}
+          <div className="flex-1 grid grid-rows-2 gap-3 px-4 pb-6">
+            <button
+              onClick={() => setShowDeposit(true)}
+              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
+            >
+              <StickerBadge size={64} src={downloadSticker.url} />
+              <div className="text-xl font-black text-white">{t('deposit_title')}</div>
+              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_deposit_desc')}</div>
+            </button>
+            <button
+              onClick={() => setShowWithdraw(true)}
+              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
+            >
+              <StickerBadge size={64} src={purseSticker.url} />
+              <div className="text-xl font-black text-white">{t('profile_withdraw')}</div>
+              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_withdraw_desc')}</div>
+            </button>
+          </div>
+        </div>
+      )}
       {showSwap     && <SwapPanel onClose={() => setShowSwap(false)} />}
       {showWithdraw && <WithdrawPanel onClose={() => setShowWithdraw(false)} />}
       {showDeposit  && <DepositPanel onClose={() => setShowDeposit(false)} />}
