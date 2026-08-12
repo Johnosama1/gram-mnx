@@ -23,7 +23,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
       className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-2 max-w-[640px] mx-auto"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
     >
-      <div className="flex items-center justify-between w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
+      <div className="flex items-center w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
         {navItems.map((item) => {
           const isActive = location === item.path;
           const Icon = item.icon;
@@ -32,15 +32,15 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             <Link
               key={item.path}
               to={item.path}
-              className="w-[52px] min-w-[52px] max-w-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl py-2 cursor-pointer touch-manipulation transition-colors"
+              className="flex-1 min-w-0 basis-0 flex flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 px-0.5 cursor-pointer touch-manipulation transition-colors"
               style={isActive ? { background: 'hsl(var(--secondary))' } : undefined}
             >
               <Icon
-                className={`w-[22px] h-[22px] ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`w-5 h-5 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                 strokeWidth={isActive ? 2.4 : 1.9}
               />
               <span
-                className={`text-[10px] font-semibold tracking-wide truncate max-w-[52px] text-center ${
+                className={`text-[9px] leading-none font-semibold w-full truncate text-center ${
                   isActive ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
@@ -49,6 +49,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             </Link>
           );
         })}
+
       </div>
       <div className="text-center text-[8px] text-muted-foreground/50 font-mono pt-1 select-none">{APP_VERSION}</div>
     </div>

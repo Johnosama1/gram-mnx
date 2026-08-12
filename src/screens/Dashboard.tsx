@@ -59,9 +59,10 @@ export default function Dashboard() {
   const card = 'rounded-2xl bg-white border border-border shadow-[0_6px_18px_rgba(88,44,180,0.07)]';
 
   return (
-    <div className="h-full flex flex-col relative w-full">
-      {/* ── scrollable content ── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-3 pt-3 pb-4">
+    <div className="h-full flex flex-col relative w-full overflow-hidden">
+      {/* ── content (fits one screen) ── */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-3 pt-2 pb-2">
+
         {/* user strip */}
         <div className={`${card} flex items-center justify-between gap-3 px-3 py-2.5 shrink-0`}>
           <div className="flex min-w-0 items-center gap-3">
@@ -115,31 +116,31 @@ export default function Dashboard() {
 
 
         {/* balances */}
-        <div className="grid grid-cols-2 gap-2.5 mt-3 shrink-0">
-          <div className={`${card} flex items-center gap-2.5 px-3 py-2.5`}>
-            <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0">
+        <div className="grid grid-cols-2 gap-2 mt-2 shrink-0">
+          <div className={`${card} flex items-center gap-2 px-2.5 py-2`}>
+            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
               <Gem className="w-4 h-4 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] tracking-[0.12em] font-bold uppercase text-muted-foreground truncate">
+              <div className="text-[9px] tracking-[0.12em] font-bold uppercase text-muted-foreground truncate">
                 {t('dashboard_holding_wallet')}
               </div>
-              <div className="text-[17px] font-black text-foreground tabular-nums leading-tight">
-                {formatGram(displayedHolding, 3)} <span className="text-[11px] text-primary font-bold">Gram</span>
+              <div className="text-[15px] font-black text-foreground tabular-nums leading-tight truncate">
+                {formatGram(displayedHolding, 3)} <span className="text-[10px] text-primary font-bold">Gram</span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
           </div>
 
-          <div className={`${card} flex items-center gap-2.5 px-3 py-2.5`}>
-            <div className="w-9 h-9 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+          <div className={`${card} flex items-center gap-2 px-2.5 py-2`}>
+            <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center shrink-0">
               <TrendingUp className="w-4 h-4 text-success" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] tracking-[0.12em] font-bold uppercase text-muted-foreground truncate">
+              <div className="text-[9px] tracking-[0.12em] font-bold uppercase text-muted-foreground truncate">
                 {t('dashboard_24h_label')}
               </div>
-              <div className="text-[15px] font-black text-success tabular-nums leading-tight truncate">
+              <div className="text-[14px] font-black text-success tabular-nums leading-tight truncate">
                 {dailyIncome > 0 ? `+${formatGram(dailyIncome, 7)}` : '—'}
               </div>
             </div>
@@ -147,34 +148,37 @@ export default function Dashboard() {
         </div>
 
         {/* total earned */}
-        <div className="mt-3 shrink-0 rounded-2xl bg-secondary border border-primary/15 px-4 py-3 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-white/70 flex items-center justify-center shrink-0">
+        <div className="mt-2 shrink-0 rounded-2xl bg-secondary border border-primary/15 px-3 py-2.5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center shrink-0">
             <Gem className="w-5 h-5 text-primary" />
           </div>
           <div className="min-w-0">
-            <div className="text-[10px] tracking-[0.18em] font-bold uppercase text-muted-foreground">
+            <div className="text-[9px] tracking-[0.18em] font-bold uppercase text-muted-foreground">
               {t('dashboard_total_earned')}
             </div>
-            <div className="text-[clamp(1.2rem,6vw,1.7rem)] font-black text-primary tabular-nums leading-none mt-0.5 truncate">
+            <div className="text-[clamp(1.05rem,5.2vw,1.5rem)] font-black text-primary tabular-nums leading-none mt-0.5 truncate">
               +{formatGram(sessionEarnings, 8)}
             </div>
           </div>
         </div>
 
         {/* crystal hero */}
-        <div className="flex-1 min-h-[180px] flex items-center justify-center relative mt-4">
+        <div className="flex-1 min-h-0 flex items-center justify-center relative mt-2">
           <div
             aria-hidden
-            className="absolute w-[70%] aspect-square rounded-full"
+            className="absolute h-[80%] aspect-square rounded-full"
             style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
           />
-          <div className={`relative w-[78%] max-w-[320px] ${mining ? '' : 'opacity-80 saturate-50'}`} style={{ perspective: '900px' }}>
+          <div
+            className={`relative h-full max-h-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-80 saturate-50'}`}
+            style={{ perspective: '900px' }}
+          >
             <img
               src={crystalGem}
               alt="GRAM MNX mining crystal"
               width={1024}
               height={660}
-              className={`w-full object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]' : ''}`}
+              className={`min-h-0 max-h-[72%] w-auto object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]' : ''}`}
               style={{ transformStyle: 'preserve-3d' }}
             />
             <img
@@ -183,11 +187,12 @@ export default function Dashboard() {
               aria-hidden
               width={1024}
               height={384}
-              className="w-full object-contain -mt-[7%]"
+              className="min-h-0 max-h-[26%] w-auto object-contain -mt-[2%]"
             />
           </div>
         </div>
       </div>
+
 
       {/* ── fixed bottom controls ── */}
       <div className="shrink-0 px-3 pb-3 bg-gradient-to-t from-background via-background to-transparent">
