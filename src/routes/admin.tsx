@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import Admin from "@/screens/Admin";
+import AdminGate, { isAdminUnlocked } from "@/components/AdminGate";
+
+function AdminPage() {
+  const [unlocked, setUnlocked] = useState(() => isAdminUnlocked());
+  if (!unlocked) return <AdminGate onUnlock={() => setUnlocked(true)} />;
+  return <Admin />;
+}
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -11,5 +19,5 @@ export const Route = createFileRoute("/admin")({
       { property: "og:description", content: "GRAM MNX admin page inside the Telegram Mini App." },
     ],
   }),
-  component: Admin,
+  component: AdminPage,
 });
