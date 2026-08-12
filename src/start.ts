@@ -65,7 +65,10 @@ const securityHeaders = createMiddleware().server(async ({ next, request }) => {
       target.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
       target.headers.set("X-Permitted-Cross-Domain-Policies", "none");
       target.headers.set("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()");
-      if (new URL(request.url).pathname.startsWith("/api/")) {
+      const p = new URL(request.url).pathname;
+      const isCacheableAsset =
+        p.startsWith("/api/telegram/avatar/") || p.startsWith("/api/gift/media/");
+      if (p.startsWith("/api/") && !isCacheableAsset) {
         target.headers.set("Cache-Control", "no-store");
       }
     } catch {
