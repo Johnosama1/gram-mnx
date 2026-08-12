@@ -191,6 +191,30 @@ function Shell() {
   const router = useRouter();
   const routeKey = useRouterState({ select: (st) => st.location.pathname });
 
+  // Opened from a gift invite link → land straight on the Gift page.
+  useEffect(() => {
+    if (routeKey !== '/') return;
+    try {
+      const wa = window.Telegram?.WebApp as { initDataUnsafe?: { start_param?: string }; initData?: string } | undefined;
+      const url = new URLSearchParams(window.location.search);
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const params = [
+        wa?.initDataUnsafe?.start_param,
+        wa?.initData ? new URLSearchParams(wa.initData).get('start_param') : null,
+        url.get('tgWebAppStartParam'),
+        url.get('startapp'),
+        hash.get('tgWebAppStartParam'),
+      ];
+      if (params.some((p) => p && /^(g_?\d+|gift_\d+_\d+)$/.test(p.trim()))) {
+        void router.navigate({ to: '/gift' });
+      }
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   // Warm up tab chunks + their read-only data once the first screen is idle so
   // switching tabs renders from cache instead of waiting on the network.
   const ready = !isLoading && !maintenance && notJoinedChannels.length === 0;
