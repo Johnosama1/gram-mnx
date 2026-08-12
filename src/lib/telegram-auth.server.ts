@@ -11,8 +11,12 @@ import { createHmac, createHash, timingSafeEqual } from 'node:crypto';
 
 export type TelegramAuthUser = { id: number; username?: string; first_name?: string };
 
-/** initData older than this is rejected (replay-window limit). */
-const MAX_AUTH_AGE_SECONDS = 24 * 60 * 60;
+/**
+ * initData older than this is rejected (replay-window limit).
+ * Telegram does NOT refresh initData while a Mini App session stays open in
+ * the client, so a short window logs real users out with "Missing User ID".
+ */
+const MAX_AUTH_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 export function getBotToken(): string | undefined {
   const t = process.env['BOT_TOKEN'] ?? process.env['TELEGRAM_BOT_TOKEN'];
