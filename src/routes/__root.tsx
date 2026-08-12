@@ -109,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
     scripts: [
-      { src: "https://telegram.org/js/telegram-web-app.js", defer: true },
+      { src: "https://telegram.org/js/telegram-web-app.js", async: true },
     ],
   }),
   shellComponent: RootShell,
