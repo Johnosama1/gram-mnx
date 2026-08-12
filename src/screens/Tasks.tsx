@@ -478,8 +478,7 @@ function TwitterTaskCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpened(true)}
-                  className="flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
-                  style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}4d` }}
+                  className="flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 bg-primary/20 text-primary border border-primary/30"
                 >
                   <ExternalLink className="w-3 h-3" /> {t('tasks_open_follow')}
                 </a>
