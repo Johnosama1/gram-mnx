@@ -170,7 +170,7 @@ export default function Dashboard() {
             style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
           />
           <div
-            className={`relative h-full max-h-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-80 saturate-50'}`}
+            className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
             style={{ perspective: '900px' }}
           >
             <img
@@ -178,8 +178,8 @@ export default function Dashboard() {
               alt="GRAM MNX mining crystal"
               width={1024}
               height={660}
-              className={`min-h-0 max-h-[72%] w-auto object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]' : ''}`}
-              style={{ transformStyle: 'preserve-3d' }}
+              className="min-h-0 max-h-[68%] max-w-[78%] w-auto object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]"
+              style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'visible' }}
             />
             <img
               src={crystalBase}
