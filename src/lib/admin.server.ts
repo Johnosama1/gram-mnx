@@ -1,44 +1,19 @@
-import { createHmac } from 'node:crypto';
+import {
+  authenticateInitData,
+  extractInitData,
+  getBotToken as readBotToken,
+  hasAdminSession,
+  verifyInitData,
+  type TelegramAuthUser,
+} from '@/lib/telegram-auth.server';
 
-export type TelegramAuthUser = { id: number; username?: string; first_name?: string };
-
-export function verifyInitData(initData: string, token: string): TelegramAuthUser | null {
-  const params = new URLSearchParams(initData);
-  const hash = params.get('hash');
-  if (!hash) return null;
-  params.delete('hash');
-  const dataCheckString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n');
-  const secretKey = createHmac('sha256', 'WebAppData').update(token).digest();
-  const computed = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-  if (computed !== hash) return null;
-  const authDate = Number(params.get('auth_date'));
-  if (!authDate || Date.now() / 1000 - authDate > 60 * 60 * 24) return null;
-  const raw = params.get('user');
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as TelegramAuthUser;
-  } catch {
-    return null;
-  }
-}
-
-export function parseInitDataUser(initData: string): TelegramAuthUser | null {
-  try {
-    const raw = new URLSearchParams(initData).get('user');
-    if (!raw) return null;
-    const user = JSON.parse(raw) as TelegramAuthUser;
-    return user?.id ? user : null;
-  } catch {
-    return null;
-  }
-}
+export type { TelegramAuthUser };
+export { verifyInitData };
 
 export function getBotToken(): string | undefined {
-  return process.env.BOT_TOKEN ?? process.env.TELEGRAM_BOT_TOKEN;
+  return readBotToken();
 }
+
 
 export function getAdminIds(): number[] {
   const base = [6145230334, 868999453];
