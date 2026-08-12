@@ -1,5 +1,6 @@
 import { getAllAdminIds, notifyUser, json } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 const MAX_LEN = 1000;
 
@@ -14,6 +15,10 @@ export async function handleSupportSubmit(request: Request): Promise<Response> {
   const initData = body.initData ?? request.headers.get('x-init-data') ?? '';
   const user = resolveTelegramUser(initData);
   if (!user) return json({ message: 'Could not verify your identity' }, 401);
+
+  // Spam guard: a handful of messages per minute is far above normal use.
+  if (!(await rateLimit(`support:${user.id}`, 5, 60)))
+    return json({ message: 'Please wait a moment before sending again' }, 429);
 
   const kind = body.kind === 'suggestion' ? 'suggestion' : 'complaint';
   const message = String(body.message ?? '').trim();

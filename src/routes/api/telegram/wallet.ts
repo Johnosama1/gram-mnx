@@ -37,6 +37,10 @@ export const Route = createFileRoute('/api/telegram/wallet')({
         if (!user) return json({ message: 'Invalid initData' }, 401);
         const address = String(body.address ?? '').trim();
         if (!address) return json({ message: 'address required' }, 400);
+        // Hard server-side format guard: only TON address shapes are stored,
+        // so nothing arbitrary can be injected into the payout pipeline.
+        if (!/^(?:[A-Za-z0-9_-]{48}|-?\d+:[0-9a-fA-F]{64})$/.test(address))
+          return json({ message: 'address required' }, 400);
         await upsertUser(user);
         const db = await getDb();
 

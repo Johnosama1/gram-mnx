@@ -1,5 +1,6 @@
 import { json, getSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 export type PromoCodeRow = {
   id: number;
@@ -57,8 +58,13 @@ export async function handlePromoApi(request: Request): Promise<Response> {
   await upsertUser(auth);
   if (!enabled) return json({ ok: false, message: 'promo_disabled' }, 400);
 
-  const code = String(body.code ?? '').trim();
+  const code = String(body.code ?? '')
+    .trim()
+    .slice(0, 64);
   if (!code) return json({ ok: false, message: 'promo_invalid' }, 400);
+  // Brute-force guard on code guessing.
+  if (!(await rateLimit(`promo:${auth.id}`, 15, 60)))
+    return json({ ok: false, message: 'promo_invalid' }, 429);
 
   const db = (await getDb()) as any;
   const { data: row } = await db
