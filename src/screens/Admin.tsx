@@ -1473,6 +1473,18 @@ function UsersSection() {
   const [warnMsg, setWarnMsg] = useState('');
   const [privateMsg, setPrivateMsg] = useState('');
   const [status, setStatus] = useState('');
+  const [details, setDetails] = useState<UserDetails|null>(null);
+
+  // Full account dossier whenever a user is opened.
+  useEffect(() => {
+    setDetails(null);
+    if (!selected) return;
+    let alive = true;
+    api<UserDetails>('GET', `/admin/users?action=details&id=${selected.telegramId}`)
+      .then(d => { if (alive) setDetails(d); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [selected?.telegramId]);
 
   const search = async () => {
     if (!query.trim()) return;
