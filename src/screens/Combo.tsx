@@ -199,10 +199,10 @@ export default function Combo() {
         ) : (
           <>
             {/* ── Top selected slots ─────────────────────────────────── */}
-            <div className="relative rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 pt-8">
+            <div className="relative rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-transparent p-3 pt-8">
               {/* Countdown chip (top-right) */}
               {countdown && (
-                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/50 border border-amber-500/30 px-2 py-1">
+                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/50 border border-violet-500/30 px-2 py-1">
                   <Clock className="w-3 h-3 text-primary" />
                   <span className="text-[10px] font-black tabular-nums text-primary">{countdown}</span>
                 </div>
@@ -225,7 +225,7 @@ export default function Combo() {
                       className={`relative aspect-square rounded-xl border-2 border-dashed flex items-center justify-center
                         overflow-hidden transition-all duration-300
                         ${item ? 'border-solid animate-scale-in' : 'bg-white/5'}
-                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-amber-500/60' : 'border-white/15'}
+                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-violet-500/60' : 'border-white/15'}
                         ${item && !locked ? 'active:scale-95' : ''}`}
                     >
                       {item ? (
@@ -248,7 +248,7 @@ export default function Combo() {
               >
                 {showSuccess ? (
                   <>
-                    <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <Trophy className="w-4 h-4 text-violet-300 flex-shrink-0" />
                     <span className="text-xs font-black text-emerald-400">
                       {t('combo_correct_title')} +{showReward} MNX
                     </span>
