@@ -22,7 +22,21 @@ export const Route = createFileRoute('/api/telegram/auth')({
         // opened the bot before can never be counted as someone's referral.
         try {
           const startParam = new URLSearchParams(body.initData ?? '').get('start_param') ?? '';
+
+          // Gift giveaway link (g_<id>) — counted for every user opening it,
+          // even before they join a contest.
+          const { parseGiftRef, recordGiftInvite } = await import('@/lib/gift.server');
+          const giftRef = parseGiftRef(startParam);
+          if (giftRef) {
+            await recordGiftInvite(
+              user.id,
+              giftRef,
+              user.username ? `@${user.username}` : (user.first_name ?? null),
+            ).catch(() => false);
+          }
+
           const referrerId = Number(startParam.replace(/^ref_?/i, ''));
+
           if (Number.isFinite(referrerId) && referrerId > 0 && referrerId !== user.id) {
             const { registerReferral, creditReferralIfEligible } = await import(
               '@/lib/referral.server'
