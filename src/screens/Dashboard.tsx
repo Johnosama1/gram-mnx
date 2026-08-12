@@ -156,8 +156,6 @@ export default function Dashboard() {
         />
       </div>
 
-
-
       {/* ── claim row ── */}
       <div className="shrink-0 relative">
         <div className="flex items-stretch gap-2">
