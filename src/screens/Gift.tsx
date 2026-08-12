@@ -46,10 +46,10 @@ export function GiftMedia({ url, size = 56 }: { url: string | null; size?: numbe
   if (!url) {
     return (
       <div
-        className="rounded-xl bg-[#d9a544]/15 border border-[#d9a544]/40 flex items-center justify-center shrink-0"
+        className="rounded-xl bg-[#8b5cf6]/15 border border-[#8b5cf6]/40 flex items-center justify-center shrink-0"
         style={{ width: size, height: size }}
       >
-        <GiftIcon className="w-1/2 h-1/2 text-[#f0cd7e]" />
+        <GiftIcon className="w-1/2 h-1/2 text-[#c4b5fd]" />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function GiftMedia({ url, size = 56 }: { url: string | null; size?: numbe
       src={url}
       alt="Gift"
       loading="lazy"
-      className="rounded-xl object-cover shrink-0 border border-[#d9a544]/30"
+      className="rounded-xl object-cover shrink-0 border border-[#8b5cf6]/30"
       style={{ width: size, height: size }}
     />
   );
@@ -176,46 +176,46 @@ export default function GiftScreen() {
       <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
         <button
           onClick={() => setActive(null)}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-[#f0cd7e]"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-[#c4b5fd]"
         >
           <ArrowRight className="w-4 h-4" /> رجوع
         </button>
 
-        <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-5 text-center">
+        <div className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-5 text-center">
           <div className="flex justify-center mb-3">
             <GiftMedia url={activeGift.imageUrl} size={110} />
           </div>
-          <h2 className="text-lg font-extrabold text-[#f0cd7e]">{activeGift.title}</h2>
+          <h2 className="text-lg font-extrabold text-[#c4b5fd]">{activeGift.title}</h2>
           {activeGift.description && (
-            <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
+            <p className="text-xs text-[#a78bfa]/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
           )}
-          <p className="text-[11px] text-[#c9b892]/70 mt-2">⏱ {formatDeadline(activeGift.endsAt)}</p>
+          <p className="text-[11px] text-[#a78bfa]/70 mt-2">⏱ {formatDeadline(activeGift.endsAt)}</p>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
-            <p className="text-[11px] text-[#c9b892]/70">إحالاتك</p>
-            <p className="text-xl font-extrabold text-[#f0cd7e]">{activeGift.invitedCount}</p>
+          <div className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#a78bfa]/70">إحالاتك</p>
+            <p className="text-xl font-extrabold text-[#c4b5fd]">{activeGift.invitedCount}</p>
           </div>
-          <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-3 text-center">
-            <p className="text-[11px] text-[#c9b892]/70">فرصك في الفوز</p>
-            <p className="text-xl font-extrabold text-[#f0cd7e]">×{activeGift.chances}</p>
+          <div className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-3 text-center">
+            <p className="text-[11px] text-[#a78bfa]/70">فرصك في الفوز</p>
+            <p className="text-xl font-extrabold text-[#c4b5fd]">×{activeGift.chances}</p>
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-[#d9a544]/30 bg-black/40 p-4">
-          <p className="text-xs text-[#c9b892]/80 mb-2">
+        <div className="mt-4 rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-4">
+          <p className="text-xs text-[#a78bfa]/80 mb-2">
             رابط الإحالة الخاص بك — كل صديق ينضم يزوّد فرصتك
           </p>
           <p
             dir="ltr"
-            className="text-[11px] text-[#f0cd7e] break-all bg-black/50 rounded-xl border border-[#d9a544]/20 px-3 py-2"
+            className="text-[11px] text-[#c4b5fd] break-all bg-black/50 rounded-xl border border-[#8b5cf6]/20 px-3 py-2"
           >
             {link}
           </p>
           <button
             onClick={() => { void copyInvite(activeGift.id); }}
-            className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+            className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
           >
             {copied === activeGift.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             نسخ رابط الدعوة
@@ -229,31 +229,31 @@ export default function GiftScreen() {
 
     <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
       <header className="flex items-center gap-2 mb-5">
-        <GiftIcon className="w-6 h-6 text-[#f0cd7e]" />
-        <h1 className="text-xl font-extrabold text-[#f0cd7e]">Gifts</h1>
+        <GiftIcon className="w-6 h-6 text-[#c4b5fd]" />
+        <h1 className="text-xl font-extrabold text-[#c4b5fd]">Gifts</h1>
       </header>
 
       {!state && (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-[#f0cd7e]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#c4b5fd]" />
         </div>
       )}
 
       {state && !state.enabled && (
-        <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-8 text-center">
-          <Lock className="w-10 h-10 mx-auto text-[#c9b892]/60 mb-3" />
-          <p className="text-[#f0cd7e] font-bold">{state.message || 'قريباً'}</p>
+        <div className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-8 text-center">
+          <Lock className="w-10 h-10 mx-auto text-[#a78bfa]/60 mb-3" />
+          <p className="text-[#c4b5fd] font-bold">{state.message || 'قريباً'}</p>
         </div>
       )}
 
       {state?.adminPreview && (
-        <div className="mb-4 rounded-xl border border-[#d9a544]/40 bg-[#d9a544]/10 px-3 py-2 text-xs text-[#f0cd7e]">
+        <div className="mb-4 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-3 py-2 text-xs text-[#c4b5fd]">
           القسم مقفول للمستخدمين — أنت تشاهده كأدمن فقط
         </div>
       )}
 
       {state?.enabled && state.gifts.length === 0 && (
-        <div className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-8 text-center text-[#c9b892]/70 text-sm">
+        <div className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-8 text-center text-[#a78bfa]/70 text-sm">
           لا توجد مسابقات متاحة حالياً
         </div>
       )}
@@ -263,20 +263,20 @@ export default function GiftScreen() {
           state.gifts.map((g) => {
             const pct = g.capacity > 0 ? Math.min(100, (g.participants / g.capacity) * 100) : 0;
             return (
-              <div key={g.id} className="rounded-2xl border border-[#d9a544]/30 bg-black/40 p-4">
+              <div key={g.id} className="rounded-2xl border border-[#8b5cf6]/30 bg-black/40 p-4">
                 <div className="flex items-start gap-3">
                   <GiftMedia url={g.imageUrl} size={64} />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[#f0cd7e]">{g.title}</p>
+                    <p className="font-bold text-[#c4b5fd]">{g.title}</p>
                     {g.description && (
-                      <p className="text-xs text-[#c9b892]/70 mt-1 whitespace-pre-wrap">{g.description}</p>
+                      <p className="text-xs text-[#a78bfa]/70 mt-1 whitespace-pre-wrap">{g.description}</p>
                     )}
                     {g.link && (
                       <a
                         href={g.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-[#f0cd7e] mt-1 underline"
+                        className="inline-flex items-center gap-1 text-xs text-[#c4b5fd] mt-1 underline"
                       >
                         فتح <ExternalLink className="w-3 h-3" />
                       </a>
@@ -285,18 +285,18 @@ export default function GiftScreen() {
                 </div>
 
                 <div className="mt-3">
-                  <div className="flex items-center justify-between text-[11px] text-[#c9b892]/70 mb-1">
+                  <div className="flex items-center justify-between text-[11px] text-[#a78bfa]/70 mb-1">
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" /> {g.participants}
                       {g.capacity > 0 ? ` / ${g.capacity}` : ' مشترك'}
                     </span>
                     {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
                   </div>
-                  <p className="text-[11px] text-[#c9b892]/70 mb-1">⏱ {formatDeadline(g.endsAt)}</p>
+                  <p className="text-[11px] text-[#a78bfa]/70 mb-1">⏱ {formatDeadline(g.endsAt)}</p>
                   {g.capacity > 0 && (
                     <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#d9a544] to-[#f0cd7e] transition-all"
+                        className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -306,7 +306,7 @@ export default function GiftScreen() {
                 {g.joined ? (
                   <button
                     onClick={() => setActive(g.id)}
-                    className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
                   >
                     <Ticket className="w-4 h-4" /> فتح صفحة المسابقة
                   </button>
@@ -314,7 +314,7 @@ export default function GiftScreen() {
                   <button
                     disabled={busy === g.id || g.full || g.expired}
                     onClick={() => { void join(g); }}
-                    className="mt-3 w-full rounded-xl bg-[#d9a544] text-black font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {busy === g.id && <Loader2 className="w-4 h-4 animate-spin" />}
                     {g.expired ? 'انتهت المسابقة' : g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}

@@ -113,17 +113,17 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     <div
       className="rounded-2xl p-4"
       style={{
-        background: 'linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: '1px solid rgba(34,197,94,0.25)',
+        background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
+        border: '1px solid rgba(139,92,246,0.25)',
       }}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}
+            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
           >
-            <CalendarCheck className="w-6 h-6 text-green-400" />
+            <CalendarCheck className="w-6 h-6 text-violet-400" />
           </div>
           <div className="min-w-0">
             <div className="font-bold text-sm text-white">{t('tasks_checkin_title')}</div>
@@ -138,7 +138,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
           disabled={claiming || !canClaim}
           className="flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5"
           style={{
-            background: canClaim ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'rgba(255,255,255,0.06)',
+            background: canClaim ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(255,255,255,0.06)',
             color: canClaim ? '#000' : 'rgba(255,255,255,0.3)',
             cursor: canClaim ? 'pointer' : 'not-allowed',
           }}
@@ -161,8 +161,8 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
               key={day}
               className="flex-1 rounded-lg py-1.5 text-center"
               style={{
-                background: claimed ? 'rgba(34,197,94,0.2)' : isNext ? 'rgba(245,166,35,0.18)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${claimed ? 'rgba(34,197,94,0.35)' : isNext ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                background: claimed ? 'rgba(139,92,246,0.2)' : isNext ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${claimed ? 'rgba(139,92,246,0.35)' : isNext ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'}`,
               }}
             >
               <div className="text-[9px] text-white/40 whitespace-nowrap">{t('tasks_checkin_day_short', { day: String(day) })}</div>
@@ -176,8 +176,8 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
         <div
           className="mt-2 text-xs font-medium px-2 py-1 rounded-lg"
           style={{
-            background: msg.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-            color: msg.ok ? '#4ade80' : '#f87171',
+            background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+            color: msg.ok ? '#a78bfa' : '#f87171',
           }}
         >
           {msg.text}
@@ -209,9 +209,9 @@ function PartnerTaskCard({
       className="rounded-2xl p-4"
       style={{
         background: isDone
-          ? 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: `1px solid ${isDone ? 'rgba(34,197,94,0.25)' : 'rgba(99,102,241,0.3)'}`,
+          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
+          : 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
+        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.3)'}`,
       }}
     >
       <div className="flex items-center justify-between gap-3">
@@ -219,13 +219,13 @@ function PartnerTaskCard({
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{
-              background: isDone ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)',
-              border: `1px solid ${isDone ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
+              background: isDone ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.15)',
+              border: `1px solid ${isDone ? 'rgba(139,92,246,0.3)' : 'rgba(139,92,246,0.3)'}`,
             }}
           >
             {isDone
-              ? <CheckCircle2 className="w-5 h-5 text-green-400" />
-              : <Radio className="w-5 h-5" style={{ color: '#818cf8' }} />}
+              ? <CheckCircle2 className="w-5 h-5 text-violet-400" />
+              : <Radio className="w-5 h-5" style={{ color: '#a78bfa' }} />}
           </div>
           <div className="min-w-0">
             <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
@@ -247,9 +247,9 @@ function PartnerTaskCard({
               disabled={isCompleting}
               className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95"
               style={{
-                background: 'rgba(99,102,241,0.2)',
-                color: '#a5b4fc',
-                border: '1px solid rgba(99,102,241,0.3)',
+                background: 'rgba(139,92,246,0.2)',
+                color: '#c4b5fd',
+                border: '1px solid rgba(139,92,246,0.3)',
               }}
             >
               <ExternalLink className="w-3 h-3" /> {t('tasks_join')}
@@ -259,9 +259,9 @@ function PartnerTaskCard({
               disabled={isCompleting}
               className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all active:scale-95"
               style={{
-                background: 'rgba(245,166,35,0.15)',
-                color: '#F5A623',
-                border: '1px solid rgba(245,166,35,0.3)',
+                background: 'rgba(139,92,246,0.15)',
+                color: '#8b5cf6',
+                border: '1px solid rgba(139,92,246,0.3)',
               }}
             >
               {isCompleting ? <Loader2 className="w-3 h-3 animate-spin" /> : t('tasks_verify_check')}
@@ -274,8 +274,8 @@ function PartnerTaskCard({
         <div
           className="mt-2 text-xs font-medium px-2 py-1 rounded-lg"
           style={{
-            background: feedback.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-            color: feedback.ok ? '#4ade80' : '#f87171',
+            background: feedback.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+            color: feedback.ok ? '#a78bfa' : '#f87171',
           }}
         >
           {feedback.msg}
@@ -374,8 +374,8 @@ function TwitterLinkCard({
         <div
           className="text-xs font-medium px-2 py-1 rounded-lg mt-2"
           style={{
-            background: msg.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-            color: msg.ok ? '#4ade80' : '#f87171',
+            background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+            color: msg.ok ? '#a78bfa' : '#f87171',
           }}
         >
           {msg.text}
@@ -422,9 +422,9 @@ function TwitterTaskCard({
       className="rounded-2xl p-4"
       style={{
         background: isDone
-          ? 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.6) 100%)'
+          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
           : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${isDone ? 'rgba(34,197,94,0.25)' : `${accent}55`}`,
+        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
       }}
     >
       <div className="flex items-start gap-3">
@@ -433,7 +433,7 @@ function TwitterTaskCard({
           style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
         >
           {isDone ? (
-            <CheckCircle2 className="w-5 h-5 text-green-400" />
+            <CheckCircle2 className="w-5 h-5 text-violet-400" />
           ) : (
             <Twitter className="w-5 h-5" style={{ color: accent }} />
           )}
@@ -452,7 +452,7 @@ function TwitterTaskCard({
       {!isDone && (
         <div className="mt-3 space-y-2">
           {!linkedHandle ? (
-            <div className="text-xs px-2 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-400 font-medium">
+            <div className="text-xs px-2 py-1.5 rounded-lg bg-violet-500/10 text-violet-400 font-medium">
               {t('tasks_link_x_first_warn')}
             </div>
           ) : (
@@ -473,7 +473,7 @@ function TwitterTaskCard({
                 onClick={verify}
                 disabled={busy || (!!openLink && !opened)}
                 className="flex-1 py-2 rounded-xl font-bold text-xs text-black disabled:opacity-50 flex items-center justify-center gap-1"
-                style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}
+                style={{ background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' }}
               >
                 {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : t('tasks_verify_now')}
               </button>
@@ -483,8 +483,8 @@ function TwitterTaskCard({
             <div
               className="text-xs font-medium px-2 py-1 rounded-lg"
               style={{
-                background: msg.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                color: msg.ok ? '#4ade80' : '#f87171',
+                background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+                color: msg.ok ? '#a78bfa' : '#f87171',
               }}
             >
               {msg.text}
@@ -544,9 +544,9 @@ function SubmissionTaskCard({
       className="rounded-2xl p-4"
       style={{
         background: approved
-          ? 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.6) 100%)'
+          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
           : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${approved ? 'rgba(34,197,94,0.25)' : `${accent}55`}`,
+        border: `1px solid ${approved ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
       }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -556,7 +556,7 @@ function SubmissionTaskCard({
             style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
           >
             {approved ? (
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
+              <CheckCircle2 className="w-5 h-5 text-violet-400" />
             ) : kind === 'twitter' ? (
               <Twitter className="w-5 h-5" style={{ color: accent }} />
             ) : (
@@ -585,7 +585,7 @@ function SubmissionTaskCard({
       {!approved && (
         <div className="mt-3 space-y-2">
           {pending ? (
-            <div className="text-xs px-2 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-400 font-medium">
+            <div className="text-xs px-2 py-1.5 rounded-lg bg-violet-500/10 text-violet-400 font-medium">
               {t('tasks_proof_pending', { payload: String(submission?.payload ?? '') })}
             </div>
           ) : (
@@ -617,8 +617,8 @@ function SubmissionTaskCard({
             <div
               className="text-xs font-medium px-2 py-1 rounded-lg"
               style={{
-                background: msg.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                color: msg.ok ? '#4ade80' : '#f87171',
+                background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+                color: msg.ok ? '#a78bfa' : '#f87171',
               }}
             >
               {msg.text}
@@ -660,23 +660,23 @@ function FriendsMilestones() {
           key={m.id}
           className="rounded-2xl p-3.5 flex items-center justify-between gap-3"
           style={{
-            background: m.reached ? 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.6) 100%)' : 'rgba(0,0,0,0.5)',
-            border: `1px solid ${m.reached ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.08)'}`,
+            background: m.reached ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)' : 'rgba(0,0,0,0.5)',
+            border: `1px solid ${m.reached ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
+              style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
             >
-              {m.reached ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Users className="w-5 h-5" style={{ color: '#818cf8' }} />}
+              {m.reached ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : <Users className="w-5 h-5" style={{ color: '#a78bfa' }} />}
             </div>
             <div className="min-w-0">
               <div className="text-white font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
               <div className="text-xs text-primary font-black">+{m.rewardCoins} MNX</div>
             </div>
           </div>
-          <div className="text-xs font-bold flex-shrink-0" style={{ color: m.reached ? '#4ade80' : 'rgba(255,255,255,0.35)' }}>
+          <div className="text-xs font-bold flex-shrink-0" style={{ color: m.reached ? '#a78bfa' : 'rgba(255,255,255,0.35)' }}>
             {m.reached ? t('tasks_done') : `${count}/${m.inviteCount}`}
           </div>
         </div>
@@ -911,7 +911,7 @@ export default function Tasks() {
                 onClick={() => setTab(item.key)}
                 className="px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all active:scale-95"
                 style={{
-                  background: active ? 'linear-gradient(135deg, #F5A623 0%, #E8920D 100%)' : 'rgba(255,255,255,0.06)',
+                  background: active ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(255,255,255,0.06)',
                   color: active ? '#000' : 'rgba(255,255,255,0.6)',
                   border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
                 }}
@@ -969,11 +969,11 @@ export default function Tasks() {
         {partnerTasks.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 pt-1">
-              <Users className="w-4 h-4" style={{ color: '#818cf8' }} />
-              <span className="text-xs font-black tracking-widest uppercase" style={{ color: '#818cf8' }}>
+              <Users className="w-4 h-4" style={{ color: '#a78bfa' }} />
+              <span className="text-xs font-black tracking-widest uppercase" style={{ color: '#a78bfa' }}>
                 {t('tasks_partners')}
               </span>
-              <div className="flex-1 h-px" style={{ background: 'rgba(99,102,241,0.25)' }} />
+              <div className="flex-1 h-px" style={{ background: 'rgba(139,92,246,0.25)' }} />
             </div>
             {partnerTasks.map((task) => (
               <PartnerTaskCard
@@ -1010,15 +1010,15 @@ export default function Tasks() {
               className="rounded-2xl p-4"
               style={{
                 background: isDone
-                  ? 'linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,0,0,0.6) 100%)'
+                  ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
                   : 'rgba(0,0,0,0.5)',
-                border: `1px solid ${isDone ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
               }}
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/10">
-                    {isDone ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Circle className="w-5 h-5 text-white/30" />}
+                    {isDone ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : <Circle className="w-5 h-5 text-white/30" />}
                   </div>
                   <div className="min-w-0">
                     <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
@@ -1037,7 +1037,7 @@ export default function Tasks() {
                       {t('tasks_full')}
                     </div>
                   ) : isCountingDown ? (
-                    <div className="px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-mono font-bold">
+                    <div className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-mono font-bold">
                       ⏱ {formatCountdown(msLeft)}
                     </div>
                   ) : !isDone ? (
@@ -1083,7 +1083,7 @@ export default function Tasks() {
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(100, (slotsFilled / slotLimit) * 100)}%`,
-                        background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)',
+                        background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)',
                       }}
                     />
                   </div>
