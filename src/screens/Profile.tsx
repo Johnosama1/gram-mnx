@@ -203,7 +203,7 @@ function usePayConfig() {
   }, []);
   return cfg;
 }
-function DepositPanel({ onClose }: { onClose: () => void }) {
+function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: boolean }) {
   const { t, lang } = useLanguage();
   const [tonConnectUI] = useTonConnectUI();
   const tonWallet = useTonWallet();
