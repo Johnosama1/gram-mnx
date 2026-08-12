@@ -319,7 +319,7 @@ function PartnerTaskCard({
           {feedback.msg}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
