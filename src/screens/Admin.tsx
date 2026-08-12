@@ -1561,6 +1561,43 @@ function UsersSection() {
             <div className="text-base font-black text-amber-400">{Number(u.coins ?? 0).toLocaleString()} MNX</div>
           </div>
 
+          {/* Full account info */}
+          <div className="bg-black/40 rounded-xl p-3 space-y-1.5 border border-white/5">
+            <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">معلومات الحساب</p>
+            {!details ? (
+              <div className="text-xs text-muted-foreground">جاري التحميل…</div>
+            ) : (
+              <div className="text-xs text-white/80 space-y-1 font-mono">
+                <div>ID: {details.telegramId}</div>
+                <div>Username: {details.username ? `@${details.username}` : '—'}</div>
+                <div>الاسم: {[details.firstName, details.lastName].filter(Boolean).join(' ') || '—'}</div>
+                <div>اللغة: {details.language ?? '—'}</div>
+                <div>المحفظة: <span className="break-all">{details.walletAddress ?? '—'}</span></div>
+                <div>عدد الإحالات: <span className="text-primary font-black">{details.referralCount ?? 0}</span></div>
+                <div>مدعو بواسطة: {details.referredBy ?? '—'}</div>
+                <div>المهام المكتملة: {details.tasksCompleted}</div>
+                <div>الإيداعات: {details.depositsCount} · السحوبات: {details.withdrawalsCount}</div>
+                <div>تاريخ التسجيل: {details.createdAt ? new Date(details.createdAt).toLocaleString() : '—'}</div>
+                <div>آخر نشاط: {details.lastActiveAt ? new Date(details.lastActiveAt).toLocaleString() : '—'}</div>
+                <div>حظر البوت: {details.blockedBot ? 'نعم' : 'لا'}</div>
+                <div className="break-all">IPs: {details.ips?.length ? details.ips.join(', ') : '—'}</div>
+                <div className={`font-black ${(details.ipSiblingCount ?? 0) > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  حسابات بنفس الـ IP: {details.ipSiblingCount ?? 0}
+                </div>
+                {details.siblings?.length > 0 && (
+                  <div className="pt-1 space-y-1 border-t border-white/10">
+                    {details.siblings.map(s => (
+                      <button key={s.telegramId} onClick={() => setSelected(s)}
+                        className="w-full text-left text-[11px] text-white/70 hover:text-white">
+                        · {s.telegramId} {s.username ? `@${s.username}` : ''} {s.isBanned ? '🚫' : ''}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Coins adjustment */}
           <div className="bg-black/40 rounded-xl p-3 space-y-2">
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">تعديل MNX</p>
