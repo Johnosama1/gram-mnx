@@ -699,6 +699,20 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
 
+            <Link
+              to="/faq"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+            >
+              <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
+                <HelpCircle className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-white mb-0.5">{t('faq_title')}</div>
+                <div className="text-xs text-muted-foreground">{t('faq_desc')}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+
             <button
               onClick={openSupportChat}
               className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
@@ -915,21 +929,6 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
-        {/* FAQ */}
-
-        <Link
-          to="/faq"
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-violet-300">
-            <HelpCircle className="w-6 h-6" />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('faq_title')}</div>
-            <div className="text-xs text-muted-foreground">{t('faq_desc')}</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </Link>
       </div>
 
       {/* ── Modals / Panels ── */}
