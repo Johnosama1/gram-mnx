@@ -111,21 +111,12 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
   const remaining = state?.nextAvailableAt ? new Date(state.nextAvailableAt).getTime() - now : 0;
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: '1px solid rgba(139,92,246,0.25)',
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
-          >
-            <CalendarCheck className="w-6 h-6 text-violet-400" />
-          </div>
+          <TaskIconBox>
+            <CalendarCheck className="w-6 h-6 text-primary" />
+          </TaskIconBox>
           <div className="min-w-0">
             <div className="font-bold text-sm text-white">{t('tasks_checkin_title')}</div>
             <div className="text-xs text-muted-foreground mt-0.5">
@@ -184,7 +175,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
           {msg.text}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
@@ -226,14 +217,24 @@ function TaskAvatar({
   }
 
   return (
-    <div
-      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
-      style={{
-        background: 'rgba(139,92,246,0.15)',
-        border: '1px solid rgba(139,92,246,0.3)',
-      }}
-    >
-      {isDone ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : fallback}
+    <TaskIconBox>
+      {isDone ? <CheckCircle2 className="w-5 h-5 text-primary" /> : fallback}
+    </TaskIconBox>
+  );
+}
+
+function TaskCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 text-right ${className ?? ''}`}>
+      {children}
+    </div>
+  );
+}
+
+function TaskIconBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary/15 text-primary">
+      {children}
     </div>
   );
 }
@@ -256,21 +257,13 @@ function PartnerTaskCard({
 }) {
   const { t } = useLanguage();
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: isDone
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.3)'}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <TaskAvatar
             task={task}
             isDone={isDone}
-            fallback={<Radio className="w-5 h-5" style={{ color: '#a78bfa' }} />}
+            fallback={<Radio className="w-5 h-5 text-primary" />}
           />
           <div className="min-w-0">
             <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
@@ -326,7 +319,7 @@ function PartnerTaskCard({
           {feedback.msg}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
@@ -372,22 +365,11 @@ function TwitterLinkCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: handle
-          ? 'linear-gradient(135deg, rgba(29,161,242,0.10) 0%, rgba(0,0,0,0.6) 100%)'
-          : 'linear-gradient(135deg, rgba(29,161,242,0.18) 0%, rgba(0,0,0,0.6) 100%)',
-        border: '1px solid rgba(29,161,242,0.35)',
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(29,161,242,0.15)', border: '1px solid rgba(29,161,242,0.3)' }}
-        >
-          <Twitter className="w-5 h-5" style={{ color: '#1DA1F2' }} />
-        </div>
+        <TaskIconBox>
+          <Twitter className="w-5 h-5 text-primary" />
+        </TaskIconBox>
         <div className="min-w-0">
           <div className="font-bold text-sm text-white">{t('tasks_x_account')}</div>
           <p className="text-xs text-white/50 mt-0.5">
@@ -426,7 +408,7 @@ function TwitterLinkCard({
           {msg.text}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
@@ -446,7 +428,6 @@ function TwitterTaskCard({
   const [opened, setOpened] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const accent = '#1DA1F2';
 
   const openLink =
     task.twitterUrl ??
@@ -463,26 +444,15 @@ function TwitterTaskCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: isDone
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-start gap-3">
-        <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
-        >
+        <TaskIconBox>
           {isDone ? (
-            <CheckCircle2 className="w-5 h-5 text-violet-400" />
+            <CheckCircle2 className="w-5 h-5 text-primary" />
           ) : (
-            <Twitter className="w-5 h-5" style={{ color: accent }} />
+            <Twitter className="w-5 h-5 text-primary" />
           )}
-        </div>
+        </TaskIconBox>
         <div className="min-w-0 flex-1">
           <div className={`font-bold text-sm ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
             {task.title}
@@ -508,8 +478,7 @@ function TwitterTaskCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpened(true)}
-                  className="flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1"
-                  style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}4d` }}
+                  className="flex-1 py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 bg-primary/20 text-primary border border-primary/30"
                 >
                   <ExternalLink className="w-3 h-3" /> {t('tasks_open_follow')}
                 </a>
@@ -537,7 +506,7 @@ function TwitterTaskCard({
           )}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
@@ -569,7 +538,6 @@ function SubmissionTaskCard({
         ? `https://t.me/${task.botUsername.replace('@', '')}`
         : task.joinLink ?? null;
 
-  const accent = kind === 'twitter' ? '#1DA1F2' : '#a78bfa';
   const approved = isDone || submission?.status === 'approved';
   const pending = !approved && submission?.status === 'pending';
 
@@ -585,29 +553,18 @@ function SubmissionTaskCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: approved
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${approved ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
-          >
+          <TaskIconBox>
             {approved ? (
-              <CheckCircle2 className="w-5 h-5 text-violet-400" />
+              <CheckCircle2 className="w-5 h-5 text-primary" />
             ) : kind === 'twitter' ? (
-              <Twitter className="w-5 h-5" style={{ color: accent }} />
+              <Twitter className="w-5 h-5 text-primary" />
             ) : (
-              <Bot className="w-5 h-5" style={{ color: accent }} />
+              <Bot className="w-5 h-5 text-primary" />
             )}
-          </div>
+          </TaskIconBox>
           <div className="min-w-0">
             <div className={`font-bold text-sm ${approved ? 'text-white/50 line-through' : 'text-white'}`}>{task.title}</div>
             {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
@@ -619,8 +576,7 @@ function SubmissionTaskCard({
             href={openLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1"
-            style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}4d` }}
+            className="flex-shrink-0 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 bg-primary/20 text-primary border border-primary/30"
           >
             <ExternalLink className="w-3 h-3" /> {t('tasks_open')}
           </a>
@@ -671,7 +627,7 @@ function SubmissionTaskCard({
           )}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
@@ -696,35 +652,32 @@ function FriendsMilestones() {
 
   return (
     <div className="space-y-2">
-      <div className="rounded-2xl p-4" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="text-xs text-muted-foreground">{t('tasks_invited_count')}</div>
-        <div className="text-3xl font-black text-primary">{count}</div>
-      </div>
+      <TaskCard className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <TaskIconBox>
+            <Users className="w-5 h-5 text-primary" />
+          </TaskIconBox>
+          <div>
+            <div className="text-xs text-muted-foreground">{t('tasks_invited_count')}</div>
+            <div className="text-3xl font-black text-primary">{count}</div>
+          </div>
+        </div>
+      </TaskCard>
       {milestones.map((m) => (
-        <div
-          key={m.id}
-          className="rounded-2xl p-3.5 flex items-center justify-between gap-3"
-          style={{
-            background: m.reached ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)' : 'rgba(0,0,0,0.5)',
-            border: `1px solid ${m.reached ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
-          }}
-        >
+        <TaskCard key={m.id} className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
-            >
-              {m.reached ? <CheckCircle2 className="w-5 h-5 text-violet-400" /> : <Users className="w-5 h-5" style={{ color: '#a78bfa' }} />}
-            </div>
+            <TaskIconBox>
+              {m.reached ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Users className="w-5 h-5 text-primary" />}
+            </TaskIconBox>
             <div className="min-w-0">
               <div className="text-white font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
               <div className="text-xs text-primary font-black">+{m.rewardCoins} MNX</div>
             </div>
           </div>
-          <div className="text-xs font-bold flex-shrink-0" style={{ color: m.reached ? '#a78bfa' : 'rgba(255,255,255,0.35)' }}>
+          <div className={`text-xs font-bold flex-shrink-0 ${m.reached ? 'text-primary' : 'text-white/35'}`}>
             {m.reached ? t('tasks_done') : `${count}/${m.inviteCount}`}
           </div>
-        </div>
+        </TaskCard>
       ))}
       {milestones.length === 0 && (
         <div className="text-center text-muted-foreground text-sm py-6">{t('tasks_no_invite_rewards')}</div>
