@@ -29,7 +29,25 @@ export function installApiAuth(): void {
             init?.headers ?? (input instanceof Request ? input.headers : undefined),
           );
           if (!headers.has('x-init-data')) headers.set('x-init-data', initData);
-          return original(input as RequestInfo, { ...init, headers, credentials: 'include' });
+          return original(input as RequestInfo, { ...init, headers, credentials: 'include' }).then(
+            (res) => {
+              // Stale Telegram session → reload once so the client hands us a
+              // freshly signed initData instead of showing "Missing User ID".
+              if (res.status === 401 && !w['__gmAuthReloaded']) {
+                w['__gmAuthReloaded'] = true;
+                try {
+                  sessionStorage.setItem('gm_auth_reload', String(Date.now()));
+                  if (!sessionStorage.getItem('gm_auth_reloaded_once')) {
+                    sessionStorage.setItem('gm_auth_reloaded_once', '1');
+                    window.location.reload();
+                  }
+                } catch {
+                  /* ignore */
+                }
+              }
+              return res;
+            },
+          );
         }
       }
     } catch {
