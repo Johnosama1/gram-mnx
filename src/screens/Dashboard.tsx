@@ -155,7 +155,7 @@ export default function Dashboard() {
             alt="GRAM MNX mining crystal"
             width={1024}
             height={660}
-            className={`w-full object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin_6s_linear_infinite]' : ''}`}
+            className={`w-full object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]' : ''}`}
             style={{ transformStyle: 'preserve-3d' }}
           />
           <img
@@ -170,7 +170,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── claim row ── */}
-      <div className="shrink-0 relative">
+      <div className="shrink-0 relative mb-6">
         <div className="flex items-stretch gap-2">
           {showMiningButton && (isMiningActive ? (
             <div className={`${card} w-[36%] shrink-0 flex flex-col items-center justify-center px-1 py-2`}>

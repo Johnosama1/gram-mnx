@@ -340,3 +340,12 @@ body {
   from { transform: rotateY(0deg); }
   to   { transform: rotateY(360deg); }
 }
+
+/* real 3D tumble: yaw + slight pitch/roll + depth scale */
+@keyframes gem-spin-3d {
+  0%   { transform: perspective(900px) rotateX(6deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  25%  { transform: perspective(900px) rotateX(-4deg) rotateY(90deg) rotateZ(2deg) scale(0.94); }
+  50%  { transform: perspective(900px) rotateX(6deg) rotateY(180deg) rotateZ(0deg) scale(1); }
+  75%  { transform: perspective(900px) rotateX(-4deg) rotateY(270deg) rotateZ(-2deg) scale(0.94); }
+  100% { transform: perspective(900px) rotateX(6deg) rotateY(360deg) rotateZ(0deg) scale(1); }
+}
