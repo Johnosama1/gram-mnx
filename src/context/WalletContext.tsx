@@ -23,6 +23,7 @@ type WalletContextType = {
   miningCoins: number;
   /** Server-authoritative gram/second rate (= 24h target / 86,400) */
   miningRatePerSecond: number;
+  miningDailyPct: number;
   /** Exact gram amount that accrues over a full 24h cycle at the current rate */
   daily24hEarned: number;
   /** Admin switch — hides the StartMiner button when false */
@@ -120,6 +121,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [isStartingMining, setIsStartingMining] = useState(false);
   const [miningCoins, setMiningCoins] = useState(0);
   const [miningRatePerSecond, setMiningRatePerSecond] = useState(0);
+  const [miningDailyPct, setMiningDailyPct] = useState(5);
+  const miningDailyPctRef = useRef(5);
   // Hidden until the server confirms it should be visible — prevents the
   // button from flashing on app open when the admin has it turned off.
   const [showMiningButton, setShowMiningButton] = useState(() => {
@@ -224,11 +227,17 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         miningButtonEnabled?: boolean;
         coins?: number;
         miningRate?: number;
+        miningDailyPct?: number;
       };
       const accrued = Number(data?.accrued);
       const elapsed = Number(data?.elapsedSeconds);
       const serverCoins = Number(data?.coins);
       const serverRate = Number(data?.miningRate);
+      const serverPct = Number(data?.miningDailyPct);
+      if (Number.isFinite(serverPct) && serverPct >= 0) {
+        miningDailyPctRef.current = serverPct;
+        setMiningDailyPct(serverPct);
+      }
       serverCoinsRef.current = Number.isFinite(serverCoins) ? Math.max(0, serverCoins) : 0;
       serverMiningRateRef.current = Number.isFinite(serverRate) ? Math.max(0, serverRate) : 0;
       setMiningCoins(serverCoinsRef.current);
@@ -346,7 +355,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         setSessionEarnings(0);
         storeAccrued(0);
         elapsedSecondsRef.current = 0;
-        serverMiningRateRef.current = serverCoinsRef.current / 14_000 / MINING_CAP_SECONDS;
+        serverMiningRateRef.current =
+          (serverCoinsRef.current / 700) * (miningDailyPctRef.current / 100) / MINING_CAP_SECONDS;
         setMiningRatePerSecond(serverMiningRateRef.current);
         hasServerMiningBaselineRef.current = true;
         setMiningRemainingMs(MINING_CAP_SECONDS * 1000);
@@ -404,6 +414,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       referralCode, referralCount, isClaiming, claimError,
       isMiningActive, miningRemainingMs, isStartingMining, miningCoins,
       miningRatePerSecond,
+      miningDailyPct,
       daily24hEarned: Math.round(miningRatePerSecond * MINING_CAP_SECONDS * 1_000_000_000_000) / 1_000_000_000_000,
       showMiningButton, startMining,
       claimEarnings, connectWallet, addReferral, refreshReferrals, addClickEarning,
