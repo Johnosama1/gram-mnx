@@ -238,6 +238,22 @@ function TaskAvatar({
   );
 }
 
+function TaskCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 text-right ${className ?? ''}`}>
+      {children}
+    </div>
+  );
+}
+
+function TaskIconBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary/15 text-primary">
+      {children}
+    </div>
+  );
+}
+
 // ─── Partner Task Card ────────────────────────────────────────────────────────
 function PartnerTaskCard({
   task,
