@@ -4,8 +4,10 @@ import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
+import StickerBadge from '@/components/StickerBadge';
 import crystalGem from '@/assets/crystal-gem.png';
 import crystalBase from '@/assets/crystal-base.png';
+import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight } from 'lucide-react';
@@ -75,7 +77,9 @@ export default function Dashboard() {
             )}
           </div>
           <div className="min-w-0">
-            <div className="truncate font-bold text-foreground text-[15px]">{userName} 🚀</div>
+            <div className="truncate font-bold text-foreground text-[15px] flex items-center gap-1">
+              {userName} <StickerBadge src={capWingsSticker.url} size={20} />
+            </div>
             <div className="truncate text-[12px] text-primary font-medium">
               {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
             </div>
