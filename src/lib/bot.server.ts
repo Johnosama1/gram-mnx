@@ -178,9 +178,10 @@ function gateText(lang: 'ar' | 'en'): string {
 }
 
 /** Sends the welcome message with the Open GRAM MNX button. */
-async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en') {
+async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en', path = '') {
   const welcome = await getWelcomeMessage(from.first_name ?? '', lang);
   const label = 'Open GRAM MNX';
+  const url = `${webAppUrl().replace(/\/$/, '')}${path}`;
   const startBtn = (action: Record<string, unknown>): Record<string, unknown> => ({
     text: label,
     icon_custom_emoji_id: '5852921662776809366',
@@ -188,8 +189,9 @@ async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en') {
     style: 'success',
   });
   const res = await send(chatId, welcome, {
-    inline_keyboard: [[startBtn({ web_app: { url: webAppUrl() } })]],
+    inline_keyboard: [[startBtn({ web_app: { url } })]],
   });
+
   if (!res.ok) {
     // Some clients reject web_app buttons — fall back to a plain URL button.
     await send(chatId, welcome, {
