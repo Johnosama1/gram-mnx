@@ -153,7 +153,7 @@ export default function Dashboard() {
           alt="GRAM MNX mining crystal"
           width={1024}
           height={1024}
-          className={`relative w-[78%] max-w-[320px] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gram-float_3.4s_ease-in-out_infinite]' : 'opacity-80 saturate-50'}`}
+          className={`relative w-[78%] max-w-[320px] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[hero-float_3.4s_ease-in-out_infinite]' : 'opacity-80 saturate-50'}`}
         />
       </div>
 
