@@ -631,7 +631,7 @@ function SubmissionTaskCard({
           )}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
