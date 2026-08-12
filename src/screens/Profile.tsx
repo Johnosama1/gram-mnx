@@ -469,7 +469,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
 }
 
 // ─── Withdraw Panel ───────────────────────────────────────────────────────────
-function WithdrawPanel({ onClose }: { onClose: () => void }) {
+function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: boolean }) {
   const { t, lang } = useLanguage();
   const { holdingWallet, walletAddress, syncBalance } = useWallet();
   const cfg = usePayConfig();
