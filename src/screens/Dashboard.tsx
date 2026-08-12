@@ -47,7 +47,6 @@ export default function Dashboard() {
 
   const displayedHolding = useAnimatedNumber(holdingWallet, 1600);
   const canClaim = sessionEarnings > 0;
-  const ratePerSec = dailyIncome > 0 ? dailyIncome / 86_400 : 0;
   const mining = isMiningActive && coins > 0;
 
   const handleClaim = () => {
