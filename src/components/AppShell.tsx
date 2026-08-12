@@ -318,8 +318,11 @@ function Shell() {
         style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
       />
 
-      {isLoading ? (
+      {hasInitData === false ? (
+        <OutsideTelegramScreen />
+      ) : isLoading || hasInitData === null ? (
         <LoadingScreen />
+
       ) : maintenance && !isAdmin ? (
         <MaintenanceScreen
           message={maintenanceMessage || '🔧 The app is under maintenance, please try again later.'}
