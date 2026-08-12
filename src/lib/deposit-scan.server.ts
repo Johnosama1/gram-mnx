@@ -66,7 +66,6 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
   // Credit what the user asked for, never more than what actually arrived.
   const amount = round12(Math.min(Number(req.amount), tx.amountTon));
   const coins = Math.floor(amount * rate);
-  const newCoins = round12(Number(user.coins ?? 0) + coins);
   const nowIso = new Date().toISOString();
 
   const { data: claimed, error } = await db
