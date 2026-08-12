@@ -365,15 +365,7 @@ function TwitterLinkCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: handle
-          ? 'linear-gradient(135deg, rgba(29,161,242,0.10) 0%, rgba(0,0,0,0.6) 100%)'
-          : 'linear-gradient(135deg, rgba(29,161,242,0.18) 0%, rgba(0,0,0,0.6) 100%)',
-        border: '1px solid rgba(29,161,242,0.35)',
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center gap-3">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
