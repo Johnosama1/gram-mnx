@@ -19,15 +19,17 @@ export const Route = createFileRoute('/api/telegram/coins/spend')({
         }
 
         const row = await upsertUser(user);
-        const current = Number(row.coins ?? 0);
-        if (current < amount) {
-          return json({ error: 'Insufficient coin balance', coins: current }, 400);
+        const db = (await getDb()) as any;
+        // Atomic, row-locked spend: the balance check and the deduction happen
+        // in one transaction, so concurrent requests cannot overspend.
+        const { data: coins } = await db.rpc('gm_spend_coins', {
+          _telegram_id: user.id,
+          _amount: amount,
+        });
+        if (coins === null || coins === undefined) {
+          return json({ error: 'Insufficient coin balance', coins: Number(row.coins ?? 0) }, 400);
         }
-
-        const coins = current - amount;
-        const db = await getDb();
-        await db.from('gm_users').update({ coins }).eq('telegram_id', user.id);
-        return json({ coins });
+        return json({ coins: Number(coins) });
       },
     },
   },
