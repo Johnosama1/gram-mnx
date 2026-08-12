@@ -1531,6 +1531,11 @@ function UsersSection() {
           <div className="text-xs text-muted-foreground font-mono">ID: {r.telegramId} {r.username && `· @${r.username}`}</div>
           <div className="text-xs text-primary font-bold mt-0.5">{Number(r.balance).toFixed(4)} gram</div>
           <div className="text-xs text-amber-400 font-bold">{Number(r.coins ?? 0).toLocaleString()} MNX</div>
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            <span className="text-[10px] bg-white/5 text-muted-foreground px-2 py-0.5 rounded-full font-bold">إحالات: {r.referralCount ?? 0}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${(r.ipSiblingCount ?? 0) > 0 ? 'bg-destructive/20 text-destructive' : 'bg-white/5 text-muted-foreground'}`}>نفس الـ IP: {r.ipSiblingCount ?? 0}</span>
+            {r.isBanned && <span className="text-[10px] bg-destructive/20 text-destructive px-2 py-0.5 rounded-full font-bold">محظور</span>}
+          </div>
         </button>
       ))}
 
