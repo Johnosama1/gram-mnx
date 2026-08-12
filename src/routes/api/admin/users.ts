@@ -27,6 +27,53 @@ async function notifyBalanceChange(
   await notifyUser(telegramId, lines.join('\n'));
 }
 
+/** Distinct accounts that were seen on the same IP addresses as each user. */
+async function enrich(db: any, rows: any[]) {
+  const users = rows.map(mapUser);
+  if (!users.length) return users;
+  const ids = users.map((u) => u.telegramId);
+
+  const { data: refRows } = await db
+    .from('gm_referrals')
+    .select('referrer_id')
+    .in('referrer_id', ids);
+  const refCount = new Map<number, number>();
+  for (const r of refRows ?? []) {
+    const k = Number(r.referrer_id);
+    refCount.set(k, (refCount.get(k) ?? 0) + 1);
+  }
+
+  const { data: ipRows } = await db.from('gm_user_ips').select('telegram_id, ip').in('telegram_id', ids);
+  const ipsOf = new Map<number, string[]>();
+  for (const r of ipRows ?? []) {
+    const k = Number(r.telegram_id);
+    ipsOf.set(k, [...(ipsOf.get(k) ?? []), String(r.ip)]);
+  }
+  const allIps = [...new Set((ipRows ?? []).map((r: any) => String(r.ip)))];
+  const siblingsByIp = new Map<string, Set<number>>();
+  if (allIps.length) {
+    const { data: sib } = await db.from('gm_user_ips').select('telegram_id, ip').in('ip', allIps);
+    for (const r of sib ?? []) {
+      const ip = String(r.ip);
+      if (!siblingsByIp.has(ip)) siblingsByIp.set(ip, new Set());
+      siblingsByIp.get(ip)!.add(Number(r.telegram_id));
+    }
+  }
+
+  return users.map((u) => {
+    const ips = ipsOf.get(u.telegramId) ?? [];
+    const siblings = new Set<number>();
+    for (const ip of ips) for (const t of siblingsByIp.get(ip) ?? []) if (t !== u.telegramId) siblings.add(t);
+    return {
+      ...u,
+      ips,
+      referralCount: refCount.get(u.telegramId) ?? 0,
+      ipSiblingCount: siblings.size,
+      ipSiblings: [...siblings],
+    };
+  });
+}
+
 async function handle({ request }: { request: Request }): Promise<Response> {
   const guard = await requireAdmin(request);
   if (guard instanceof Response) return guard;
