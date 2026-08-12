@@ -915,7 +915,7 @@ export default function Profile() {
           className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
-            <StickerBadge size={32} src={supportSticker.url} />
+            <StickerBadge size={32} src={supportBalloonSticker.url} />
           </div>
           <div className="flex-1">
             <div className="font-bold text-white mb-0.5">{t('support_complaints')}</div>
