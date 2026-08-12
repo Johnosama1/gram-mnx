@@ -444,15 +444,7 @@ function TwitterTaskCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: isDone
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-start gap-3">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
