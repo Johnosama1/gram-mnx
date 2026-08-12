@@ -14,13 +14,13 @@ function loadTelegramSdk(): void {
 }
 
 /** Waits for Telegram's bridge before any authenticated API request is made. */
-export function initializeTelegramWebApp(timeoutMs = 10_000): Promise<TelegramBootstrapResult> {
+export function initializeTelegramWebApp(timeoutMs = 15_000): Promise<TelegramBootstrapResult> {
   if (typeof window === 'undefined') {
     return Promise.resolve({ status: 'unavailable', initData: '', unsafeUserId: null });
   }
   if (bootstrapPromise) return bootstrapPromise;
 
-  bootstrapPromise = new Promise((resolve) => {
+  const promise = new Promise<TelegramBootstrapResult>((resolve) => {
     const startedAt = Date.now();
     let sdkInjected = false;
 
@@ -46,6 +46,9 @@ export function initializeTelegramWebApp(timeoutMs = 10_000): Promise<TelegramBo
         loadTelegramSdk();
       }
       if (Date.now() - startedAt >= timeoutMs) {
+        // Never cache a failure: the SDK may still arrive (slow network, cold
+        // start), and the retry button re-runs this without a page reload.
+        bootstrapPromise = null;
         resolve({ status: 'unavailable', initData: '', unsafeUserId: null });
         return true;
       }
@@ -58,7 +61,13 @@ export function initializeTelegramWebApp(timeoutMs = 10_000): Promise<TelegramBo
     }, 100);
   });
 
-  return bootstrapPromise;
+  bootstrapPromise = promise;
+  return promise;
+}
+
+/** Drops any cached bootstrap state so the Telegram bridge is probed again. */
+export function resetTelegramBootstrap(): void {
+  bootstrapPromise = null;
 }
 
 export async function requireTelegramInitData(): Promise<string> {
