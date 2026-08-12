@@ -781,6 +781,8 @@ export default function Profile() {
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [showWalletHub, setShowWalletHub] = useState(false);
+  const [walletTab, setWalletTab] = useState<'deposit' | 'withdraw'>('deposit');
+
 
   const [showSettings, setShowSettings] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
