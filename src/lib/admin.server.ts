@@ -173,6 +173,7 @@ export type DbTask = {
   twitter_url?: string | null;
   join_link?: string | null;
   slot_limit?: number | null;
+  icon_url?: string | null;
 };
 
 export const mapTask = (t: DbTask) => ({
@@ -188,6 +189,7 @@ export const mapTask = (t: DbTask) => ({
   twitterUrl: t.twitter_url ?? null,
   joinLink: t.join_link ?? null,
   slotLimit: t.slot_limit ?? null,
+  iconUrl: t.icon_url ?? null,
   createdAt: t.created_at,
 });
 

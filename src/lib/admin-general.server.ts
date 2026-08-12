@@ -136,6 +136,25 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
     }
 
     if (type === 'tasks') {
+      // Upload a task/channel picture (shown as a round avatar in the app).
+      if (method === 'POST' && action === 'upload') {
+        const raw = String(body.data ?? '');
+        const base64 = raw.includes(',') ? raw.slice(raw.indexOf(',') + 1) : raw;
+        if (!base64) return json({ error: 'الملف مطلوب' }, 400);
+        const original = String(body.filename ?? 'file.png');
+        const ext = (original.split('.').pop() ?? 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const name = `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+        const { error: upErr } = await supabaseAdmin.storage
+          .from('gift-media')
+          .upload(name, bytes, {
+            contentType: ext === 'json' ? 'application/json' : `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+            upsert: false,
+          });
+        if (upErr) return json({ error: upErr.message }, 500);
+        return json({ url: `/api/gift/media/${name}` });
+      }
       if (method === 'GET') {
         const { data } = await db.from('gm_tasks').select('*').order('created_at');
         const rows = data ?? [];
@@ -173,6 +192,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
             channel_username: body.channelUsername
               ? String(body.channelUsername).replace(/^@/, '')
               : null,
+            icon_url: body.iconUrl ? String(body.iconUrl).slice(0, 500) : null,
             slot_limit:
               body.slotLimit === undefined || body.slotLimit === null || body.slotLimit === ''
                 ? null
@@ -201,6 +221,8 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           updates.channel_username = body.channelUsername
             ? String(body.channelUsername).replace(/^@/, '')
             : null;
+        if (body.iconUrl !== undefined)
+          updates.icon_url = body.iconUrl ? String(body.iconUrl).slice(0, 500) : null;
         if (body.slotLimit !== undefined)
           updates.slot_limit =
             body.slotLimit === null || body.slotLimit === ''
