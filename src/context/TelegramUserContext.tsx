@@ -107,7 +107,13 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
       credentials: 'include',
       body: JSON.stringify({ initData }),
     });
+    if (res.status === 403) {
+      setIsBanned(true);
+      setIsVerified(false);
+      return;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    setIsBanned(false);
     const data = await res.json();
     if (data?.user) {
       const channels = Array.isArray(data.notJoinedChannels) ? data.notJoinedChannels : [];
@@ -211,6 +217,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
         user,
         avatarUrl,
         isVerified,
+        isBanned,
         isAdmin,
         isLoading,
         notJoinedChannels,
