@@ -155,6 +155,8 @@
   "profile_settings_desc": "تفضيلات التطبيق",
   "profile_language_label": "Language / اللغة",
   "profile_deposit_desc": "أودع جرام عبر GRAM",
+  "faq_title": "الأسئلة الشائعة",
+  "faq_desc": "إجابات على أسئلتك الأكثر شيوعاً",
   "wallet_title": "ربط المحفظة",
   "wallet_connected": "✅ المحفظة متربطة",
   "wallet_disconnect": "🔌 إلغاء ربط المحفظة",

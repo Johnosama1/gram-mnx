@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
-import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { shortFriendlyAddress, toFriendlyAddress } from '@/lib/tonAddress';
@@ -908,20 +909,20 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
-        {/* Support & Complaints */}
-        <div
-          onClick={() => setShowSupport(true)}
+        {/* FAQ */}
+        <Link
+          to="/faq"
           className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-primary">
-            <StickerBadge size={32} src={supportBalloonSticker.url} />
+            <HelpCircle className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('support_title')}</div>
-            <div className="text-xs text-muted-foreground">{t('support_row_desc')}</div>
+            <div className="font-bold text-white mb-0.5">{t('faq_title')}</div>
+            <div className="text-xs text-muted-foreground">{t('faq_desc')}</div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
+        </Link>
       </div>
 
       {/* ── Modals / Panels ── */}

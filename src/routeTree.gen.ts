@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ComboRouteImport } from './routes/combo'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as GiftRouteImport } from './routes/gift'
 import { Route as MinersRouteImport } from './routes/miners'
@@ -86,6 +87,11 @@ const AdminRoute = AdminRouteImport.update({
 const ComboRoute = ComboRouteImport.update({
   id: '/combo',
   path: '/combo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -372,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
+  '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
@@ -432,6 +439,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
+  '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
@@ -493,6 +501,7 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/admin': typeof AdminRoute
   '/combo': typeof ComboRoute
+  '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
@@ -555,6 +564,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/admin'
     | '/combo'
+    | '/faq'
     | '/friends'
     | '/gift'
     | '/miners'
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/admin'
     | '/combo'
+    | '/faq'
     | '/friends'
     | '/gift'
     | '/miners'
@@ -675,6 +686,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/admin'
     | '/combo'
+    | '/faq'
     | '/friends'
     | '/gift'
     | '/miners'
@@ -736,6 +748,7 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   AdminRoute: typeof AdminRoute
   ComboRoute: typeof ComboRoute
+  FaqRoute: typeof FaqRoute
   FriendsRoute: typeof FriendsRoute
   GiftRoute: typeof GiftRoute
   MinersRoute: typeof MinersRoute
@@ -816,6 +829,13 @@ declare module '@tanstack/react-router' {
       path: '/combo'
       fullPath: '/combo'
       preLoaderRoute: typeof ComboRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -1243,6 +1263,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   AdminRoute: AdminRoute,
   ComboRoute: ComboRoute,
+  FaqRoute: FaqRoute,
   FriendsRoute: FriendsRoute,
   GiftRoute: GiftRoute,
   MinersRoute: MinersRoute,
