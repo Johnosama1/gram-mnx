@@ -568,22 +568,18 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         {/* Amount input */}
         <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-3">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('withdraw_amount_label')}</div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
               type="number"
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder="0.00"
-              className="flex-1 min-w-0 bg-transparent text-2xl font-black text-white outline-none"
+              className="flex-1 min-w-0 bg-transparent text-3xl font-black text-white outline-none"
               dir="ltr"
             />
-            <button
-              type="button"
-              onClick={() => setAmount(String(holdingWallet))}
-              className="shrink-0 rounded-xl bg-primary px-4 py-2 text-xs font-black uppercase tracking-wider text-primary-foreground active:scale-95 transition-transform"
-            >
-              MAX
-            </button>
+            <div className="bg-primary/20 border border-primary/40 rounded-xl px-3 py-1.5">
+              <span className="text-primary font-black text-sm">GRAM</span>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-xs text-primary/70 font-bold">{t('min_label')} {minWithdraw} GRAM</div>
