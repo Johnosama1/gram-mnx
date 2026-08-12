@@ -353,28 +353,29 @@ function ItemCard({
       onClick={onTap}
       disabled={disabled}
       className={`
-        relative flex flex-col items-center justify-center gap-1.5
-        rounded-2xl border p-1.5 pb-2 min-h-[110px]
-        bg-gradient-to-b ${item.gradient} ${item.border}
+        relative flex flex-col items-center justify-center gap-1
+        rounded-2xl border p-1.5 pb-2
+        bg-[#171522] border-violet-500/30
         transition-all duration-200 touch-manipulation
-        ${selected ? `ring-2 ring-primary shadow-lg ${item.glow}` : 'opacity-80'}
+        ${selected ? 'ring-2 ring-violet-500 border-violet-400 shadow-lg shadow-violet-600/25' : 'opacity-90'}
         ${disabled ? 'cursor-default' : 'active:scale-95'}
       `}
     >
       {selected && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-          <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+          <CheckCircle2 className="w-3 h-3 text-white" />
         </div>
       )}
       <img
         src={item.img}
         alt={item.name}
-        className="w-full aspect-square object-cover rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
+        className="w-full aspect-square object-contain rounded-xl"
         draggable={false}
       />
-      <span className="text-white text-[11px] font-bold text-center leading-tight whitespace-pre-line">
+      <span className="text-white text-[10px] font-bold text-center leading-tight whitespace-pre-line">
         {item.name}
       </span>
     </button>
+
   );
 }
