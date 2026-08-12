@@ -99,7 +99,13 @@ export default function Dashboard() {
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
             <div className="flex items-center gap-1.5 rounded-full bg-secondary border border-primary/15 pl-1 pr-2.5 py-1">
-              <img src={mnxCoin.url} alt="MNX" width={40} height={40} className="w-5 h-5 object-contain" />
+              <img
+                src={mnxCoin.url}
+                alt="MNX"
+                width={40}
+                height={40}
+                className="w-5 h-5 rounded-full object-cover ring-1 ring-primary/25 shadow-[0_1px_4px_rgba(88,44,180,0.25)]"
+              />
               <span className="text-[12px] font-black text-primary tabular-nums">
                 {coins.toLocaleString()} <span className="text-[10px]">MNX</span>
               </span>
