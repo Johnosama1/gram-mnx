@@ -46,16 +46,25 @@ export const json = (data: unknown, status = 200) =>
     headers: { 'content-type': 'application/json' },
   });
 
-/** Verifies the caller is an admin. Returns a Response on failure. */
-export async function requireAdmin(request: Request): Promise<{ user: TelegramAuthUser } | Response> {
-  const initData = request.headers.get('x-telegram-initdata') ?? '';
+/**
+ * Verifies the caller is an admin. Requires, in order:
+ *  1. HMAC-verified Telegram initData (no bot token => always denied),
+ *  2. the Telegram id to be on the server-side admin list,
+ *  3. a valid HttpOnly admin-gate session cookie (password gate),
+ * unless `requireGate` is false (used by the gate endpoint itself).
+ */
+export async function requireAdmin(
+  request: Request,
+  opts: { requireGate?: boolean } = {},
+): Promise<{ user: TelegramAuthUser } | Response> {
+  const { requireGate = true } = opts;
+  const initData = await extractInitData(request);
   if (!initData) {
     // No initData at all is usually a crawler/preview hit: log quietly.
     await reportIntrusion(request, null, 'محاولة وصول لواجهة الأدمن بدون توثيق تيليجرام', 'low', false);
-    return json({ error: 'Missing Telegram initData' }, 401);
+    return json({ error: 'Missing User ID. Please open the app from Telegram bot.' }, 401);
   }
-  const token = getBotToken();
-  const user = token ? verifyInitData(initData, token) : parseInitDataUser(initData);
+  const user = authenticateInitData(initData);
   if (!user) {
     await reportIntrusion(request, null, 'توقيع initData غير صالح (محاولة تزوير جلسة)', 'critical');
     return json({ error: 'Access denied' }, 403);
@@ -64,8 +73,13 @@ export async function requireAdmin(request: Request): Promise<{ user: TelegramAu
     await reportIntrusion(request, user, 'مستخدم غير مصرح حاول فتح لوحة الأدمن', 'high');
     return json({ error: 'Access denied' }, 403);
   }
+  if (requireGate && !hasAdminSession(request, user.id)) {
+    await reportIntrusion(request, user, 'وصول لواجهة الأدمن بدون اجتياز كلمة السر', 'medium', false);
+    return json({ error: 'Admin session required', needsGate: true }, 401);
+  }
   return { user };
 }
+
 
 /** Logs + alerts on a blocked admin-panel access attempt (never throws). */
 async function reportIntrusion(
