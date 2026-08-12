@@ -8,6 +8,8 @@ import StickerBadge from '@/components/StickerBadge';
 import crystalGem from '@/assets/crystal-gem.png';
 import crystalBase from '@/assets/crystal-base.png';
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
+import mnxCoin from '@/assets/mnx-coin.png.asset.json';
+
 
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight, Layers } from 'lucide-react';
@@ -85,17 +87,26 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <button
-            onClick={() => setShowWallet(true)}
-            className="shrink-0 flex items-center gap-1.5 rounded-full border border-primary/40 px-3 py-2 text-primary active:scale-95 transition-transform"
-          >
-            <Wallet className="w-4 h-4" />
-            <span className="text-[12px] font-bold">
-              {shortAddress ?? t('dashboard_connect_wallet')}
-            </span>
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
+          <div className="shrink-0 flex flex-col items-end gap-1.5">
+            <button
+              onClick={() => setShowWallet(true)}
+              className="flex items-center gap-1.5 rounded-full border border-primary/40 px-3 py-1.5 text-primary active:scale-95 transition-transform"
+            >
+              <Wallet className="w-4 h-4" />
+              <span className="text-[12px] font-bold">
+                {shortAddress ?? t('dashboard_connect_wallet')}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+            <div className="flex items-center gap-1.5 rounded-full bg-secondary border border-primary/15 pl-1 pr-2.5 py-1">
+              <img src={mnxCoin.url} alt="MNX" width={40} height={40} className="w-5 h-5 object-contain" />
+              <span className="text-[12px] font-black text-primary tabular-nums">
+                {coins.toLocaleString()} <span className="text-[10px]">MNX</span>
+              </span>
+            </div>
+          </div>
         </div>
+
 
         {/* balances */}
         <div className="grid grid-cols-2 gap-2.5 mt-3 shrink-0">
