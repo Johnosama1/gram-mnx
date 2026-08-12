@@ -652,10 +652,17 @@ function FriendsMilestones() {
 
   return (
     <div className="space-y-2">
-      <div className="rounded-2xl p-4" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="text-xs text-muted-foreground">{t('tasks_invited_count')}</div>
-        <div className="text-3xl font-black text-primary">{count}</div>
-      </div>
+      <TaskCard className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <TaskIconBox>
+            <Users className="w-5 h-5 text-primary" />
+          </TaskIconBox>
+          <div>
+            <div className="text-xs text-muted-foreground">{t('tasks_invited_count')}</div>
+            <div className="text-3xl font-black text-primary">{count}</div>
+          </div>
+        </div>
+      </TaskCard>
       {milestones.map((m) => (
         <div
           key={m.id}
