@@ -4,8 +4,10 @@ import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
+import StickerBadge from '@/components/StickerBadge';
 import crystalGem from '@/assets/crystal-gem.png';
 import crystalBase from '@/assets/crystal-base.png';
+import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
 import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight } from 'lucide-react';
