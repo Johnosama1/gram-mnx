@@ -89,6 +89,8 @@ export type Accrued = {
   miningStartedAt: string | null;
   /** When false, the Start-Mining button is hidden and mining runs automatically */
   miningButtonEnabled: boolean;
+  /** Admin-configurable daily mining percentage (e.g. 5 = 5%/day of coins) */
+  miningDailyPct: number;
 };
 
 /**
@@ -104,6 +106,19 @@ export async function computeAccrued(telegramId: number): Promise<Accrued> {
     .select('coins, last_claim_at, mining_rate, unclaimed_mining_balance')
     .eq('telegram_id', telegramId)
     .maybeSingle();
+
+  // Admin-configurable daily mining percentage (default 5%).
+  let miningDailyPct = 5;
+  try {
+    const { data: s } = await db
+      .from('gm_settings')
+      .select('value')
+      .eq('key', 'mining_daily_pct')
+      .maybeSingle();
+    const parsed = Number((s as { value?: string } | null)?.value);
+    if (Number.isFinite(parsed) && parsed >= 0) miningDailyPct = parsed;
+  } catch { /* keep default */ }
+
 
   const liveCoins = Math.max(0, Number(data?.coins ?? 0) || 0);
   const row = data as {
@@ -139,6 +154,7 @@ export async function computeAccrued(telegramId: number): Promise<Accrued> {
     remainingSeconds: 0,
     miningStartedAt: new Date(startedAt).toISOString(),
     miningButtonEnabled,
+    miningDailyPct,
   };
 }
 

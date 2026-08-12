@@ -27,7 +27,7 @@ export default function Dashboard() {
     holdingWallet, sessionEarnings, walletAddress,
     isClaiming, claimError, claimEarnings,
     isMiningActive, miningRemainingMs, isStartingMining, miningCoins,
-    daily24hEarned, showMiningButton, startMining,
+    daily24hEarned, showMiningButton, startMining, miningDailyPct,
   } = useWallet();
   const { user: tgUser, avatarUrl } = useTelegramUser();
   const { t } = useLanguage();
@@ -38,7 +38,7 @@ export default function Dashboard() {
   const rateCoins = miningCoins > 0 ? miningCoins : coins;
   const dailyIncome = daily24hEarned > 0
     ? daily24hEarned
-    : (rateCoins > 0 ? rateCoins / 14_000 : 0);
+    : (rateCoins > 0 ? (rateCoins / 700) * (miningDailyPct / 100) : 0);
 
   const userName    = tgUser?.first_name || 'Miner';
   const userInitial = userName[0].toUpperCase();
