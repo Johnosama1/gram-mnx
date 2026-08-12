@@ -247,7 +247,7 @@ function useHasTelegramInitData(): { has: boolean | null; retry: () => void } {
 
 
 function Shell() {
-  const { isAdmin, isVerified, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
+  const { isAdmin, isVerified, isBanned, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
   const router = useRouter();
