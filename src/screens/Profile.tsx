@@ -766,6 +766,8 @@ export default function Profile() {
   const { lang, setLang, t } = useLanguage();
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
+  const [showWalletHub, setShowWalletHub] = useState(false);
+
   const [showSettings, setShowSettings] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
