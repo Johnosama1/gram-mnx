@@ -766,6 +766,8 @@ export default function Profile() {
   const { lang, setLang, t } = useLanguage();
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
+  const [showWalletHub, setShowWalletHub] = useState(false);
+
   const [showSettings, setShowSettings] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -834,50 +836,23 @@ export default function Profile() {
 
       {/* ── Menu cards ── */}
       <div className="relative z-10 flex-1 space-y-3 pb-40">
-        {/* Wallet Connection */}
+        {/* Wallet (connect + deposit/withdraw hub) */}
         <div
-          onClick={() => setShowWallet(true)}
+          onClick={() => (walletAddress ? setShowWalletHub(true) : setShowWallet(true))}
           className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={walletSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_wallet_connection')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_wallet_desc')}</div>
+            <div className="font-bold text-white mb-0.5">Wallet</div>
+            <div className="text-xs text-muted-foreground">
+              {walletAddress ? `${t('deposit_title')} • ${t('profile_withdraw')}` : t('profile_wallet_desc')}
+            </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
-        {/* Deposit */}
-        <div
-          onClick={() => setShowDeposit(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
-            <StickerBadge size={32} src={downloadSticker.url} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('deposit_title')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_deposit_desc')}</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
-
-        {/* Withdraw */}
-        <div
-          onClick={() => setShowWithdraw(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
-            <StickerBadge size={32} src={purseSticker.url} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_withdraw')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_withdraw_desc')}</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
 
         {/* Swap */}
         <div
@@ -942,7 +917,52 @@ export default function Profile() {
       </div>
 
       {/* ── Modals / Panels ── */}
-      {showWallet   && <WalletModal onClose={() => setShowWallet(false)} />}
+      {showWallet   && (
+        <WalletModal
+          onClose={() => {
+            setShowWallet(false);
+            if (walletAddress) setShowWalletHub(true);
+          }}
+        />
+      )}
+      {showWalletHub && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+          <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+            <button
+              onClick={() => setShowWalletHub(false)}
+              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+            >‹</button>
+            <h2 className="text-lg font-black text-white">Wallet</h2>
+          </div>
+
+          <div className="px-4 py-4">
+            <div className="rounded-2xl bg-violet-500/[0.07] border border-violet-500/25 p-3 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-bold uppercase">{t('profile_wallet_connection')}</span>
+              <span className="font-mono text-[11px] text-white">{shortAddr ?? '—'}</span>
+            </div>
+          </div>
+
+          {/* Split screen: top half deposit, bottom half withdraw */}
+          <div className="flex-1 grid grid-rows-2 gap-3 px-4 pb-6">
+            <button
+              onClick={() => setShowDeposit(true)}
+              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
+            >
+              <StickerBadge size={64} src={downloadSticker.url} />
+              <div className="text-xl font-black text-white">{t('deposit_title')}</div>
+              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_deposit_desc')}</div>
+            </button>
+            <button
+              onClick={() => setShowWithdraw(true)}
+              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
+            >
+              <StickerBadge size={64} src={purseSticker.url} />
+              <div className="text-xl font-black text-white">{t('profile_withdraw')}</div>
+              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_withdraw_desc')}</div>
+            </button>
+          </div>
+        </div>
+      )}
       {showSwap     && <SwapPanel onClose={() => setShowSwap(false)} />}
       {showWithdraw && <WithdrawPanel onClose={() => setShowWithdraw(false)} />}
       {showDeposit  && <DepositPanel onClose={() => setShowDeposit(false)} />}
