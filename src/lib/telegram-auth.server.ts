@@ -39,14 +39,25 @@ export function verifyInitData(initData: string, token: string): TelegramAuthUse
   const hash = params.get('hash');
   if (!hash) return null;
   params.delete('hash');
-  params.delete('signature');
-  const dataCheckString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n');
+
   const secretKey = createHmac('sha256', 'WebAppData').update(token).digest();
-  const computed = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-  if (!safeEqualHex(computed, hash)) return null;
+  const buildCheckString = (entries: [string, string][]) =>
+    entries
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .map(([k, v]) => `${k}=${v}`)
+      .join('\n');
+
+  const all = [...params.entries()] as [string, string][];
+  // Telegram (Bot API 8.0+) also sends `signature`; the official data-check
+  // string keeps every received field except `hash`. Older clients don't send
+  // it. Accept only a real HMAC match against either variant — never a bypass.
+  const candidates = [all, all.filter(([k]) => k !== 'signature')];
+  const matches = candidates.some((entries) => {
+    const computed = createHmac('sha256', secretKey).update(buildCheckString(entries)).digest('hex');
+    return safeEqualHex(computed, hash);
+  });
+  if (!matches) return null;
+
 
   const authDate = Number(params.get('auth_date'));
   if (!Number.isFinite(authDate) || authDate <= 0) return null;
