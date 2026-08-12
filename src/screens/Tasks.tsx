@@ -538,7 +538,6 @@ function SubmissionTaskCard({
         ? `https://t.me/${task.botUsername.replace('@', '')}`
         : task.joinLink ?? null;
 
-  const accent = kind === 'twitter' ? '#1DA1F2' : '#a78bfa';
   const approved = isDone || submission?.status === 'approved';
   const pending = !approved && submission?.status === 'pending';
 
