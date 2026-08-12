@@ -585,6 +585,7 @@ export type Database = {
           chat_id: string | null
           created_at: string
           description: string | null
+          icon_url: string | null
           id: number
           is_daily: boolean
           is_enabled: boolean
@@ -603,6 +604,7 @@ export type Database = {
           chat_id?: string | null
           created_at?: string
           description?: string | null
+          icon_url?: string | null
           id?: number
           is_daily?: boolean
           is_enabled?: boolean
@@ -621,6 +623,7 @@ export type Database = {
           chat_id?: string | null
           created_at?: string
           description?: string | null
+          icon_url?: string | null
           id?: number
           is_daily?: boolean
           is_enabled?: boolean

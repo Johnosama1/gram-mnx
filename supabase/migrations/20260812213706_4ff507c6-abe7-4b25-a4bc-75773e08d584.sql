@@ -1,0 +1,1 @@
+ALTER TABLE public.gm_tasks ADD COLUMN IF NOT EXISTS icon_url text;
