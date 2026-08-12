@@ -70,6 +70,71 @@ export async function getGiftConfig(): Promise<GiftConfig> {
   };
 }
 
+/** Reads an inviter telegram id out of a Mini App / bot start param. */
+export function parseGiftRef(param: string | null | undefined): number | null {
+  const s = (param ?? '').trim();
+  if (!s) return null;
+  const short = /^g_?(\d+)$/.exec(s);
+  const legacy = /^gift_(\d+)_(\d+)$/.exec(s);
+  const id = short ? Number(short[1]) : legacy ? Number(legacy[2]) : 0;
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+/** How many people joined through this user's gift link (server truth). */
+export async function countGiftInvites(db: any, telegramId: number): Promise<number> {
+  const { count } = await db
+    .from('gm_gift_invites')
+    .select('invitee_id', { count: 'exact', head: true })
+    .eq('referrer_id', telegramId);
+  return count ?? 0;
+}
+
+/** Keeps every entry of a user in sync with their real invite count. */
+async function syncChances(db: any, telegramId: number, invites: number) {
+  await db
+    .from('gm_gift_entries')
+    .update({ chances: invites + 1, invited_count: invites })
+    .eq('telegram_id', telegramId);
+}
+
+/**
+ * Records that `inviteeId` arrived through `referrerId`'s gift link.
+ * Counted once per invitee, at login time — not only when they join a contest.
+ */
+export async function recordGiftInvite(
+  inviteeId: number,
+  referrerId: number | null,
+  inviteeName?: string | null,
+): Promise<boolean> {
+  if (!referrerId || !inviteeId || referrerId === inviteeId) return false;
+  const db = (await getDb()) as any;
+  const { data: exists } = await db
+    .from('gm_gift_invites')
+    .select('invitee_id')
+    .eq('invitee_id', inviteeId)
+    .maybeSingle();
+  if (exists) return false;
+
+  const { error } = await db
+    .from('gm_gift_invites')
+    .insert({ invitee_id: inviteeId, referrer_id: referrerId });
+  if (error) return false;
+
+  const invites = await countGiftInvites(db, referrerId);
+  await syncChances(db, referrerId, invites);
+
+  try {
+    const { notifyUser } = await import('@/lib/admin.server');
+    await notifyUser(
+      referrerId,
+      `🎉 تم دعوة شخص جديد للمسابقة!\n\n👤 ${inviteeName || 'صديق'} دخل عن طريق رابطك\n👥 عدد إحالاتك: ${invites}\n🎟 فرصك في الفوز الآن: ×${invites + 1}`,
+    );
+  } catch {
+    /* notification is best-effort */
+  }
+  return true;
+}
+
 /** participants per contest, computed server-side (never trusted from the client). */
 async function loadEntryStats(giftIds: number[], telegramId: number | null) {
   const counts = new Map<number, number>();
@@ -82,14 +147,13 @@ async function loadEntryStats(giftIds: number[], telegramId: number | null) {
     .select('gift_id,telegram_id,chances,invited_count')
     .in('gift_id', giftIds);
 
+  const invites = telegramId ? await countGiftInvites(db, telegramId) : 0;
+
   for (const row of (data ?? []) as any[]) {
     const gid = Number(row.gift_id);
     counts.set(gid, (counts.get(gid) ?? 0) + 1);
     if (telegramId && Number(row.telegram_id) === telegramId) {
-      mine.set(gid, {
-        chances: Number(row.chances ?? 1),
-        invited: Number(row.invited_count ?? 0),
-      });
+      mine.set(gid, { chances: invites + 1, invited: invites });
     }
   }
   return { counts, mine };
@@ -100,6 +164,7 @@ async function isAdminUser(telegramId: number | null): Promise<boolean> {
   const { getAllAdminIds } = await import('@/lib/admin.server');
   return (await getAllAdminIds()).includes(telegramId);
 }
+
 
 export async function getGiftState(initData: string | null) {
   const cfg = await getGiftConfig();
