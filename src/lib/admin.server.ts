@@ -62,7 +62,7 @@ export async function requireAdmin(
   if (!initData) {
     // No initData at all is usually a crawler/preview hit: log quietly.
     await reportIntrusion(request, null, 'محاولة وصول لواجهة الأدمن بدون توثيق تيليجرام', 'low', false);
-    return json({ error: 'Missing User ID. Please open the app from Telegram bot.' }, 401);
+    return json({ error: 'UNAUTHORIZED', message: 'Please open this app from the official Telegram bot.' }, 401);
   }
   const user = authenticateInitData(initData);
   if (!user) {
