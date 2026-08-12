@@ -577,6 +577,13 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
               className="flex-1 min-w-0 bg-transparent text-3xl font-black text-white outline-none"
               dir="ltr"
             />
+            <button
+              type="button"
+              onClick={() => setAmount(String(Math.floor(holdingWallet * 10000) / 10000))}
+              className="shrink-0 rounded-xl bg-primary/20 border border-primary/40 px-3 py-1.5 text-primary font-black text-xs active:scale-95 transition-transform"
+            >
+              MAX
+            </button>
             <div className="bg-primary/20 border border-primary/40 rounded-xl px-3 py-1.5">
               <span className="text-primary font-black text-sm">GRAM</span>
             </div>
