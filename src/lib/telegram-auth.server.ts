@@ -166,7 +166,11 @@ export function userSessionCookieHeader(user: TelegramAuthUser): string {
     'Path=/',
     'HttpOnly',
     'Secure',
-    'SameSite=Lax',
+    // Telegram Desktop/Web render the Mini App in a cross-site iframe, where a
+    // Lax cookie is never sent back. None+Secure+HttpOnly keeps it signed and
+    // unreadable by scripts while still reaching the server from Telegram.
+    'SameSite=None',
+
     `Max-Age=${Math.floor(USER_SESSION_TTL_MS / 1000)}`,
   ].join('; ');
 }
