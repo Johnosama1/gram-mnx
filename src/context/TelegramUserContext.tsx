@@ -86,6 +86,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
 
   const [user, setUser] = useState<TelegramUser | null>(cached?.user ?? null);
   const [isVerified, setIsVerified] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   // With a cached snapshot we render instantly and revalidate in the background.
   const [isLoading, setIsLoading] = useState(true);
