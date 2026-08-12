@@ -111,13 +111,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
   const remaining = state?.nextAvailableAt ? new Date(state.nextAvailableAt).getTime() - now : 0;
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: '1px solid rgba(139,92,246,0.25)',
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div
