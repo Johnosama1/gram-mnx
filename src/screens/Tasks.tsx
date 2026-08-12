@@ -114,12 +114,9 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     <TaskCard>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
-          >
-            <CalendarCheck className="w-6 h-6 text-violet-400" />
-          </div>
+          <TaskIconBox>
+            <CalendarCheck className="w-6 h-6 text-primary" />
+          </TaskIconBox>
           <div className="min-w-0">
             <div className="font-bold text-sm text-white">{t('tasks_checkin_title')}</div>
             <div className="text-xs text-muted-foreground mt-0.5">
