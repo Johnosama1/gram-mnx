@@ -825,6 +825,9 @@ export type Database = {
           new_mining_rate: number
         }[]
       }
+      gm_mining_daily_pct: { Args: never; Returns: number }
+      gm_mining_rate_for_coins: { Args: { _coins: number }; Returns: number }
+      gm_recalc_all_mining_rates: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
