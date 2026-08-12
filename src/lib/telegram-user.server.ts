@@ -29,41 +29,20 @@ type DbUser = {
 
 /** Creates the user row on first contact, then refreshes profile fields. */
 export async function upsertUser(user: TelegramAuthUser & { last_name?: string }): Promise<DbUser> {
-  const db = await getDb();
-  const now = new Date().toISOString();
-  const { data: existing } = await db
-    .from('gm_users')
-    .select('telegram_id, balance, coins, last_mining_at, last_claim_at, mining_rate, unclaimed_mining_balance, is_banned')
-    .eq('telegram_id', user.id)
-    .maybeSingle();
-
-  if (!existing) {
-    const { data: created } = await db
-      .from('gm_users')
-      .insert({
-        telegram_id: user.id,
-        username: user.username ?? null,
-        first_name: user.first_name ?? null,
-        last_name: user.last_name ?? null,
-        last_active_at: now,
-        last_mining_at: now,
-      })
-      .select('telegram_id, balance, coins, last_mining_at, last_claim_at, mining_rate, unclaimed_mining_balance, is_banned')
-      .maybeSingle();
-    return (created as DbUser) ?? { telegram_id: user.id, balance: 0, coins: 0, last_mining_at: now };
+  const db = (await getDb()) as any;
+  const { data, error } = await db.rpc('gm_upsert_telegram_user', {
+    _telegram_id: user.id,
+    _username: user.username ?? null,
+    _first_name: user.first_name ?? null,
+    _last_name: user.last_name ?? null,
+  });
+  if (error) {
+    console.error('[telegram-user] atomic upsert failed', error);
+    throw new Error('Failed to create or update Telegram user');
   }
-
-  await db
-    .from('gm_users')
-    .update({
-      username: user.username ?? null,
-      first_name: user.first_name ?? null,
-      last_name: user.last_name ?? null,
-      last_active_at: now,
-    })
-    .eq('telegram_id', user.id);
-
-  return existing as DbUser;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error('Telegram user upsert returned no row');
+  return row as DbUser;
 }
 
 /** True when the Telegram user already has a row (i.e. has used the bot before). */

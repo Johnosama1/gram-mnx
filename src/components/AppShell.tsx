@@ -6,11 +6,11 @@ import ScreenErrorBoundary from './ScreenErrorBoundary';
 import { WalletProvider } from '@/context/WalletContext';
 import { prefetchApi } from '@/lib/apiCache';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
+import { initializeTelegramWebApp } from '@/lib/telegram-bootstrap';
 import { TelegramUserProvider, useTelegramUser } from '@/context/TelegramUserContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
-import { MinersProvider } from '@/context/MinersContext';
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
 
@@ -213,50 +213,18 @@ function OutsideTelegramScreen() {
 function useHasTelegramInitData(): boolean | null {
   const [has, setHas] = React.useState<boolean | null>(null);
   useEffect(() => {
-    let tries = 0;
-    let reinjected = false;
-
-    const reinjectSdk = () => {
-      if (reinjected) return;
-      reinjected = true;
-      try {
-        if (window.Telegram?.WebApp) return;
-        const s = document.createElement('script');
-        s.src = 'https://telegram.org/js/telegram-web-app.js';
-        s.async = true;
-        document.head.appendChild(s);
-      } catch {
-        /* ignore */
-      }
-    };
-
-    const check = () => {
-      const initData = window.Telegram?.WebApp?.initData ?? '';
-      if (initData) {
-        setHas(true);
-        return true;
-      }
-      // The SDK script may have failed to load (flaky network): re-add it once
-      // instead of locking the user out with "Missing User ID".
-      if (tries === 8) reinjectSdk();
-      if (++tries >= 40) {
-        setHas(false);
-        return true;
-      }
-      return false;
-    };
-    if (check()) return;
-    const timer = setInterval(() => {
-      if (check()) clearInterval(timer);
-    }, 250);
-    return () => clearInterval(timer);
+    let alive = true;
+    void initializeTelegramWebApp().then((result) => {
+      if (alive) setHas(result.status === 'ready');
+    });
+    return () => { alive = false; };
   }, []);
   return has;
 }
 
 
 function Shell() {
-  const { isAdmin, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
+  const { isAdmin, isVerified, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const hasInitData = useHasTelegramInitData();
   const router = useRouter();
@@ -289,7 +257,7 @@ function Shell() {
 
   // Warm up tab chunks + their read-only data once the first screen is idle so
   // switching tabs renders from cache instead of waiting on the network.
-  const ready = !isLoading && !maintenance && notJoinedChannels.length === 0;
+  const ready = isVerified && !isLoading && !maintenance && notJoinedChannels.length === 0;
   useEffect(() => {
     if (!ready) return;
     const run = () => {
@@ -351,7 +319,7 @@ function Shell() {
         style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
       />
 
-      {hasInitData === false ? (
+      {hasInitData === false || (hasInitData === true && !isLoading && !isVerified) ? (
         <OutsideTelegramScreen />
       ) : isLoading || hasInitData === null ? (
         <LoadingScreen />
@@ -393,11 +361,9 @@ export default function AppShell() {
         <AppWithLanguage>
           <CoinsProvider>
             <WalletProvider>
-              <MinersProvider>
-                <div className="app-shell bg-background flex items-center justify-center overflow-hidden">
-                  <Shell />
-                </div>
-              </MinersProvider>
+              <div className="app-shell bg-background flex items-center justify-center overflow-hidden">
+                <Shell />
+              </div>
             </WalletProvider>
           </CoinsProvider>
         </AppWithLanguage>

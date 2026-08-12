@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { cachedFetch, notifyDataChange, onDataChange } from '@/lib/apiCache';
-import { telegramApiPost, API_BASE, getInitData } from '@/lib/telegramApi';
+import { notifyDataChange, onDataChange } from '@/lib/apiCache';
+import { telegramApiFetch, telegramApiPost } from '@/lib/telegramApi';
 import { useTelegramUser } from './TelegramUserContext';
 
 type WalletContextType = {
@@ -167,12 +167,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   // Load referrals from server
   const fetchReferrals = useCallback(async () => {
-    const initData = getInitData();
-    if (!initData) return;
     try {
-      const res = await cachedFetch(`${API_BASE}/api/telegram/referrals`, {
-        headers: { 'x-init-data': initData },
-      });
+      const res = await telegramApiFetch('/telegram/referrals');
       if (!res.ok) return;
       const data = await res.json() as { count: number; reward: number };
       setReferralCount(data.count ?? 0);
@@ -210,11 +206,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   // Pull the server-authoritative accrued value. This captures earnings while
   // the app is closed and also re-syncs when Telegram restores a kept-alive WebView.
   const refreshAccrued = useCallback(async () => {
-    const initData = getInitData();
-    if (!initData) return;
     try {
-      const res = await fetch(`${API_BASE}/api/telegram/mining/accrued`, {
-        headers: { 'x-init-data': initData },
+      const res = await telegramApiFetch('/telegram/mining/accrued', {
         cache: 'no-store',
       });
       if (!res.ok) return;

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
-import { API_BASE, getInitData } from '@/lib/telegramApi';
+import { telegramApiFetch, telegramApiPost } from '@/lib/telegramApi';
 import { onDataChange } from '@/lib/apiCache';
 import { useTelegramUser } from './TelegramUserContext';
 
@@ -63,15 +63,9 @@ export function CoinsProvider({ children }: { children: React.ReactNode }) {
   }, [isVerified, user?.coins, setCoins]);
 
   const refreshBalance = useCallback(async () => {
-    const initData = getInitData();
-    if (!initData) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/telegram/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData }),
-      });
+      const res = await telegramApiFetch('/telegram/auth', { method: 'POST' });
       if (res.ok) {
         const data = await res.json() as { user?: { coins?: number } };
         if (typeof data.user?.coins === 'number') {
@@ -92,17 +86,11 @@ export function CoinsProvider({ children }: { children: React.ReactNode }) {
     setCoins(prev => prev - amount);
 
     // Background server sync
-    const initData = getInitData();
-    if (initData) {
-      fetch(`${API_BASE}/api/telegram/coins/spend`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData, amount }),
-      }).catch(() => {
+    void telegramApiPost('/telegram/coins/spend', { amount })
+      .catch(() => {
         // Rollback on network failure — server will be eventually consistent on next auth
         setCoins(prev => prev + amount);
       });
-    }
     return true;
   }, [setCoins]);
 

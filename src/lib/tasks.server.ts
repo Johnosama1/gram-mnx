@@ -485,41 +485,25 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
   }
 
   if (sub === 'checkin' && method === 'POST') {
-    const state = await getCheckinState(auth.id);
-    if (!state.canClaim)
-      return json({ ok: false, message: 'already_claimed', nextAvailableAt: state.nextAvailableAt });
-
-    const reward = state.reward;
-    const { data: row } = await db
-      .from('gm_daily_checkins')
-      .select('id, total_claims')
-      .eq('telegram_id', auth.id)
-      .maybeSingle();
-
-    if (row) {
-      await db
-        .from('gm_daily_checkins')
-        .update({
-          streak_day: state.nextDay,
-          last_claim_at: new Date().toISOString(),
-          total_claims: Number(row.total_claims ?? 0) + 1,
-        })
-        .eq('id', row.id);
-    } else {
-      await db.from('gm_daily_checkins').insert({
-        telegram_id: auth.id,
-        streak_day: state.nextDay,
-        last_claim_at: new Date().toISOString(),
-        total_claims: 1,
-      });
+    const rewards = await getCheckinRewards();
+    const { data: claimRows, error: claimError } = await db.rpc('gm_claim_daily_checkin', {
+      _telegram_id: auth.id,
+      _rewards: rewards,
+    });
+    if (claimError) {
+      console.error('[checkin] atomic claim failed', claimError);
+      return json({ error: 'checkin_failed' }, 500);
     }
-
-    await addCoins(auth.id, reward);
+    const claim = Array.isArray(claimRows) ? claimRows[0] : claimRows;
+    if (!claim?.ok) {
+      return json({ ok: false, message: 'already_claimed', nextAvailableAt: claim?.next_available_at });
+    }
+    const reward = Number(claim.coins_earned ?? 0);
     // A daily check-in can be the last missing referral condition.
     const { creditReferralIfEligible } = await import('@/lib/referral.server');
     await creditReferralIfEligible(auth.id).catch(() => undefined);
     const next = await getCheckinState(auth.id);
-    return json({ ok: true, coinsEarned: reward, day: state.nextDay, ...next });
+    return json({ ok: true, coinsEarned: reward, day: Number(claim.streak_day ?? 1), ...next });
 
   }
 

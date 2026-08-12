@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import arTranslations from '../locales/ar.json';
 import enTranslations from '../locales/en.json';
 import ruTranslations from '../locales/ru.json';
+import { telegramApiFetch } from '@/lib/telegramApi';
 
 export type Lang = 'ar' | 'en' | 'ru';
 
@@ -60,9 +61,7 @@ export function LanguageProvider({
 
   // Load persisted language from server once initData is available
   useEffect(() => {
-    const initData = window.Telegram?.WebApp?.initData;
-    if (!initData) return;
-    fetch('/api/user/language', { headers: { 'x-init-data': initData } })
+    telegramApiFetch('/user/language')
       .then(r => (r.ok ? r.json() : null))
       .then((data: { language?: string } | null) => {
         if (isLang(data?.language)) {
@@ -78,14 +77,11 @@ export function LanguageProvider({
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
     try { localStorage.setItem(storageKey, l); } catch {}
-    const initData = window.Telegram?.WebApp?.initData;
-    if (initData) {
-      fetch('/api/user/language', {
+    void telegramApiFetch('/user/language', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData, language: l }),
+        body: JSON.stringify({ language: l }),
       }).catch(() => {});
-    }
   }, [storageKey]);
 
   const t = useCallback((key: string, vars?: Record<string, string>): string => {

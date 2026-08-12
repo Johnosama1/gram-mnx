@@ -842,6 +842,15 @@ export type Database = {
         Args: { _amount: number; _telegram_id: number }
         Returns: number
       }
+      gm_claim_daily_checkin: {
+        Args: { _rewards: number[]; _telegram_id: number }
+        Returns: {
+          coins_earned: number
+          next_available_at: string
+          ok: boolean
+          streak_day: number
+        }[]
+      }
       gm_claim_passive_mining: {
         Args: { _minimum_claim?: number; _telegram_id: number }
         Returns: {
@@ -867,12 +876,67 @@ export type Database = {
         Args: { _amount: number; _telegram_id: number }
         Returns: number
       }
+      gm_submit_daily_combo: {
+        Args: {
+          _combo_date: string
+          _correct_ids: number[]
+          _reward: number
+          _selected_ids: number[]
+          _telegram_id: number
+        }
+        Returns: {
+          already_attempted: boolean
+          reward: number
+          success: boolean
+        }[]
+      }
       gm_swap_gram_to_coins: {
         Args: { _coins: number; _gram: number; _telegram_id: number }
         Returns: {
           new_balance: number
           new_coins: number
         }[]
+      }
+      gm_upsert_telegram_user: {
+        Args: {
+          _first_name: string
+          _last_name: string
+          _telegram_id: number
+          _username: string
+        }
+        Returns: {
+          balance: number
+          blocked_bot: boolean
+          coins: number
+          created_at: string
+          first_name: string | null
+          id: number
+          is_banned: boolean
+          language: string | null
+          last_active_at: string | null
+          last_claim_at: string
+          last_mining_at: string | null
+          last_name: string | null
+          miners_last_claim_at: number | null
+          miners_levels: Json
+          mining_coins: number | null
+          mining_rate: number
+          mining_started_at: string | null
+          referred_by: number | null
+          restrict_withdrawal: boolean
+          telegram_id: number
+          twitter_handle: string | null
+          twitter_linked_at: string | null
+          unclaimed_mining_balance: number
+          username: string | null
+          wallet_address: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "gm_users"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {

@@ -2,13 +2,18 @@ import { createFileRoute } from '@tanstack/react-router';
 import { getAllAdminIds, getSetting, json } from '@/lib/admin.server';
 import { resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 import { touchIpFromRequest } from '@/lib/withdraw.server';
+import { userSessionCookieHeader } from '@/lib/telegram-auth.server';
 
 export const Route = createFileRoute('/api/telegram/auth')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const body = (await request.json().catch(() => ({}))) as { initData?: string };
-        const user = resolveTelegramUser(body.initData ?? null);
+        const initData =
+          body.initData ??
+          request.headers.get('x-init-data') ??
+          request.headers.get('x-telegram-initdata');
+        const user = resolveTelegramUser(initData);
         if (!user) return json({ error: 'Invalid or expired Telegram initData' }, 401);
 
         const { userExists } = await import('@/lib/telegram-user.server');
@@ -21,7 +26,7 @@ export const Route = createFileRoute('/api/telegram/auth')({
         // referral link — but only for a brand-new user. Anyone who already
         // opened the bot before can never be counted as someone's referral.
         try {
-          const startParam = new URLSearchParams(body.initData ?? '').get('start_param') ?? '';
+          const startParam = new URLSearchParams(initData ?? '').get('start_param') ?? '';
 
           // Gift giveaway link (g_<id>) — counted for every user opening it,
           // even before they join a contest.
@@ -78,7 +83,7 @@ export const Route = createFileRoute('/api/telegram/auth')({
         }
 
         const isAdmin = (await getAllAdminIds()).includes(user.id);
-        return json({
+        const response = json({
           user: {
             id: user.id,
             first_name: user.first_name,
@@ -95,6 +100,8 @@ export const Route = createFileRoute('/api/telegram/auth')({
 
           notJoinedChannels: [],
         });
+        response.headers.append('set-cookie', userSessionCookieHeader(user));
+        return response;
       },
     },
   },

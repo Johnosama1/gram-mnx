@@ -113,7 +113,8 @@ export async function handleComboRequest(request: Request): Promise<Response> {
   const type = url.searchParams.get('type');
   if (type !== 'combo') return json({ error: 'Unsupported request' }, 400);
 
-  const initData = request.headers.get('x-telegram-initdata');
+  const initData =
+    request.headers.get('x-init-data') ?? request.headers.get('x-telegram-initdata');
   const auth = resolveTelegramUser(initData);
   if (!auth) return json({ error: 'Unauthorized' }, 401);
 
@@ -145,14 +146,6 @@ export async function handleComboRequest(request: Request): Promise<Response> {
     const selected = Array.isArray(body.selectedIds) ? body.selectedIds.map(Number) : [];
     if (selected.length !== 3) return json({ error: 'select_three' }, 400);
 
-    const { data: existing } = await db
-      .from('gm_combo_attempts')
-      .select('id')
-      .eq('telegram_id', auth.id)
-      .eq('combo_date', date)
-      .maybeSingle();
-    if (existing) return json({ error: 'already_attempted' }, 400);
-
     const correctIds = daily.correctIds;
     const reward = daily.reward;
 
@@ -163,18 +156,21 @@ export async function handleComboRequest(request: Request): Promise<Response> {
       return json({ ok: true, success: false, reward: 0, reason: 'no_combo_set', nextResetAt: nextResetAt() });
     }
 
-    const success =
-      selected.length === correctIds.length &&
-      [...selected].sort().join(',') === [...correctIds].sort().join(',');
-    const gained = success ? reward : 0;
-
-    await db
-      .from('gm_combo_attempts')
-      .insert({ telegram_id: auth.id, combo_date: date, success, reward: gained });
-
-    if (gained > 0) {
-      await db.rpc('gm_add_coins', { _telegram_id: auth.id, _amount: gained });
+    const { data: result, error } = await db.rpc('gm_submit_daily_combo', {
+      _telegram_id: auth.id,
+      _combo_date: date,
+      _selected_ids: selected,
+      _correct_ids: correctIds,
+      _reward: reward,
+    });
+    if (error) {
+      console.error('[combo] atomic submission failed', error);
+      return json({ error: 'combo_submit_failed' }, 500);
     }
+    const settled = Array.isArray(result) ? result[0] : result;
+    if (settled?.already_attempted) return json({ error: 'already_attempted' }, 409);
+    const success = Boolean(settled?.success);
+    const gained = Number(settled?.reward ?? 0);
 
     if (success) {
       const { creditReferralIfEligible } = await import('@/lib/referral.server');
