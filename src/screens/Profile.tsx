@@ -539,14 +539,9 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
   const statusLabel = (s: string) =>
     s === 'approved' ? t('status_approved') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
-      </div>
-
+  const body = (
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
+
         {/* Wallet address */}
         <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
