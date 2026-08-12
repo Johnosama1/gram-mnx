@@ -123,16 +123,13 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
   const referrerId = Number((user as { referred_by?: number | null }).referred_by ?? 0);
   const bonus = round12(coins * 0.1);
   if (Number.isFinite(referrerId) && referrerId > 0 && bonus > 0) {
-    const { data: ref } = await db
+    const { data: refRow } = await db
       .from('gm_users')
-      .select('coins')
+      .select('telegram_id')
       .eq('telegram_id', referrerId)
       .maybeSingle();
-    if (ref) {
-      await db
-        .from('gm_users')
-        .update({ coins: round12(Number(ref.coins ?? 0) + bonus) })
-        .eq('telegram_id', referrerId);
+    if (refRow) {
+      await db.rpc('gm_add_coins', { _telegram_id: referrerId, _amount: bonus });
       await notifyUser(
         referrerId,
         `🎁 <b>10% referral commission added</b>\n💰 You earned <b>${bonus} Coin</b> because your friend made a deposit.`,

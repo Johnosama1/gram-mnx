@@ -115,15 +115,8 @@ async function getAdQuota(db: any, telegramId: number) {
 async function addCoins(telegramId: number, amount: number) {
   if (!amount) return;
   const db = (await getDb()) as any;
-  const { data } = await db
-    .from('gm_users')
-    .select('coins')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-  await db
-    .from('gm_users')
-    .update({ coins: Number(data?.coins ?? 0) + amount })
-    .eq('telegram_id', telegramId);
+  // Atomic, row-locked increment: prevents lost updates / double credit.
+  await db.rpc('gm_add_coins', { _telegram_id: telegramId, _amount: amount });
 }
 
 async function listTasks() {

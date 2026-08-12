@@ -142,17 +142,7 @@ export async function creditReferralIfEligible(referredId: number): Promise<bool
       .maybeSingle();
     if (!claimed?.id) return false;
 
-    const { data: ref } = await db
-      .from('gm_users')
-      .select('coins')
-      .eq('telegram_id', referrerId)
-      .maybeSingle();
-    if (ref) {
-      await db
-        .from('gm_users')
-        .update({ coins: Number(ref.coins ?? 0) + price })
-        .eq('telegram_id', referrerId);
-    }
+    await db.rpc('gm_add_coins', { _telegram_id: referrerId, _amount: price });
 
     const { count } = await db
       .from('gm_referrals')

@@ -173,15 +173,7 @@ export async function handleComboRequest(request: Request): Promise<Response> {
       .insert({ telegram_id: auth.id, combo_date: date, success, reward: gained });
 
     if (gained > 0) {
-      const { data: u } = await db
-        .from('gm_users')
-        .select('coins')
-        .eq('telegram_id', auth.id)
-        .maybeSingle();
-      await db
-        .from('gm_users')
-        .update({ coins: Number(u?.coins ?? 0) + gained })
-        .eq('telegram_id', auth.id);
+      await db.rpc('gm_add_coins', { _telegram_id: auth.id, _amount: gained });
     }
 
     if (success) {

@@ -29,13 +29,9 @@ export async function isPromoSectionEnabled(): Promise<boolean> {
 async function addCoins(telegramId: number, amount: number) {
   if (!amount) return;
   const db = (await getDb()) as any;
-  const { data } = await db
-    .from('gm_users')
-    .select('coins')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-  const next = Number(data?.coins ?? 0) + amount;
-  await db.from('gm_users').update({ coins: next }).eq('telegram_id', telegramId);
+  // Atomic increment (row-locked in SQL) — a read-modify-write here could be
+  // raced by parallel requests and credit the reward twice.
+  await db.rpc('gm_add_coins', { _telegram_id: telegramId, _amount: amount });
 }
 
 /**
