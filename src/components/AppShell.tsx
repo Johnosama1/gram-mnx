@@ -186,12 +186,25 @@ function MaintenanceScreen({ message }: { message: string }) {
 /** Shown when the app is opened outside Telegram (no signed initData at all). */
 function OutsideTelegramScreen() {
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
+    <div className="relative z-10 flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
       <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
-      <p className="text-sm text-muted-foreground">Technical Details:</p>
       <p className="text-sm text-foreground">
         Missing User ID. Please open the app from Telegram bot.
       </p>
+      <button
+        type="button"
+        onClick={() => {
+          try {
+            sessionStorage.removeItem('gm_auth_reloaded_once');
+          } catch {
+            /* ignore */
+          }
+          window.location.reload();
+        }}
+        className="mt-1 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+      >
+        Retry
+      </button>
     </div>
   );
 }
@@ -201,13 +214,32 @@ function useHasTelegramInitData(): boolean | null {
   const [has, setHas] = React.useState<boolean | null>(null);
   useEffect(() => {
     let tries = 0;
+    let reinjected = false;
+
+    const reinjectSdk = () => {
+      if (reinjected) return;
+      reinjected = true;
+      try {
+        if (window.Telegram?.WebApp) return;
+        const s = document.createElement('script');
+        s.src = 'https://telegram.org/js/telegram-web-app.js';
+        s.async = true;
+        document.head.appendChild(s);
+      } catch {
+        /* ignore */
+      }
+    };
+
     const check = () => {
       const initData = window.Telegram?.WebApp?.initData ?? '';
       if (initData) {
         setHas(true);
         return true;
       }
-      if (++tries >= 12) {
+      // The SDK script may have failed to load (flaky network): re-add it once
+      // instead of locking the user out with "Missing User ID".
+      if (tries === 8) reinjectSdk();
+      if (++tries >= 40) {
         setHas(false);
         return true;
       }
@@ -221,6 +253,7 @@ function useHasTelegramInitData(): boolean | null {
   }, []);
   return has;
 }
+
 
 function Shell() {
   const { isAdmin, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
