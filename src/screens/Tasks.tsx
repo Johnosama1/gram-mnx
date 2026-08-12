@@ -553,15 +553,7 @@ function SubmissionTaskCard({
   };
 
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: approved
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : `linear-gradient(135deg, ${accent}1a 0%, rgba(0,0,0,0.6) 100%)`,
-        border: `1px solid ${approved ? 'rgba(139,92,246,0.25)' : `${accent}55`}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div
