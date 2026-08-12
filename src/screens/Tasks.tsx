@@ -263,7 +263,7 @@ function PartnerTaskCard({
           <TaskAvatar
             task={task}
             isDone={isDone}
-            fallback={<Radio className="w-5 h-5" style={{ color: '#a78bfa' }} />}
+            fallback={<Radio className="w-5 h-5 text-primary" />}
           />
           <div className="min-w-0">
             <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
