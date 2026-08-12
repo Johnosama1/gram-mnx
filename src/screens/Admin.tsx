@@ -1487,24 +1487,24 @@ function UsersSection() {
 
           {/* Coins adjustment */}
           <div className="bg-black/40 rounded-xl p-3 space-y-2">
-            <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">تعديل الكوينز</p>
-            <Input value={coinAmount} onChange={e => setCoinAmount(e.target.value)} type="number" placeholder="عدد الكوينز" />
+            <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">تعديل MNX</p>
+            <Input value={coinAmount} onChange={e => setCoinAmount(e.target.value)} type="number" placeholder="عدد MNX" />
             <div className="flex gap-2">
               <Btn variant="success" size="sm" className="flex-1"
-                onClick={() => act(`/admin/users?action=coins&id=${u.telegramId}`, { amount: Number(coinAmount) }, 'تمت إضافة الكوينز')}>
+                onClick={() => act(`/admin/users?action=coins&id=${u.telegramId}`, { amount: Number(coinAmount) }, 'تمت إضافة MNX')}>
                 <Coins className="w-3 h-3" />إضافة
               </Btn>
               <Btn variant="danger" size="sm" className="flex-1"
-                onClick={() => act(`/admin/users?action=coins&id=${u.telegramId}`, { amount: -Number(coinAmount) }, 'تم خصم الكوينز')}>
+                onClick={() => act(`/admin/users?action=coins&id=${u.telegramId}`, { amount: -Number(coinAmount) }, 'تم خصم MNX')}>
                 <Coins className="w-3 h-3" />خصم
               </Btn>
             </div>
             <div className="pt-1 border-t border-white/10">
-              <p className="text-[10px] text-amber-400 font-bold mb-1.5">تعيين رصيد الكوينز مباشرة</p>
+              <p className="text-[10px] text-amber-400 font-bold mb-1.5">تعيين رصيد MNX مباشرة</p>
               <Btn variant="ghost" size="sm" className="w-full"
                 onClick={() => {
-                  if (!window.confirm(`تعيين كوينز ${u.firstName ?? u.telegramId} إلى ${coinAmount}؟`)) return;
-                  act(`/admin/users?action=coins_set&id=${u.telegramId}`, { value: Number(coinAmount) }, 'تم تعيين الكوينز');
+                  if (!window.confirm(`تعيين MNX ${u.firstName ?? u.telegramId} إلى ${coinAmount}؟`)) return;
+                  act(`/admin/users?action=coins_set&id=${u.telegramId}`, { value: Number(coinAmount) }, 'تم تعيين MNX');
                 }}>
                 <Check className="w-3 h-3" />تعيين
               </Btn>
@@ -2019,7 +2019,7 @@ function MiningPctSection() {
   return (
     <div className="space-y-3" dir="rtl">
       <div className="text-xs text-muted-foreground">
-        نسبة التعدين اليومية من رصيد العملات (الافتراضي 5%). مثال: 700 عملة = 1 جرام، وبنسبة 5% يعدّن المستخدم 0.05 جرام يوميًا لكل 700 عملة.
+        نسبة التعدين اليومية من رصيد MNX (الافتراضي 5%). مثال: 700 MNX = 1 جرام، وبنسبة 5% يعدّن المستخدم 0.05 جرام يوميًا لكل 700 MNX.
       </div>
       <div className="flex items-center gap-2">
         <input
