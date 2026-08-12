@@ -834,50 +834,23 @@ export default function Profile() {
 
       {/* ── Menu cards ── */}
       <div className="relative z-10 flex-1 space-y-3 pb-40">
-        {/* Wallet Connection */}
+        {/* Wallet (connect + deposit/withdraw hub) */}
         <div
-          onClick={() => setShowWallet(true)}
+          onClick={() => (walletAddress ? setShowWalletHub(true) : setShowWallet(true))}
           className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={walletSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_wallet_connection')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_wallet_desc')}</div>
+            <div className="font-bold text-white mb-0.5">Wallet</div>
+            <div className="text-xs text-muted-foreground">
+              {walletAddress ? `${t('deposit_title')} • ${t('profile_withdraw')}` : t('profile_wallet_desc')}
+            </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
-        {/* Deposit */}
-        <div
-          onClick={() => setShowDeposit(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
-            <StickerBadge size={32} src={downloadSticker.url} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('deposit_title')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_deposit_desc')}</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
-
-        {/* Withdraw */}
-        <div
-          onClick={() => setShowWithdraw(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
-            <StickerBadge size={32} src={purseSticker.url} />
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_withdraw')}</div>
-            <div className="text-xs text-muted-foreground">{t('profile_withdraw_desc')}</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
 
         {/* Swap */}
         <div
