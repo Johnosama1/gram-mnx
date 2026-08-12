@@ -165,14 +165,12 @@ export default function Dashboard() {
           }`}
         >
           <span className={`w-2 h-2 rounded-full ${mining ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
-          <span className={`text-[12px] font-black tracking-wide ${mining ? 'text-success' : 'text-destructive'}`}>
-            {mining ? 'MINING ACTIVE' : 'MINING STOPPED'}
-          </span>
           <span className="text-[12px] font-bold text-muted-foreground tabular-nums">
             {mining && ratePerSec > 0 ? `+${formatGram(ratePerSec, 8)} Gram/s` : '0 Gram/s'}
           </span>
         </div>
       </div>
+
 
       {/* ── claim row ── */}
       <div className="shrink-0 relative">
