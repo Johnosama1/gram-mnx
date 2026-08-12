@@ -6,7 +6,7 @@ import ScreenErrorBoundary from './ScreenErrorBoundary';
 import { WalletProvider } from '@/context/WalletContext';
 import { prefetchApi } from '@/lib/apiCache';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
-import { initializeTelegramWebApp } from '@/lib/telegram-bootstrap';
+import { initializeTelegramWebApp, resetTelegramBootstrap } from '@/lib/telegram-bootstrap';
 import { TelegramUserProvider, useTelegramUser } from '@/context/TelegramUserContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -184,24 +184,25 @@ function MaintenanceScreen({ message }: { message: string }) {
 }
 
 /** Shown when the app is opened outside Telegram (no signed initData at all). */
-function OutsideTelegramScreen() {
+function OutsideTelegramScreen({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="relative z-10 flex flex-col items-center justify-center h-full gap-4 px-8 text-center">
       <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
       <p className="text-sm text-foreground">
-        Missing User ID. Please open the app from Telegram bot.
+        Please open this app from the official Telegram bot.
       </p>
+      <a
+        href="https://t.me/GRAMMNX1_bot"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+      >
+        Open in Telegram
+      </a>
       <button
         type="button"
-        onClick={() => {
-          try {
-            sessionStorage.removeItem('gm_auth_reloaded_once');
-          } catch {
-            /* ignore */
-          }
-          window.location.reload();
-        }}
-        className="mt-1 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+        onClick={onRetry}
+        className="text-xs font-bold text-muted-foreground underline"
       >
         Retry
       </button>
@@ -210,23 +211,29 @@ function OutsideTelegramScreen() {
 }
 
 /** null while the Telegram SDK is still loading, then true/false. */
-function useHasTelegramInitData(): boolean | null {
+function useHasTelegramInitData(): { has: boolean | null; retry: () => void } {
   const [has, setHas] = React.useState<boolean | null>(null);
+  const [attempt, setAttempt] = React.useState(0);
   useEffect(() => {
     let alive = true;
+    setHas(null);
     void initializeTelegramWebApp().then((result) => {
       if (alive) setHas(result.status === 'ready');
     });
     return () => { alive = false; };
+  }, [attempt]);
+  const retry = React.useCallback(() => {
+    resetTelegramBootstrap();
+    setAttempt((n) => n + 1);
   }, []);
-  return has;
+  return { has, retry };
 }
 
 
 function Shell() {
   const { isAdmin, isVerified, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
-  const hasInitData = useHasTelegramInitData();
+  const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
   const router = useRouter();
   const routeKey = useRouterState({ select: (st) => st.location.pathname });
 
@@ -320,7 +327,7 @@ function Shell() {
       />
 
       {hasInitData === false || (hasInitData === true && !isLoading && !isVerified) ? (
-        <OutsideTelegramScreen />
+        <OutsideTelegramScreen onRetry={retryTelegram} />
       ) : isLoading || hasInitData === null ? (
         <LoadingScreen />
 
