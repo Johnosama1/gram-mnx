@@ -20,10 +20,10 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-50 px-3 pb-2"
+      className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-2 max-w-[640px] mx-auto"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
     >
-      <div className="flex items-center justify-around w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
+      <div className="flex items-center justify-between w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
         {navItems.map((item) => {
           const isActive = location === item.path;
           const Icon = item.icon;
@@ -32,7 +32,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             <Link
               key={item.path}
               to={item.path}
-              className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 rounded-2xl py-2 cursor-pointer touch-manipulation transition-colors"
+              className="w-[52px] min-w-[52px] max-w-[52px] flex flex-col items-center justify-center gap-1 rounded-2xl py-2 cursor-pointer touch-manipulation transition-colors"
               style={isActive ? { background: 'hsl(var(--secondary))' } : undefined}
             >
               <Icon
@@ -40,7 +40,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
                 strokeWidth={isActive ? 2.4 : 1.9}
               />
               <span
-                className={`text-[10px] font-semibold tracking-wide truncate max-w-full ${
+                className={`text-[10px] font-semibold tracking-wide truncate max-w-[52px] text-center ${
                   isActive ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
