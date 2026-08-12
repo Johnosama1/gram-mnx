@@ -22,6 +22,7 @@ import { Route as ApiLeaderboardRouteImport } from './routes/api/leaderboard'
 import { Route as ApiPromoRouteImport } from './routes/api/promo'
 import { Route as ApiAdminAdminsRouteImport } from './routes/api/admin/admins'
 import { Route as ApiAdminChannelsRouteImport } from './routes/api/admin/channels'
+import { Route as ApiAdminGateRouteImport } from './routes/api/admin/gate'
 import { Route as ApiAdminGeneralRouteImport } from './routes/api/admin/general'
 import { Route as ApiAdminReferralMilestonesRouteImport } from './routes/api/admin/referral-milestones'
 import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/security'
@@ -130,6 +131,11 @@ const ApiAdminAdminsRoute = ApiAdminAdminsRouteImport.update({
 const ApiAdminChannelsRoute = ApiAdminChannelsRouteImport.update({
   id: '/api/admin/channels',
   path: '/api/admin/channels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminGateRoute = ApiAdminGateRouteImport.update({
+  id: '/api/admin/gate',
+  path: '/api/admin/gate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminGeneralRoute = ApiAdminGeneralRouteImport.update({
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/api/promo': typeof ApiPromoRoute
   '/api/admin/admins': typeof ApiAdminAdminsRoute
   '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/gate': typeof ApiAdminGateRoute
   '/api/admin/general': typeof ApiAdminGeneralRoute
   '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
   '/api/admin/security': typeof ApiAdminSecurityRoute
@@ -434,6 +441,7 @@ export interface FileRoutesByTo {
   '/api/promo': typeof ApiPromoRoute
   '/api/admin/admins': typeof ApiAdminAdminsRoute
   '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/gate': typeof ApiAdminGateRoute
   '/api/admin/general': typeof ApiAdminGeneralRoute
   '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
   '/api/admin/security': typeof ApiAdminSecurityRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/api/promo': typeof ApiPromoRoute
   '/api/admin/admins': typeof ApiAdminAdminsRoute
   '/api/admin/channels': typeof ApiAdminChannelsRoute
+  '/api/admin/gate': typeof ApiAdminGateRoute
   '/api/admin/general': typeof ApiAdminGeneralRoute
   '/api/admin/referral-milestones': typeof ApiAdminReferralMilestonesRouteWithChildren
   '/api/admin/security': typeof ApiAdminSecurityRoute
@@ -555,6 +564,7 @@ export interface FileRouteTypes {
     | '/api/promo'
     | '/api/admin/admins'
     | '/api/admin/channels'
+    | '/api/admin/gate'
     | '/api/admin/general'
     | '/api/admin/referral-milestones'
     | '/api/admin/security'
@@ -614,6 +624,7 @@ export interface FileRouteTypes {
     | '/api/promo'
     | '/api/admin/admins'
     | '/api/admin/channels'
+    | '/api/admin/gate'
     | '/api/admin/general'
     | '/api/admin/referral-milestones'
     | '/api/admin/security'
@@ -673,6 +684,7 @@ export interface FileRouteTypes {
     | '/api/promo'
     | '/api/admin/admins'
     | '/api/admin/channels'
+    | '/api/admin/gate'
     | '/api/admin/general'
     | '/api/admin/referral-milestones'
     | '/api/admin/security'
@@ -733,6 +745,7 @@ export interface RootRouteChildren {
   ApiPromoRoute: typeof ApiPromoRoute
   ApiAdminAdminsRoute: typeof ApiAdminAdminsRoute
   ApiAdminChannelsRoute: typeof ApiAdminChannelsRoute
+  ApiAdminGateRoute: typeof ApiAdminGateRoute
   ApiAdminGeneralRoute: typeof ApiAdminGeneralRoute
   ApiAdminReferralMilestonesRoute: typeof ApiAdminReferralMilestonesRouteWithChildren
   ApiAdminSecurityRoute: typeof ApiAdminSecurityRoute
@@ -866,6 +879,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/channels'
       fullPath: '/api/admin/channels'
       preLoaderRoute: typeof ApiAdminChannelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/gate': {
+      id: '/api/admin/gate'
+      path: '/api/admin/gate'
+      fullPath: '/api/admin/gate'
+      preLoaderRoute: typeof ApiAdminGateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/general': {
@@ -1232,6 +1252,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPromoRoute: ApiPromoRoute,
   ApiAdminAdminsRoute: ApiAdminAdminsRoute,
   ApiAdminChannelsRoute: ApiAdminChannelsRoute,
+  ApiAdminGateRoute: ApiAdminGateRoute,
   ApiAdminGeneralRoute: ApiAdminGeneralRoute,
   ApiAdminReferralMilestonesRoute: ApiAdminReferralMilestonesRouteWithChildren,
   ApiAdminSecurityRoute: ApiAdminSecurityRoute,
