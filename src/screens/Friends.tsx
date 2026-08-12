@@ -763,7 +763,7 @@ export default function Friends() {
 
 
       {/* Friends List */}
-      <div className="relative z-10 flex-1 pb-8">
+      <div className="relative z-10 flex-1 pb-40">
         <h3 className="text-xs font-black text-white/60 mb-3 tracking-widest">
           {t('friends_your_friends', { count: String(friends.length || displayCount) })}
         </h3>
