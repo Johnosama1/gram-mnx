@@ -24,6 +24,8 @@ type TelegramUserContextType = {
   user: TelegramUser | null;
   avatarUrl: string | null;
   isVerified: boolean;
+  /** Server said this Telegram account is banned (403 from the API guard). */
+  isBanned: boolean;
   isAdmin: boolean;
   isLoading: boolean;
   notJoinedChannels: UnsubscribedChannel[];
@@ -84,6 +86,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
 
   const [user, setUser] = useState<TelegramUser | null>(cached?.user ?? null);
   const [isVerified, setIsVerified] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   // With a cached snapshot we render instantly and revalidate in the background.
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +107,13 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
       credentials: 'include',
       body: JSON.stringify({ initData }),
     });
+    if (res.status === 403) {
+      setIsBanned(true);
+      setIsVerified(false);
+      return;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    setIsBanned(false);
     const data = await res.json();
     if (data?.user) {
       const channels = Array.isArray(data.notJoinedChannels) ? data.notJoinedChannels : [];
@@ -208,6 +217,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
         user,
         avatarUrl,
         isVerified,
+        isBanned,
         isAdmin,
         isLoading,
         notJoinedChannels,

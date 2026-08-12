@@ -44,6 +44,26 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
       { status: 401, headers: { "content-type": "application/json" } },
     );
   }
+  // Banned accounts are cut off from every API before any handler runs.
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("gm_users")
+      .select("is_banned")
+      .eq("telegram_id", user.id)
+      .maybeSingle();
+    if (data?.is_banned) {
+      return new Response(
+        JSON.stringify({
+          error: "BANNED",
+          message: "Your account has been banned by the administrators.",
+        }),
+        { status: 403, headers: { "content-type": "application/json" } },
+      );
+    }
+  } catch {
+    /* never lock everyone out on a transient database error */
+  }
   return next();
 });
 

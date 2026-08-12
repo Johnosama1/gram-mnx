@@ -12,7 +12,7 @@ import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
 
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
-import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight, Layers } from 'lucide-react';
+import { ChevronDown, Wallet, TrendingUp, Gem, ChevronRight } from 'lucide-react';
 import { formatGram } from '@/lib/utils';
 
 /** hh:mm:ss countdown for the 24h mining session */
@@ -220,13 +220,6 @@ export default function Dashboard() {
               {isStartingMining ? '...' : t('dashboard_start_mining')}
             </button>
           ))}
-          <button
-            onClick={() => { alert('Mix feature is coming soon'); }}
-            className="flex-1 rounded-2xl border border-primary/40 bg-white text-primary font-black text-sm tracking-wide flex items-center justify-center gap-2 active:scale-95 transition-transform"
-          >
-            <Layers className="w-4 h-4" />
-            Mix
-          </button>
         </div>
         <button
           onClick={() => { void handleClaim(); }}

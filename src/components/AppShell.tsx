@@ -183,6 +183,22 @@ function MaintenanceScreen({ message }: { message: string }) {
   );
 }
 
+/** Shown when the account has been banned by an administrator. */
+function BannedScreen() {
+  return (
+    <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
+      <div className="text-5xl">🚫</div>
+      <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
+      <p className="text-sm text-destructive font-bold">
+        تم حظر حسابك من قبل الإدارة.
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Your account has been banned by the administrators.
+      </p>
+    </div>
+  );
+}
+
 /** Shown when the app is opened outside Telegram (no signed initData at all). */
 function OutsideTelegramScreen({ onRetry }: { onRetry: () => void }) {
   return (
@@ -231,7 +247,7 @@ function useHasTelegramInitData(): { has: boolean | null; retry: () => void } {
 
 
 function Shell() {
-  const { isAdmin, isVerified, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
+  const { isAdmin, isVerified, isBanned, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
   const router = useRouter();
@@ -326,7 +342,9 @@ function Shell() {
         style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
       />
 
-      {hasInitData === false || (hasInitData === true && !isLoading && !isVerified) ? (
+      {isBanned ? (
+        <BannedScreen />
+      ) : hasInitData === false || (hasInitData === true && !isLoading && !isVerified) ? (
         <OutsideTelegramScreen onRetry={retryTelegram} />
       ) : isLoading || hasInitData === null ? (
         <LoadingScreen />

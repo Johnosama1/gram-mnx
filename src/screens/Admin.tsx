@@ -84,7 +84,13 @@ interface Stats { totalUsers: number; blockedUsers: number; activeUsers: number 
 interface Task  { id: number; title: string; description: string; reward: number; isDaily: boolean; isHidden: boolean; channelUsername?: string | null; category?: string | null; botUsername?: string | null; twitterUrl?: string | null; slotLimit?: number | null; slotsFilled?: number; iconUrl?: string | null }
 interface Withdrawal { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Channel { id: number; channelUsername: string; channelName: string }
-interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean }
+interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean; ips?: string[]; referralCount?: number; ipSiblingCount?: number; ipSiblings?: number[] }
+interface UserDetails extends User {
+  walletAddress: string|null; referredBy: number|null; language: string|null;
+  createdAt: string|null; lastActiveAt: string|null;
+  withdrawalsCount: number; depositsCount: number; tasksCompleted: number;
+  siblings: User[];
+}
 interface Miner { id: number; name: string; baseCost: number; dailyPct: number; description: string }
 interface SubAdmin { telegramId: number; username: string; permissions: string[] }
 
@@ -1467,6 +1473,18 @@ function UsersSection() {
   const [warnMsg, setWarnMsg] = useState('');
   const [privateMsg, setPrivateMsg] = useState('');
   const [status, setStatus] = useState('');
+  const [details, setDetails] = useState<UserDetails|null>(null);
+
+  // Full account dossier whenever a user is opened.
+  useEffect(() => {
+    setDetails(null);
+    if (!selected) return;
+    let alive = true;
+    api<UserDetails>('GET', `/admin/users?action=details&id=${selected.telegramId}`)
+      .then(d => { if (alive) setDetails(d); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [selected?.telegramId]);
 
   const search = async () => {
     if (!query.trim()) return;
@@ -1513,6 +1531,11 @@ function UsersSection() {
           <div className="text-xs text-muted-foreground font-mono">ID: {r.telegramId} {r.username && `· @${r.username}`}</div>
           <div className="text-xs text-primary font-bold mt-0.5">{Number(r.balance).toFixed(4)} gram</div>
           <div className="text-xs text-amber-400 font-bold">{Number(r.coins ?? 0).toLocaleString()} MNX</div>
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            <span className="text-[10px] bg-white/5 text-muted-foreground px-2 py-0.5 rounded-full font-bold">إحالات: {r.referralCount ?? 0}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${(r.ipSiblingCount ?? 0) > 0 ? 'bg-destructive/20 text-destructive' : 'bg-white/5 text-muted-foreground'}`}>نفس الـ IP: {r.ipSiblingCount ?? 0}</span>
+            {r.isBanned && <span className="text-[10px] bg-destructive/20 text-destructive px-2 py-0.5 rounded-full font-bold">محظور</span>}
+          </div>
         </button>
       ))}
 
@@ -1536,6 +1559,43 @@ function UsersSection() {
           <div className="bg-black/40 rounded-xl p-3 text-center space-y-1">
             <div className="text-2xl font-black text-primary">{Number(u.balance).toFixed(4)} gram</div>
             <div className="text-base font-black text-amber-400">{Number(u.coins ?? 0).toLocaleString()} MNX</div>
+          </div>
+
+          {/* Full account info */}
+          <div className="bg-black/40 rounded-xl p-3 space-y-1.5 border border-white/5">
+            <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">معلومات الحساب</p>
+            {!details ? (
+              <div className="text-xs text-muted-foreground">جاري التحميل…</div>
+            ) : (
+              <div className="text-xs text-white/80 space-y-1 font-mono">
+                <div>ID: {details.telegramId}</div>
+                <div>Username: {details.username ? `@${details.username}` : '—'}</div>
+                <div>الاسم: {[details.firstName, details.lastName].filter(Boolean).join(' ') || '—'}</div>
+                <div>اللغة: {details.language ?? '—'}</div>
+                <div>المحفظة: <span className="break-all">{details.walletAddress ?? '—'}</span></div>
+                <div>عدد الإحالات: <span className="text-primary font-black">{details.referralCount ?? 0}</span></div>
+                <div>مدعو بواسطة: {details.referredBy ?? '—'}</div>
+                <div>المهام المكتملة: {details.tasksCompleted}</div>
+                <div>الإيداعات: {details.depositsCount} · السحوبات: {details.withdrawalsCount}</div>
+                <div>تاريخ التسجيل: {details.createdAt ? new Date(details.createdAt).toLocaleString() : '—'}</div>
+                <div>آخر نشاط: {details.lastActiveAt ? new Date(details.lastActiveAt).toLocaleString() : '—'}</div>
+                <div>حظر البوت: {details.blockedBot ? 'نعم' : 'لا'}</div>
+                <div className="break-all">IPs: {details.ips?.length ? details.ips.join(', ') : '—'}</div>
+                <div className={`font-black ${(details.ipSiblingCount ?? 0) > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  حسابات بنفس الـ IP: {details.ipSiblingCount ?? 0}
+                </div>
+                {details.siblings?.length > 0 && (
+                  <div className="pt-1 space-y-1 border-t border-white/10">
+                    {details.siblings.map(s => (
+                      <button key={s.telegramId} onClick={() => setSelected(s)}
+                        className="w-full text-left text-[11px] text-white/70 hover:text-white">
+                        · {s.telegramId} {s.username ? `@${s.username}` : ''} {s.isBanned ? '🚫' : ''}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Coins adjustment */}
@@ -1666,6 +1726,18 @@ function UsersSection() {
             <Btn variant={u.isBanned ? 'success' : 'danger'} size="sm"
               onClick={() => act(`/admin/users?action=ban&id=${u.telegramId}`, { ban: !u.isBanned }, u.isBanned ? t('admin_unbanned') : t('admin_banned_done'))}>
               <Ban className="w-3 h-3" />{u.isBanned ? t('admin_unban_user') : t('admin_ban_user')}
+            </Btn>
+            <Btn variant="danger" size="sm"
+              onClick={() => {
+                const n = (details?.ipSiblingCount ?? u.ipSiblingCount ?? 0) + 1;
+                if (!window.confirm(`حظر كل الحسابات المرتبطة بنفس الـ IP (${n} حساب)؟`)) return;
+                act(`/admin/users?action=ban_ip&id=${u.telegramId}`, { ban: true }, `تم حظر ${n} حساب`);
+              }}>
+              <Ban className="w-3 h-3" />حظر كل حسابات نفس الـ IP
+            </Btn>
+            <Btn variant="success" size="sm"
+              onClick={() => act(`/admin/users?action=ban_ip&id=${u.telegramId}`, { ban: false }, 'تم فك الحظر عن حسابات نفس الـ IP')}>
+              <Check className="w-3 h-3" />فك حظر نفس الـ IP
             </Btn>
             <Btn variant={u.restrictWithdrawal ? 'success' : 'ghost'} size="sm"
               onClick={() => act(`/admin/users?action=restrict&id=${u.telegramId}`, { restrict: !u.restrictWithdrawal }, u.restrictWithdrawal ? t('admin_restrict_lifted') : t('admin_restrict_done'))}>
