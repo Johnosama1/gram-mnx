@@ -7,6 +7,13 @@ import { scanDeposits } from '@/lib/deposit-scan.server';
  * Read-only for callers: it never returns user data, only counters.
  */
 async function run() {
+  // This endpoint must stay callable by the external scheduler (no shared
+  // secret is configured on it), so it is protected by a global throttle:
+  // legitimate cron traffic is well under this, while an attacker cannot use
+  // it to hammer the payout queue or force concurrent payout processing.
+  const { rateLimit, tooMany } = await import('@/lib/rate-limit.server');
+  if (!(await rateLimit('deposit-scan', 6, 60))) return tooMany('busy');
+
   try {
     const result = await scanDeposits(50);
     // Whenever new funds land, drain the pending withdrawal queue with
