@@ -510,7 +510,7 @@ function TwitterTaskCard({
           )}
         </div>
       )}
-    </div>
+    </TaskCard>
   );
 }
 
