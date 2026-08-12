@@ -252,66 +252,36 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
       if ((count ?? 0) >= gift.capacity) return json({ error: 'اكتمل العدد' }, 409);
     }
 
-    // The inviter id may arrive from the client or straight from the Mini App start param.
-    let rawRef = Number(body.ref ?? 0);
-    if (!Number.isFinite(rawRef) || rawRef <= 0) {
-      const startParam = initData ? (new URLSearchParams(initData).get('start_param') ?? '') : '';
-      const s = startParam.trim();
-      const short = /^g_?(\d+)$/.exec(s);
-      const legacy = /^gift_(\d+)_(\d+)$/.exec(s);
-      rawRef = short ? Number(short[1]) : legacy ? Number(legacy[2]) : 0;
-    }
-    const referrer = Number.isFinite(rawRef) && rawRef > 0 && rawRef !== auth.id ? rawRef : null;
+    // The inviter may arrive from the client or straight from the Mini App start param.
+    const startParam = initData ? new URLSearchParams(initData).get('start_param') : null;
+    const referrer =
+      parseGiftRef(typeof body.ref === 'number' || typeof body.ref === 'string' ? `g_${body.ref}` : null) ??
+      parseGiftRef(startParam);
 
+    // Late-binding safety net: if the login step missed the link, record it now.
+    if (referrer && referrer !== auth.id) {
+      await recordGiftInvite(
+        auth.id,
+        referrer,
+        auth.username ? `@${auth.username}` : (auth.first_name ?? null),
+      );
+    }
+
+    const myInvites = await countGiftInvites(db, auth.id);
     const { error } = await db.from('gm_gift_entries').insert({
       gift_id: giftId,
       telegram_id: auth.id,
-      chances: 1,
-      referred_by: referrer,
+      chances: myInvites + 1,
+      invited_count: myInvites,
+      referred_by: referrer && referrer !== auth.id ? referrer : null,
     });
     if (error && !String(error.message).includes('duplicate'))
       return json({ error: error.message }, 500);
-
-    // Credit the inviter one extra chance (create their entry if it is missing).
-    if (referrer) {
-      let newChances = 2;
-      const { data: refRow } = await db
-        .from('gm_gift_entries')
-        .select('id,chances,invited_count')
-        .eq('gift_id', giftId)
-        .eq('telegram_id', referrer)
-        .maybeSingle();
-      if (refRow) {
-        newChances = Number(refRow.chances ?? 1) + 1;
-        await db
-          .from('gm_gift_entries')
-          .update({
-            chances: newChances,
-            invited_count: Number(refRow.invited_count ?? 0) + 1,
-          })
-          .eq('id', refRow.id);
-      } else {
-        await db.from('gm_gift_entries').insert({
-          gift_id: giftId,
-          telegram_id: referrer,
-          chances: 2,
-          invited_count: 1,
-        });
-      }
-
-      const { notifyUser } = await import('@/lib/admin.server');
-      const name = auth.username ? `@${auth.username}` : (auth.first_name ?? 'صديق');
-      await notifyUser(
-        referrer,
-        `🎉 تم دعوة شخص جديد للمسابقة!\n\n👤 ${name} انضم عن طريق رابطك\n🎁 المسابقة: ${gift.title}\n🎟 فرصك في الفوز الآن: ×${newChances}`,
-      );
-    }
   }
-
-
 
   return json(await getGiftState(initData));
 }
+
 
 /** Serves an uploaded gift media file (private bucket) through our own origin. */
 export async function handleGiftMedia(name: string): Promise<Response> {
