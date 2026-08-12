@@ -126,7 +126,7 @@ export default function Dashboard() {
                 {t('dashboard_holding_wallet')}
               </div>
               <div className="text-[15px] font-black text-foreground tabular-nums leading-tight truncate">
-                {formatGram(displayedHolding, 3)} <span className="text-[10px] text-primary font-bold">Gram</span>
+                {formatGram(displayedHolding, 3)}
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
