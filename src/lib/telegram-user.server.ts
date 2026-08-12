@@ -105,6 +105,19 @@ export async function computeAccrued(telegramId: number): Promise<Accrued> {
     .eq('telegram_id', telegramId)
     .maybeSingle();
 
+  // Admin-configurable daily mining percentage (default 5%).
+  let miningDailyPct = 5;
+  try {
+    const { data: s } = await db
+      .from('gm_settings')
+      .select('value')
+      .eq('key', 'mining_daily_pct')
+      .maybeSingle();
+    const parsed = Number((s as { value?: string } | null)?.value);
+    if (Number.isFinite(parsed) && parsed >= 0) miningDailyPct = parsed;
+  } catch { /* keep default */ }
+
+
   const liveCoins = Math.max(0, Number(data?.coins ?? 0) || 0);
   const row = data as {
     last_claim_at?: string | null;
