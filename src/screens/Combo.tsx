@@ -8,53 +8,24 @@ import { useLanguage } from '@/context/LanguageContext';
 import { API_BASE } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
-import comboPickaxe from '@/assets/combo/pickaxe.webp.asset.json';
-import comboCart from '@/assets/combo/cart.webp.asset.json';
-import comboFlag from '@/assets/combo/flag.webp.asset.json';
-import comboVault from '@/assets/combo/vault.webp.asset.json';
-import comboDiamond from '@/assets/combo/diamond.webp.asset.json';
+import comboCrystal from '@/assets/combo/crystal-v2.png.asset.json';
+import comboBox from '@/assets/combo/box-v2.png.asset.json';
+import comboCart from '@/assets/combo/cart-v2.png.asset.json';
+import comboFlag from '@/assets/combo/flag-v2.png.asset.json';
+import comboCoins from '@/assets/combo/coins-v2.png.asset.json';
 
 const API = API_BASE;
 function getInitData(): string { return window.Telegram?.WebApp?.initData ?? ''; }
 
 // ─── Item definitions ────────────────────────────────────────────────────────
 const ITEMS = [
-  {
-    id: 1, name: 'Golden\nPickaxe',
-    img: comboPickaxe.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 2, name: 'GRAM\nCart',
-    img: comboCart.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 3, name: 'GRAM\nFlag',
-    img: comboFlag.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 4, name: 'Gold\nVault',
-    img: comboVault.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 5, name: 'Golden\nDiamond',
-    img: comboDiamond.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
+  { id: 1, name: 'Crystal\nShard', img: comboCrystal.url },
+  { id: 2, name: 'GRAM\nBox', img: comboBox.url },
+  { id: 3, name: 'GRAM\nCart', img: comboCart.url },
+  { id: 4, name: 'GRAM\nFlag', img: comboFlag.url },
+  { id: 5, name: 'GRAM\nCoins', img: comboCoins.url },
 ];
+
 
 // Max allowed attempts per day
 const MAX_DAILY_ATTEMPTS = 1;
@@ -228,10 +199,10 @@ export default function Combo() {
         ) : (
           <>
             {/* ── Top selected slots ─────────────────────────────────── */}
-            <div className="relative rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 pt-8">
+            <div className="relative rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-transparent p-3 pt-8">
               {/* Countdown chip (top-right) */}
               {countdown && (
-                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/50 border border-amber-500/30 px-2 py-1">
+                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/50 border border-violet-500/30 px-2 py-1">
                   <Clock className="w-3 h-3 text-primary" />
                   <span className="text-[10px] font-black tabular-nums text-primary">{countdown}</span>
                 </div>
@@ -254,7 +225,7 @@ export default function Combo() {
                       className={`relative aspect-square rounded-xl border-2 border-dashed flex items-center justify-center
                         overflow-hidden transition-all duration-300
                         ${item ? 'border-solid animate-scale-in' : 'bg-white/5'}
-                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-amber-500/60' : 'border-white/15'}
+                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-violet-500/60' : 'border-white/15'}
                         ${item && !locked ? 'active:scale-95' : ''}`}
                     >
                       {item ? (
@@ -277,7 +248,7 @@ export default function Combo() {
               >
                 {showSuccess ? (
                   <>
-                    <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <Trophy className="w-4 h-4 text-violet-300 flex-shrink-0" />
                     <span className="text-xs font-black text-emerald-400">
                       {t('combo_correct_title')} +{showReward} MNX
                     </span>
@@ -315,8 +286,8 @@ export default function Combo() {
 
 
             {/* Cards grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {ITEMS.slice(0, 3).map(item => (
+            <div className="grid grid-cols-5 gap-2">
+              {ITEMS.map(item => (
                 <ItemCard
                   key={item.id}
                   item={item}
@@ -326,17 +297,7 @@ export default function Combo() {
                 />
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-3 px-8">
-              {ITEMS.slice(3).map(item => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  selected={selected.includes(item.id)}
-                  disabled={locked}
-                  onTap={() => toggleSelect(item.id)}
-                />
-              ))}
-            </div>
+
 
 
 
@@ -382,28 +343,29 @@ function ItemCard({
       onClick={onTap}
       disabled={disabled}
       className={`
-        relative flex flex-col items-center justify-center gap-1.5
-        rounded-2xl border p-1.5 pb-2 min-h-[110px]
-        bg-gradient-to-b ${item.gradient} ${item.border}
+        relative flex flex-col items-center justify-center gap-1
+        rounded-2xl border p-1.5 pb-2
+        bg-[#171522] border-violet-500/30
         transition-all duration-200 touch-manipulation
-        ${selected ? `ring-2 ring-primary shadow-lg ${item.glow}` : 'opacity-80'}
+        ${selected ? 'ring-2 ring-violet-500 border-violet-400 shadow-lg shadow-violet-600/25' : 'opacity-90'}
         ${disabled ? 'cursor-default' : 'active:scale-95'}
       `}
     >
       {selected && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-          <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+          <CheckCircle2 className="w-3 h-3 text-white" />
         </div>
       )}
       <img
         src={item.img}
         alt={item.name}
-        className="w-full aspect-square object-cover rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
+        className="w-full aspect-square object-contain rounded-xl"
         draggable={false}
       />
-      <span className="text-white text-[11px] font-bold text-center leading-tight whitespace-pre-line">
+      <span className="text-white text-[10px] font-bold text-center leading-tight whitespace-pre-line">
         {item.name}
       </span>
     </button>
+
   );
 }
