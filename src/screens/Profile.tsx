@@ -80,12 +80,12 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.97)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-white/10">
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-white">{t('swap_gram_to_coin')}</h2>
       </div>
@@ -98,7 +98,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* From */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground font-bold uppercase">{t('swap_from')}</span>
             <span className="text-xs text-muted-foreground">{t('swap_balance')}: {fromBalance}</span>
@@ -126,7 +126,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* To */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('swap_to')}</div>
           <div className="flex items-center gap-3">
             <div className="flex-1 text-2xl font-black text-white/70">
@@ -162,7 +162,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('swap_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-white text-sm">
                     {h.direction === 'gram_to_coins'
@@ -352,15 +352,15 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
     s === 'confirmed' ? t('status_confirmed') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.97)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-white/10">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold">‹</button>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-white">{t('deposit_title')}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
         {/* Wallet status */}
-        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-white/5 border-white/10'}`}>
+        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-violet-500/[0.07] border-violet-500/25'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
           {connected ? (
             <div className="flex items-center gap-2">
@@ -386,7 +386,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
         )}
 
         {/* Amount input */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('deposit_amount_label')}</div>
           <div className="flex items-center gap-3">
             <input
@@ -424,7 +424,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
         <button
           onClick={handlePay}
           disabled={status.type === 'loading' || amtNum <= 0}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#f5a623] to-[#ffd700] text-black font-black text-base shadow-[0_0_20px_rgba(245,166,35,0.3)] disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-black text-base shadow-[0_0_20px_rgba(139,92,246,0.35)] disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading'
             ? t('deposit_processing')
@@ -436,7 +436,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
         </button>
 
         {/* Info footer */}
-        <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+        <div className="bg-black/30 border border-violet-500/15 rounded-2xl p-4">
           <div className="grid grid-cols-2 gap-y-2 text-xs text-gray-400">
             <span>{t('deposit_payment_method')}</span>
             <span className="text-right text-blue-400 font-bold">TON Connect</span>
@@ -453,7 +453,7 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('deposit_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-white text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
                   <div className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString(lang)}</div>
@@ -540,15 +540,15 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
     s === 'approved' ? t('status_approved') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.97)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-white/10">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold">‹</button>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
         {/* Wallet address */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
           {walletAddress ? (
             <div className="font-mono text-sm text-white/80 break-all">{toFriendlyAddress(walletAddress)}</div>
@@ -564,7 +564,7 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Amount input */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-3">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('withdraw_amount_label')}</div>
           <input
             type="number"
@@ -608,7 +608,7 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('withdraw_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-white/5 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-white text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
                   <div className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString(lang)}</div>
@@ -659,11 +659,11 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.97)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-white/10">
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={back}
-          className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-white">{t('support_title')}</h2>
       </div>
@@ -673,7 +673,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
           <>
             <button
               onClick={() => setView('pick')}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <StickerBadge size={30} src={supportBalloonSticker.url} />
@@ -687,7 +687,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <button
               onClick={openSupportChat}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-success/15 flex items-center justify-center text-success">
                 <Headphones className="w-5 h-5" />
@@ -706,7 +706,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">{t('support_pick_type')}</p>
             <button
               onClick={() => { setKind('complaint'); setView('form'); }}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-destructive/15 flex items-center justify-center text-destructive">
                 <MessageSquare className="w-5 h-5" />
@@ -716,7 +716,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             </button>
             <button
               onClick={() => { setKind('suggestion'); setView('form'); }}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <Lightbulb className="w-5 h-5" />
@@ -738,7 +738,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               maxLength={1000}
               rows={7}
               placeholder={t('support_placeholder')}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm outline-none focus:border-primary/50 resize-none select-text"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 text-white text-sm outline-none focus:border-primary/50 resize-none select-text"
             />
             <div className="text-[10px] text-muted-foreground text-left">{text.length}/1000</div>
             <button
@@ -820,7 +820,7 @@ export default function Profile() {
         <div className="text-sm text-primary font-bold mt-1">
           {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
         </div>
-        <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
+        <div className="px-4 py-1.5 rounded-full bg-violet-500/[0.07] border border-violet-500/25 text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
           {walletAddress ? (
             <>
               <span className="text-success font-semibold">{t('profile_connected')}</span>
@@ -837,9 +837,9 @@ export default function Profile() {
         {/* Wallet Connection */}
         <div
           onClick={() => setShowWallet(true)}
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={walletSticker.url} />
           </div>
           <div className="flex-1">
@@ -852,9 +852,9 @@ export default function Profile() {
         {/* Deposit */}
         <div
           onClick={() => setShowDeposit(true)}
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={downloadSticker.url} />
           </div>
           <div className="flex-1">
@@ -867,9 +867,9 @@ export default function Profile() {
         {/* Withdraw */}
         <div
           onClick={() => setShowWithdraw(true)}
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={purseSticker.url} />
           </div>
           <div className="flex-1">
@@ -882,9 +882,9 @@ export default function Profile() {
         {/* Swap */}
         <div
           onClick={() => setShowSwap(true)}
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={30} src={swapSticker.url} />
           </div>
           <div className="flex-1">
@@ -897,9 +897,9 @@ export default function Profile() {
         {/* Settings */}
         <div
           onClick={() => setShowSettings(true)}
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={gearSticker.url} />
           </div>
           <div className="flex-1">
@@ -912,9 +912,9 @@ export default function Profile() {
         {/* FAQ */}
         <Link
           to="/faq"
-          className="bg-secondary/60 backdrop-blur-sm border border-white/5 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/80 transition-colors"
+          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-primary">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-violet-300">
             <HelpCircle className="w-6 h-6" />
           </div>
           <div className="flex-1">
@@ -934,11 +934,11 @@ export default function Profile() {
 
       {/* ── Settings Panel ── */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.97)' }}>
-          <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-white/10">
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+          <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowSettings(false)}
-              className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold"
+              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
             >‹</button>
             <h2 className="text-lg font-black text-white">{t('profile_settings')}</h2>
           </div>
@@ -954,7 +954,7 @@ export default function Profile() {
                   className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-colors ${
                     lang === l.value
                       ? 'bg-primary/15 border-primary/50 text-white'
-                      : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10'
+                      : 'bg-violet-500/[0.07] border-violet-500/25 text-white/70 hover:bg-violet-500/15'
                   }`}
                 >
                   {l.value === 'en' ? (

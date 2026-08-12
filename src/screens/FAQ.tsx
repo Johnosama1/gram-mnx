@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Link } from '@tanstack/react-router';
 
@@ -67,58 +66,44 @@ const FAQS: FAQItem[] = [
   },
 ];
 
-function FAQRow({ item, open, onClick }: { item: FAQItem; open: boolean; onClick: () => void }) {
+function FAQRow({ item, index }: { item: FAQItem; index: number }) {
   return (
-    <div className="border border-white/5 rounded-2xl overflow-hidden bg-secondary/40">
-      <button
-        onClick={onClick}
-        className="w-full flex items-center justify-between gap-3 px-4 py-4 text-right"
-      >
-        <span className="text-sm font-bold text-white leading-relaxed">{item.q}</span>
-        {open ? (
-          <ChevronUp className="w-4 h-4 text-primary flex-shrink-0" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-primary flex-shrink-0" />
-        )}
-      </button>
-      {open && (
-        <div className="px-4 pb-4 border-t border-white/5 pt-3">
-          <p className="text-sm text-white/80 leading-relaxed">{item.a}</p>
-        </div>
-      )}
+    <div className="border border-violet-500/25 rounded-2xl overflow-hidden bg-[#171522]/85 backdrop-blur-sm">
+      <div className="flex items-start gap-3 px-4 pt-4 text-right">
+        <span className="w-6 h-6 shrink-0 rounded-lg bg-violet-500/20 text-violet-200 text-[11px] font-black flex items-center justify-center">
+          {index + 1}
+        </span>
+        <span className="flex-1 text-sm font-bold text-white leading-relaxed">{item.q}</span>
+      </div>
+      <div className="px-4 pb-4 pt-3 mt-3 border-t border-violet-500/15">
+        <p className="text-sm text-white/75 leading-relaxed text-right">{item.a}</p>
+      </div>
     </div>
   );
 }
 
 export default function FAQ() {
   const { t } = useLanguage();
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
-
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }} />
 
       <div className="relative z-10 flex items-center gap-3 mb-6">
         <Link
           to="/profile"
-          className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >
           ‹
         </Link>
         <h1 className="text-lg font-black text-white flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-primary" />
+          <HelpCircle className="w-5 h-5 text-violet-300" />
           {t('faq_title')}
         </h1>
       </div>
 
       <div className="relative z-10 flex-1 space-y-3 pb-8">
         {FAQS.map((item, idx) => (
-          <FAQRow
-            key={idx}
-            item={item}
-            open={openIdx === idx}
-            onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-          />
+          <FAQRow key={idx} item={item} index={idx} />
         ))}
       </div>
     </div>
