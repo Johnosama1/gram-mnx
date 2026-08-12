@@ -81,7 +81,7 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 interface Stats { totalUsers: number; blockedUsers: number; activeUsers: number }
-interface Task  { id: number; title: string; description: string; reward: number; isDaily: boolean; isHidden: boolean; channelUsername?: string | null; category?: string | null; botUsername?: string | null; twitterUrl?: string | null; slotLimit?: number | null; slotsFilled?: number }
+interface Task  { id: number; title: string; description: string; reward: number; isDaily: boolean; isHidden: boolean; channelUsername?: string | null; category?: string | null; botUsername?: string | null; twitterUrl?: string | null; slotLimit?: number | null; slotsFilled?: number; iconUrl?: string | null }
 interface Withdrawal { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Channel { id: number; channelUsername: string; channelName: string }
 interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean }
@@ -922,8 +922,9 @@ function TasksSection() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [form, setForm] = useState({
     title: '', description: '', reward: '', isDaily: false, channelUsername: '',
-    category: 'general', botUsername: '', twitterUrl: '', slotLimit: '',
+    category: 'general', botUsername: '', twitterUrl: '', slotLimit: '', iconUrl: '',
   });
+  const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
 
   const load = useCallback(() => { api<Task[]>('GET', '/admin/tasks').then(setTasks).catch(() => {}); }, []);
@@ -947,13 +948,36 @@ function TasksSection() {
         twitterUrl: form.twitterUrl || null,
         channelUsername: form.channelUsername.replace(/^@/, '') || null,
         slotLimit: form.slotLimit ? Number(form.slotLimit) : null,
+        iconUrl: form.iconUrl.trim() || null,
       });
-      setForm({ title: '', description: '', reward: '', isDaily: false, channelUsername: '', category: 'general', botUsername: '', twitterUrl: '', slotLimit: '' });
+      setForm({ title: '', description: '', reward: '', isDaily: false, channelUsername: '', category: 'general', botUsername: '', twitterUrl: '', slotLimit: '', iconUrl: '' });
       load(); setStatus(tr('admin_added_f'));
     } catch { setStatus(tr('admin_failed')); }
     setTimeout(() => setStatus(''), 2000);
   };
   const del = async (id: number) => { await api('DELETE', `/admin/tasks?id=${id}`); load(); };
+  /** Uploads a picture and stores its served URL on the form. */
+  const uploadIcon = async (file: File) => {
+    setUploading(true);
+    try {
+      const data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ''));
+        reader.onerror = () => reject(new Error('read failed'));
+        reader.readAsDataURL(file);
+      });
+      const res = await api<{ url: string }>('POST', '/admin/tasks?action=upload', {
+        data,
+        filename: file.name,
+      });
+      setForm(f => ({ ...f, iconUrl: res.url }));
+      setStatus('✅ تم رفع الصورة');
+    } catch {
+      setStatus('❌ فشل رفع الصورة');
+    }
+    setUploading(false);
+    setTimeout(() => setStatus(''), 2500);
+  };
   const toggle = async (t: Task) => { await api('PATCH', `/admin/tasks?id=${t.id}`, { isHidden: !t.isHidden }); load(); };
   const setLimit = async (t: Task) => {
     const current = t.slotLimit ? String(t.slotLimit) : '';
@@ -987,6 +1011,30 @@ function TasksSection() {
         {form.category !== 'twitter' && form.category !== 'bots' && (
           <>
             <Input value={form.channelUsername} onChange={e => setForm(f => ({ ...f, channelUsername: e.target.value }))} placeholder={tr('admin_channel_user_ph')} dir="ltr" />
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center">
+                {form.iconUrl
+                  ? <img src={form.iconUrl} alt="" className="w-full h-full object-cover" />
+                  : <span className="text-[10px] text-muted-foreground">صورة</span>}
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadIcon(f); e.target.value = ''; }}
+                  className="block w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary/20 file:text-primary file:text-xs file:font-bold"
+                />
+                <Input
+                  value={form.iconUrl}
+                  onChange={e => setForm(f => ({ ...f, iconUrl: e.target.value }))}
+                  placeholder="أو الصق رابط صورة القناة (اختياري)"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {uploading ? '... جاري رفع الصورة' : 'صورة القناة هتظهر للمستخدم على شكل دائرة جنب اسم المهمة.'}
+            </p>
             {form.category === 'channels' && (
               <>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -1037,7 +1085,12 @@ function TasksSection() {
         {tasks.map(t => (
           <div key={t.id} className={`bg-black/40 rounded-xl p-3 border border-white/5 flex items-start justify-between gap-2 ${t.isHidden ? 'opacity-50' : ''}`}>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-white text-sm truncate">{t.title}</div>
+              <div className="flex items-center gap-2">
+                {t.iconUrl && (
+                  <img src={t.iconUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10 flex-shrink-0" />
+                )}
+                <div className="font-bold text-white text-sm truncate">{t.title}</div>
+              </div>
               <div className="text-xs text-muted-foreground">
                 {t.reward} MNX
                 {t.category && t.category !== 'general'
