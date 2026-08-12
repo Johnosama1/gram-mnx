@@ -170,7 +170,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── claim row ── */}
-      <div className="shrink-0 relative">
+      <div className="shrink-0 relative mb-6">
         <div className="flex items-stretch gap-2">
           {showMiningButton && (isMiningActive ? (
             <div className={`${card} w-[36%] shrink-0 flex flex-col items-center justify-center px-1 py-2`}>
