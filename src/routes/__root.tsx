@@ -89,8 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "GRAM MNX — Mine Gram in Telegram" },
       { name: "twitter:description", content: "Mine Gram, buy miners, finish tasks and invite friends inside the GRAM MNX Telegram Mini App." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0dc36ed8-d9d7-4a48-847e-01f447527821/id-preview-75d2df5b--05831a38-7931-45b8-aad7-3fa9e1ead34d.lovable.app-1785500551128.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0dc36ed8-d9d7-4a48-847e-01f447527821/id-preview-75d2df5b--05831a38-7931-45b8-aad7-3fa9e1ead34d.lovable.app-1785500551128.png" },
+      { property: "og:image", content: "https://gram-mnx.lovable.app/__l5e/assets-v1/b342d644-e068-400e-9697-91bbad37e8af/gram-mnx-logo.png" },
+      { name: "twitter:image", content: "https://gram-mnx.lovable.app/__l5e/assets-v1/b342d644-e068-400e-9697-91bbad37e8af/gram-mnx-logo.png" },
     ],
     links: [
       {
@@ -102,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
     scripts: [
       { src: "https://telegram.org/js/telegram-web-app.js", defer: true, 'data-telegram-web-app-sdk': 'true' },
