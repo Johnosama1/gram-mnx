@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
-import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { shortFriendlyAddress, toFriendlyAddress } from '@/lib/tonAddress';
