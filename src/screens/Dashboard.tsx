@@ -157,19 +157,6 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ── mining status ── */}
-      <div className="flex justify-center shrink-0 mb-3">
-        <div
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 border ${
-            mining ? 'bg-success/10 border-success/25' : 'bg-destructive/10 border-destructive/25'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${mining ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
-          <span className="text-[12px] font-bold text-muted-foreground tabular-nums">
-            {mining && ratePerSec > 0 ? `+${formatGram(ratePerSec, 8)} Gram/s` : '0 Gram/s'}
-          </span>
-        </div>
-      </div>
 
 
       {/* ── claim row ── */}
