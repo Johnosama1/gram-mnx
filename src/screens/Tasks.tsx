@@ -576,8 +576,7 @@ function SubmissionTaskCard({
             href={openLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1"
-            style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}4d` }}
+            className="flex-shrink-0 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 bg-primary/20 text-primary border border-primary/30"
           >
             <ExternalLink className="w-3 h-3" /> {t('tasks_open')}
           </a>
