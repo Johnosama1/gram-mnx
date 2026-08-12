@@ -257,15 +257,7 @@ function PartnerTaskCard({
 }) {
   const { t } = useLanguage();
   return (
-    <div
-      className="rounded-2xl p-4"
-      style={{
-        background: isDone
-          ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
-          : 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.6) 100%)',
-        border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.3)'}`,
-      }}
-    >
+    <TaskCard>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <TaskAvatar
