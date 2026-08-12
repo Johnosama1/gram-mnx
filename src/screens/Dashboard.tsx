@@ -148,13 +148,24 @@ export default function Dashboard() {
           className="absolute w-[70%] aspect-square rounded-full"
           style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
         />
-        <img
-          src={crystalHero}
-          alt="GRAM MNX mining crystal"
-          width={1024}
-          height={1024}
-          className={`relative w-[78%] max-w-[320px] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[hero-float_3.4s_ease-in-out_infinite]' : 'opacity-80 saturate-50'}`}
-        />
+        <div className={`relative w-[78%] max-w-[320px] ${mining ? '' : 'opacity-80 saturate-50'}`} style={{ perspective: '900px' }}>
+          <img
+            src={crystalGem}
+            alt="GRAM MNX mining crystal"
+            width={1024}
+            height={660}
+            className={`w-full object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[gem-spin_6s_linear_infinite]' : ''}`}
+            style={{ transformStyle: 'preserve-3d' }}
+          />
+          <img
+            src={crystalBase}
+            alt=""
+            aria-hidden
+            width={1024}
+            height={384}
+            className="w-full object-contain -mt-[7%]"
+          />
+        </div>
       </div>
 
       {/* ── claim row ── */}
