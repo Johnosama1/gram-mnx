@@ -38,7 +38,8 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
   if (!user) {
     return new Response(
       JSON.stringify({
-        error: "Missing User ID. Please open the app from Telegram bot.",
+        error: "UNAUTHORIZED",
+        message: "Please open this app from the official Telegram bot.",
       }),
       { status: 401, headers: { "content-type": "application/json" } },
     );
