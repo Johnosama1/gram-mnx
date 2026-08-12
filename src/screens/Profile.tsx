@@ -203,7 +203,7 @@ function usePayConfig() {
   }, []);
   return cfg;
 }
-function DepositPanel({ onClose }: { onClose: () => void }) {
+function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: boolean }) {
   const { t, lang } = useLanguage();
   const [tonConnectUI] = useTonConnectUI();
   const tonWallet = useTonWallet();
@@ -351,14 +351,9 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
   const statusLabel = (s: string) =>
     s === 'confirmed' ? t('status_confirmed') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('deposit_title')}</h2>
-      </div>
-
+  const body = (
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
+
         {/* Wallet status */}
         <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-violet-500/[0.07] border-violet-500/25'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
@@ -464,12 +459,24 @@ function DepositPanel({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
+  );
+
+  if (embedded) return body;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
+        <h2 className="text-lg font-black text-white">{t('deposit_title')}</h2>
+      </div>
+      {body}
     </div>
   );
+
 }
 
 // ─── Withdraw Panel ───────────────────────────────────────────────────────────
-function WithdrawPanel({ onClose }: { onClose: () => void }) {
+function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: boolean }) {
   const { t, lang } = useLanguage();
   const { holdingWallet, walletAddress, syncBalance } = useWallet();
   const cfg = usePayConfig();
@@ -539,14 +546,9 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
   const statusLabel = (s: string) =>
     s === 'approved' ? t('status_approved') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
-      </div>
-
+  const body = (
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
+
         {/* Wallet address */}
         <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
@@ -619,8 +621,20 @@ function WithdrawPanel({ onClose }: { onClose: () => void }) {
           </div>
         )}
       </div>
+  );
+
+  if (embedded) return body;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
+        <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
+      </div>
+      {body}
     </div>
   );
+
 }
 
 // ─── Main Profile Page ────────────────────────────────────────────────────────
@@ -767,6 +781,8 @@ export default function Profile() {
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [showWalletHub, setShowWalletHub] = useState(false);
+  const [walletTab, setWalletTab] = useState<'deposit' | 'withdraw'>('deposit');
+
 
   const [showSettings, setShowSettings] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
@@ -942,25 +958,30 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Split screen: top half deposit, bottom half withdraw */}
-          <div className="flex-1 grid grid-rows-2 gap-3 px-4 pb-6">
-            <button
-              onClick={() => setShowDeposit(true)}
-              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
-            >
-              <StickerBadge size={64} src={downloadSticker.url} />
-              <div className="text-xl font-black text-white">{t('deposit_title')}</div>
-              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_deposit_desc')}</div>
-            </button>
-            <button
-              onClick={() => setShowWithdraw(true)}
-              className="rounded-3xl border border-violet-500/30 bg-[#171522]/85 hover:bg-[#201b36]/90 transition-colors flex flex-col items-center justify-center gap-3"
-            >
-              <StickerBadge size={64} src={purseSticker.url} />
-              <div className="text-xl font-black text-white">{t('profile_withdraw')}</div>
-              <div className="text-xs text-muted-foreground px-6 text-center">{t('profile_withdraw_desc')}</div>
-            </button>
+          {/* Tabs: Deposit / Withdraw */}
+          <div className="px-4">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-violet-500/[0.07] border border-violet-500/25">
+              {(['deposit', 'withdraw'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setWalletTab(tab)}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black transition-colors ${
+                    walletTab === tab ? 'bg-primary text-black' : 'text-white/70 hover:bg-violet-500/15'
+                  }`}
+                >
+                  <StickerBadge size={20} src={tab === 'deposit' ? downloadSticker.url : purseSticker.url} />
+                  {tab === 'deposit' ? t('deposit_title') : t('profile_withdraw')}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {walletTab === 'deposit'
+              ? <DepositPanel embedded onClose={() => setShowWalletHub(false)} />
+              : <WithdrawPanel embedded onClose={() => setShowWalletHub(false)} />}
+          </div>
+
         </div>
       )}
       {showSwap     && <SwapPanel onClose={() => setShowSwap(false)} />}
