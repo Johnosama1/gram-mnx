@@ -77,7 +77,9 @@ export default function Dashboard() {
             )}
           </div>
           <div className="min-w-0">
-            <div className="truncate font-bold text-foreground text-[15px]">{userName} 🚀</div>
+            <div className="truncate font-bold text-foreground text-[15px] flex items-center gap-1">
+              {userName} <StickerBadge src={capWingsSticker.url} size={20} />
+            </div>
             <div className="truncate text-[12px] text-primary font-medium">
               {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
             </div>
