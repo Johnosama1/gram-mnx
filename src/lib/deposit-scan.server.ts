@@ -87,10 +87,8 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
   // Another concurrent scanner may have claimed it first.
   if (error || !claimed?.id) return null;
 
-  await db
-    .from('gm_users')
-    .update({ coins: newCoins })
-    .eq('telegram_id', req.telegram_id);
+  // Atomic credit: a plain read-modify-write could lose a concurrent update.
+  await db.rpc('gm_add_coins', { _telegram_id: req.telegram_id, _amount: coins });
 
   await notifyUser(
     req.telegram_id,
