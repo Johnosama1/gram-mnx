@@ -47,7 +47,6 @@ export default function Dashboard() {
 
   const displayedHolding = useAnimatedNumber(holdingWallet, 1600);
   const canClaim = sessionEarnings > 0;
-  const ratePerSec = dailyIncome > 0 ? dailyIncome / 86_400 : 0;
   const mining = isMiningActive && coins > 0;
 
   const handleClaim = () => {
@@ -156,21 +155,6 @@ export default function Dashboard() {
           className={`relative w-[78%] max-w-[320px] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] ${mining ? 'animate-[hero-float_3.4s_ease-in-out_infinite]' : 'opacity-80 saturate-50'}`}
         />
       </div>
-
-      {/* ── mining status ── */}
-      <div className="flex justify-center shrink-0 mb-3">
-        <div
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-2 border ${
-            mining ? 'bg-success/10 border-success/25' : 'bg-destructive/10 border-destructive/25'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${mining ? 'bg-success animate-pulse' : 'bg-destructive'}`} />
-          <span className="text-[12px] font-bold text-muted-foreground tabular-nums">
-            {mining && ratePerSec > 0 ? `+${formatGram(ratePerSec, 8)} Gram/s` : '0 Gram/s'}
-          </span>
-        </div>
-      </div>
-
 
       {/* ── claim row ── */}
       <div className="shrink-0 relative">
