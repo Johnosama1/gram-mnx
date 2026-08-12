@@ -195,7 +195,7 @@ async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en', path
   if (!res.ok) {
     // Some clients reject web_app buttons — fall back to a plain URL button.
     await send(chatId, welcome, {
-      inline_keyboard: [[startBtn({ url: webAppUrl() })]],
+      inline_keyboard: [[startBtn({ url })]],
     });
   }
 }
