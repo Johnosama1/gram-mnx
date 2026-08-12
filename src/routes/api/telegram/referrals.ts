@@ -77,22 +77,21 @@ export const Route = createFileRoute('/api/telegram/referrals')({
         const newlyReached = msList.filter((m) => count >= m.invite_count && !credited.has(m.id));
         if (newlyReached.length > 0) {
           const bonus = newlyReached.reduce((s, m) => s + (Number(m.reward_coins) || 0), 0);
-          if (bonus > 0) {
-            const { data: me2 } = await db
-              .from('gm_users')
-              .select('coins')
-              .eq('telegram_id', user.id)
-              .maybeSingle();
-            const coins2 = Number((me2 as { coins?: number } | null)?.coins ?? 0) || 0;
-            await db
-              .from('gm_users')
-              .update({ coins: coins2 + bonus })
-              .eq('telegram_id', user.id);
-          }
-          await db
+          // Claim the milestones FIRST: the unique (telegram_id, milestone_id)
+          // index makes this the single source of truth, so two concurrent
+          // requests can never both pay out the same milestone bonus.
+          const { data: claimedRows } = await db
             .from('gm_referral_milestone_credits')
             .insert(newlyReached.map((m) => ({ telegram_id: user.id, milestone_id: m.id })))
-            .then(() => undefined, () => undefined);
+            .select('milestone_id');
+          const claimedIds = new Set(
+            ((claimedRows ?? []) as Array<{ milestone_id: number }>).map((r) => Number(r.milestone_id)),
+          );
+          const paid = newlyReached.filter((m) => claimedIds.has(Number(m.id)));
+          const payout = paid.reduce((s, m) => s + (Number(m.reward_coins) || 0), 0);
+          if (payout > 0) {
+            await db.rpc('gm_add_coins', { _telegram_id: user.id, _amount: payout });
+          }
           if (bonus > 0) {
             await notifyUser(
               user.id,
