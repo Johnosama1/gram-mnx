@@ -8,53 +8,24 @@ import { useLanguage } from '@/context/LanguageContext';
 import { API_BASE } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
-import comboPickaxe from '@/assets/combo/pickaxe.webp.asset.json';
-import comboCart from '@/assets/combo/cart.webp.asset.json';
-import comboFlag from '@/assets/combo/flag.webp.asset.json';
-import comboVault from '@/assets/combo/vault.webp.asset.json';
-import comboDiamond from '@/assets/combo/diamond.webp.asset.json';
+import comboCrystal from '@/assets/combo/crystal-v2.png.asset.json';
+import comboBox from '@/assets/combo/box-v2.png.asset.json';
+import comboCart from '@/assets/combo/cart-v2.png.asset.json';
+import comboFlag from '@/assets/combo/flag-v2.png.asset.json';
+import comboCoins from '@/assets/combo/coins-v2.png.asset.json';
 
 const API = API_BASE;
 function getInitData(): string { return window.Telegram?.WebApp?.initData ?? ''; }
 
 // ─── Item definitions ────────────────────────────────────────────────────────
 const ITEMS = [
-  {
-    id: 1, name: 'Golden\nPickaxe',
-    img: comboPickaxe.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 2, name: 'GRAM\nCart',
-    img: comboCart.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 3, name: 'GRAM\nFlag',
-    img: comboFlag.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 4, name: 'Gold\nVault',
-    img: comboVault.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
-  {
-    id: 5, name: 'Golden\nDiamond',
-    img: comboDiamond.url,
-    gradient: 'from-amber-600/25 to-amber-400/5',
-    border: 'border-amber-500/40',
-    glow: 'shadow-amber-500/20',
-  },
+  { id: 1, name: 'Crystal\nShard', img: comboCrystal.url },
+  { id: 2, name: 'GRAM\nBox', img: comboBox.url },
+  { id: 3, name: 'GRAM\nCart', img: comboCart.url },
+  { id: 4, name: 'GRAM\nFlag', img: comboFlag.url },
+  { id: 5, name: 'GRAM\nCoins', img: comboCoins.url },
 ];
+
 
 // Max allowed attempts per day
 const MAX_DAILY_ATTEMPTS = 1;
