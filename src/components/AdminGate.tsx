@@ -1,12 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
 
 const API = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL ?? '');
-const KEY = 'gm_admin_gate_ok';
 
-export function isAdminUnlocked(): boolean {
+function initData(): string {
+  return window.Telegram?.WebApp?.initData ?? '';
+}
+
+/**
+ * Asks the SERVER whether this browser holds a valid admin session cookie.
+ * There is no client-side flag any more: sessionStorage cannot unlock anything.
+ */
+export async function checkAdminSession(): Promise<boolean> {
   try {
-    return sessionStorage.getItem(KEY) === '1';
+    const res = await fetch(`${API}/api/admin/gate`, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: { 'x-telegram-initdata': initData() },
+    });
+    if (!res.ok) return false;
+    const data = (await res.json()) as { ok?: boolean };
+    return data?.ok === true;
   } catch {
     return false;
   }
@@ -16,6 +31,19 @@ export default function AdminGate({ onUnlock }: { onUnlock: () => void }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    checkAdminSession().then((ok) => {
+      if (!alive) return;
+      setChecking(false);
+      if (ok) onUnlock();
+    });
+    return () => {
+      alive = false;
+    };
+  }, [onUnlock]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,23 +52,39 @@ export default function AdminGate({ onUnlock }: { onUnlock: () => void }) {
     try {
       const res = await fetch(`${API}/api/admin/gate`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'x-telegram-initdata': window.Telegram?.WebApp?.initData ?? '',
+          'x-telegram-initdata': initData(),
         },
         body: JSON.stringify({ password }),
       });
       if (!res.ok) {
-        setError(res.status === 401 ? 'كلمة السر غير صحيحة' : 'تعذر التحقق، حاول مرة أخرى');
+        setError(
+          res.status === 401
+            ? initData()
+              ? 'كلمة السر غير صحيحة'
+              : 'Missing User ID. Please open the app from Telegram bot.'
+            : res.status === 403
+              ? 'ليس لديك صلاحية الدخول'
+              : 'تعذر التحقق، حاول مرة أخرى',
+        );
         return;
       }
-      try { sessionStorage.setItem(KEY, '1'); } catch { /* ignore */ }
       onUnlock();
     } catch {
       setError('تعذر الاتصال بالخادم');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
+        …
+      </div>
+    );
   }
 
   return (
