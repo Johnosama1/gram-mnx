@@ -351,14 +351,9 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
   const statusLabel = (s: string) =>
     s === 'confirmed' ? t('status_confirmed') : s === 'rejected' ? t('status_rejected') : t('status_pending');
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
-      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('deposit_title')}</h2>
-      </div>
-
+  const body = (
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
+
         {/* Wallet status */}
         <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-violet-500/[0.07] border-violet-500/25'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
