@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Admin from "@/screens/Admin";
-import AdminGate, { isAdminUnlocked } from "@/components/AdminGate";
+import AdminGate from "@/components/AdminGate";
 
 function AdminPage() {
-  const [unlocked, setUnlocked] = useState(() => isAdminUnlocked());
-  if (!unlocked) return <AdminGate onUnlock={() => setUnlocked(true)} />;
+  const [unlocked, setUnlocked] = useState(false);
+  const onUnlock = useCallback(() => setUnlocked(true), []);
+  if (!unlocked) return <AdminGate onUnlock={onUnlock} />;
   return <Admin />;
 }
+
 
 export const Route = createFileRoute("/admin")({
   ssr: false,

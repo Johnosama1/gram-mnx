@@ -1,44 +1,19 @@
-import { createHmac } from 'node:crypto';
+import {
+  authenticateInitData,
+  extractInitData,
+  getBotToken as readBotToken,
+  hasAdminSession,
+  verifyInitData,
+  type TelegramAuthUser,
+} from '@/lib/telegram-auth.server';
 
-export type TelegramAuthUser = { id: number; username?: string; first_name?: string };
-
-export function verifyInitData(initData: string, token: string): TelegramAuthUser | null {
-  const params = new URLSearchParams(initData);
-  const hash = params.get('hash');
-  if (!hash) return null;
-  params.delete('hash');
-  const dataCheckString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n');
-  const secretKey = createHmac('sha256', 'WebAppData').update(token).digest();
-  const computed = createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-  if (computed !== hash) return null;
-  const authDate = Number(params.get('auth_date'));
-  if (!authDate || Date.now() / 1000 - authDate > 60 * 60 * 24) return null;
-  const raw = params.get('user');
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as TelegramAuthUser;
-  } catch {
-    return null;
-  }
-}
-
-export function parseInitDataUser(initData: string): TelegramAuthUser | null {
-  try {
-    const raw = new URLSearchParams(initData).get('user');
-    if (!raw) return null;
-    const user = JSON.parse(raw) as TelegramAuthUser;
-    return user?.id ? user : null;
-  } catch {
-    return null;
-  }
-}
+export type { TelegramAuthUser };
+export { verifyInitData };
 
 export function getBotToken(): string | undefined {
-  return process.env.BOT_TOKEN ?? process.env.TELEGRAM_BOT_TOKEN;
+  return readBotToken();
 }
+
 
 export function getAdminIds(): number[] {
   const base = [6145230334, 868999453];
@@ -71,16 +46,25 @@ export const json = (data: unknown, status = 200) =>
     headers: { 'content-type': 'application/json' },
   });
 
-/** Verifies the caller is an admin. Returns a Response on failure. */
-export async function requireAdmin(request: Request): Promise<{ user: TelegramAuthUser } | Response> {
-  const initData = request.headers.get('x-telegram-initdata') ?? '';
+/**
+ * Verifies the caller is an admin. Requires, in order:
+ *  1. HMAC-verified Telegram initData (no bot token => always denied),
+ *  2. the Telegram id to be on the server-side admin list,
+ *  3. a valid HttpOnly admin-gate session cookie (password gate),
+ * unless `requireGate` is false (used by the gate endpoint itself).
+ */
+export async function requireAdmin(
+  request: Request,
+  opts: { requireGate?: boolean } = {},
+): Promise<{ user: TelegramAuthUser } | Response> {
+  const { requireGate = true } = opts;
+  const initData = await extractInitData(request);
   if (!initData) {
     // No initData at all is usually a crawler/preview hit: log quietly.
     await reportIntrusion(request, null, 'محاولة وصول لواجهة الأدمن بدون توثيق تيليجرام', 'low', false);
-    return json({ error: 'Missing Telegram initData' }, 401);
+    return json({ error: 'Missing User ID. Please open the app from Telegram bot.' }, 401);
   }
-  const token = getBotToken();
-  const user = token ? verifyInitData(initData, token) : parseInitDataUser(initData);
+  const user = authenticateInitData(initData);
   if (!user) {
     await reportIntrusion(request, null, 'توقيع initData غير صالح (محاولة تزوير جلسة)', 'critical');
     return json({ error: 'Access denied' }, 403);
@@ -89,8 +73,13 @@ export async function requireAdmin(request: Request): Promise<{ user: TelegramAu
     await reportIntrusion(request, user, 'مستخدم غير مصرح حاول فتح لوحة الأدمن', 'high');
     return json({ error: 'Access denied' }, 403);
   }
+  if (requireGate && !hasAdminSession(request, user.id)) {
+    await reportIntrusion(request, user, 'وصول لواجهة الأدمن بدون اجتياز كلمة السر', 'medium', false);
+    return json({ error: 'Admin session required', needsGate: true }, 401);
+  }
   return { user };
 }
+
 
 /** Logs + alerts on a blocked admin-panel access attempt (never throws). */
 async function reportIntrusion(

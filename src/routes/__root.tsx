@@ -14,6 +14,10 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import AppShell, { LoadingScreen } from "../components/AppShell";
 import { Toaster } from "../components/ui/sonner";
+import { installApiAuth } from "../lib/api-auth-client";
+
+// Attach the verified Telegram initData to every /api request (server verifies it).
+installApiAuth();
 
 function NotFoundComponent() {
   return (

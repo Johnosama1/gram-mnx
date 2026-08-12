@@ -183,11 +183,52 @@ function MaintenanceScreen({ message }: { message: string }) {
   );
 }
 
+/** Shown when the app is opened outside Telegram (no signed initData at all). */
+function OutsideTelegramScreen() {
+  return (
+    <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
+      <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
+      <p className="text-sm text-muted-foreground">Technical Details:</p>
+      <p className="text-sm text-foreground">
+        Missing User ID. Please open the app from Telegram bot.
+      </p>
+    </div>
+  );
+}
+
+/** null while the Telegram SDK is still loading, then true/false. */
+function useHasTelegramInitData(): boolean | null {
+  const [has, setHas] = React.useState<boolean | null>(null);
+  useEffect(() => {
+    let tries = 0;
+    const check = () => {
+      const initData = window.Telegram?.WebApp?.initData ?? '';
+      if (initData) {
+        setHas(true);
+        return true;
+      }
+      if (++tries >= 12) {
+        setHas(false);
+        return true;
+      }
+      return false;
+    };
+    if (check()) return;
+    const timer = setInterval(() => {
+      if (check()) clearInterval(timer);
+    }, 250);
+    return () => clearInterval(timer);
+  }, []);
+  return has;
+}
+
 function Shell() {
   const { isAdmin, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
+  const hasInitData = useHasTelegramInitData();
   const router = useRouter();
   const routeKey = useRouterState({ select: (st) => st.location.pathname });
+
 
   // Opened from a gift invite link → land straight on the Gift page.
   useEffect(() => {
@@ -277,8 +318,11 @@ function Shell() {
         style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
       />
 
-      {isLoading ? (
+      {hasInitData === false ? (
+        <OutsideTelegramScreen />
+      ) : isLoading || hasInitData === null ? (
         <LoadingScreen />
+
       ) : maintenance && !isAdmin ? (
         <MaintenanceScreen
           message={maintenanceMessage || '🔧 The app is under maintenance, please try again later.'}
