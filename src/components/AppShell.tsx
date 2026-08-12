@@ -11,8 +11,6 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { CoinsProvider } from '@/context/CoinsContext';
 import { MinersProvider } from '@/context/MinersContext';
-import mineBgAsset from '@/assets/mine_env_v4.jpg.asset.json';
-const mineBgImg = mineBgAsset.url;
 
 const manifestUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/tonconnect-manifest.json`;
 
@@ -90,7 +88,7 @@ export function LoadingScreen() {
   return (
     <div
       className="flex flex-col items-center justify-center h-full w-full min-h-screen gap-4"
-      style={{ backgroundColor: '#0a0b14' }}
+      style={{ backgroundColor: 'hsl(var(--background))' }}
     >
       <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
       <span className="text-primary font-bold text-lg tracking-widest animate-pulse">GRAM MNX</span>
@@ -115,7 +113,7 @@ function ChannelGate() {
   return (
     <div
       className="flex flex-col items-center justify-center h-full w-full px-6 gap-5"
-      style={{ backgroundColor: '#0a0b14' }}
+      style={{ backgroundColor: 'hsl(var(--background))' }}
     >
       <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
         <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -128,7 +126,7 @@ function ChannelGate() {
       </div>
 
       <div className="text-center">
-        <h2 className="text-white font-black text-xl mb-1">{t('gate_title')}</h2>
+        <h2 className="text-foreground font-black text-xl mb-1">{t('gate_title')}</h2>
         <p className="text-muted-foreground text-sm">{t('gate_desc')}</p>
       </div>
 
@@ -139,7 +137,7 @@ function ChannelGate() {
             href={`https://t.me/${ch.channelUsername}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-white/10 transition-all group"
+            className="flex items-center justify-between w-full bg-card/80 bg-white border border-border rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-white/10 transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -147,7 +145,7 @@ function ChannelGate() {
                   <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.88 13.47l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.834.95-.001 0-.001.001-.002.001l.466-.002z" />
                 </svg>
               </div>
-              <span className="text-white font-bold text-sm">{ch.channelName || `@${ch.channelUsername}`}</span>
+              <span className="text-foreground font-bold text-sm">{ch.channelName || `@${ch.channelUsername}`}</span>
             </div>
             <span className="text-primary text-xs font-bold group-hover:translate-x-0.5 transition-transform">{t('gate_subscribe')}</span>
           </a>
@@ -157,11 +155,11 @@ function ChannelGate() {
       <button
         onClick={handleRecheck}
         disabled={checking}
-        className="w-full bg-primary text-black font-black rounded-2xl py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-opacity"
+        className="w-full bg-primary text-primary-foreground font-black rounded-2xl py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60 transition-opacity"
       >
         {checking ? (
           <>
-            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
             {t('gate_checking')}
           </>
         ) : (
@@ -176,10 +174,10 @@ function MaintenanceScreen({ message }: { message: string }) {
   return (
     <div
       className="flex flex-col items-center justify-center h-full w-full px-8 gap-4 text-center"
-      style={{ backgroundColor: '#0a0b14' }}
+      style={{ backgroundColor: 'hsl(var(--background))' }}
     >
       <div className="text-5xl">🔧</div>
-      <h2 className="text-white font-black text-xl">GRAM MNX</h2>
+      <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
       <p className="text-muted-foreground text-sm whitespace-pre-line">{message}</p>
     </div>
   );
@@ -268,18 +266,15 @@ function Shell() {
     <div
       className="app-shell flex flex-col w-full max-w-[640px] mx-auto relative shadow-2xl overflow-hidden"
       style={{
-        backgroundImage: `url(${mineBgImg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'scroll',
+        background:
+          'radial-gradient(120% 60% at 50% 0%, hsl(262 90% 96%) 0%, hsl(250 40% 98%) 55%, hsl(250 40% 98%) 100%)',
       }}
     >
       {/* Static dark veil so cards, text and buttons stay readable on every screen */}
       <div
         aria-hidden
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(6,8,14,0.30), rgba(6,8,14,0.62))' }}
+        style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
       />
 
       {isLoading ? (
@@ -322,7 +317,7 @@ export default function AppShell() {
           <CoinsProvider>
             <WalletProvider>
               <MinersProvider>
-                <div className="app-shell bg-black flex items-center justify-center overflow-hidden">
+                <div className="app-shell bg-background flex items-center justify-center overflow-hidden">
                   <Shell />
                 </div>
               </MinersProvider>
