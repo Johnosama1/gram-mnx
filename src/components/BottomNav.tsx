@@ -1,5 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Sparkles } from 'lucide-react';
+import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Puzzle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const APP_VERSION = 'v1.0.4';
@@ -9,22 +9,21 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
   const { t } = useLanguage();
 
   const navItems = [
-    { path: '/',        label: t('nav_mine'),    icon: Pickaxe      },
+    { path: '/',        label: t('nav_mine'),    icon: Pickaxe       },
+    { path: '/gift',    label: 'Gift',           icon: Gift          },
     { path: '/tasks',   label: t('nav_tasks'),   icon: ClipboardList },
-    { path: '/combo',   label: t('nav_combo'),   icon: Sparkles     },
-    { path: '/friends', label: t('nav_friends'), icon: Users        },
-    { path: '/profile', label: t('nav_profile'), icon: User         },
+    { path: '/combo',   label: t('nav_combo'),   icon: Puzzle        },
+    { path: '/friends', label: t('nav_friends'), icon: Users         },
+    { path: '/profile', label: t('nav_profile'), icon: User          },
+    ...(showAdmin ? [{ path: '/admin', label: t('nav_admin'), icon: Shield }] : []),
   ];
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 flex flex-col items-center z-50 rounded-t-2xl border-t border-[#d9a544]/30 backdrop-blur-xl shadow-[0_-10px_30px_rgba(0,0,0,0.6)]"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        background: 'linear-gradient(180deg, rgba(14,12,8,0.82), rgba(4,4,6,0.94))',
-      }}
+      className="absolute bottom-0 left-0 right-0 z-50 px-3 pb-2"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
     >
-      <div className="flex items-center justify-around w-full px-1 min-h-[68px]">
+      <div className="flex items-center justify-around w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
         {navItems.map((item) => {
           const isActive = location === item.path;
           const Icon = item.icon;
@@ -33,20 +32,16 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             <Link
               key={item.path}
               to={item.path}
-              className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
+              className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 rounded-2xl py-2 cursor-pointer touch-manipulation transition-colors"
+              style={isActive ? { background: 'hsl(var(--secondary))' } : undefined}
             >
-              <div
-                className={`p-1.5 rounded-xl transition-all duration-200 ${
-                  isActive
-                    ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
-                    : 'text-[#c9b892]/50 border border-transparent'
-                }`}
-              >
-                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
-              </div>
+              <Icon
+                className={`w-[22px] h-[22px] ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                strokeWidth={isActive ? 2.4 : 1.9}
+              />
               <span
-                className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
-                  isActive ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
+                className={`text-[10px] font-semibold tracking-wide truncate max-w-full ${
+                  isActive ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
                 {item.label}
@@ -54,56 +49,8 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
             </Link>
           );
         })}
-
-        <Link
-          to="/gift"
-          className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
-        >
-          <div
-            className={`relative p-1.5 rounded-xl transition-all duration-200 ${
-              location === '/gift'
-                ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
-                : 'text-[#c9b892]/50 border border-transparent'
-            }`}
-          >
-            <Gift className="w-5 h-5" strokeWidth={location === '/gift' ? 2.5 : 2} />
-          </div>
-
-          <span
-            className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
-              location === '/gift' ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
-            }`}
-          >
-            Gift
-          </span>
-        </Link>
-
-
-        {showAdmin && (
-          <Link
-            to="/admin"
-            className="flex-1 min-w-0 flex flex-col items-center justify-center gap-1 py-2 cursor-pointer touch-manipulation"
-          >
-            <div
-              className={`p-1.5 rounded-xl transition-all duration-200 ${
-                location === '/admin'
-                  ? 'bg-[#d9a544]/18 text-[#f0cd7e] border border-[#d9a544]/45 shadow-[0_0_16px_rgba(230,185,95,0.35)]'
-                  : 'text-[#c9b892]/50 border border-transparent'
-              }`}
-            >
-              <Shield className="w-5 h-5" strokeWidth={location === '/admin' ? 2.5 : 2} />
-            </div>
-            <span
-              className={`text-[9px] font-bold tracking-wide truncate max-w-full ${
-                location === '/admin' ? 'text-[#f0cd7e]' : 'text-[#c9b892]/50'
-              }`}
-            >
-              {t('nav_admin')}
-            </span>
-          </Link>
-        )}
       </div>
-      <div className="text-[8px] text-white/20 font-mono pb-0.5 select-none">{APP_VERSION}</div>
+      <div className="text-center text-[8px] text-muted-foreground/50 font-mono pt-1 select-none">{APP_VERSION}</div>
     </div>
   );
 }
