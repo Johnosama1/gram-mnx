@@ -286,8 +286,8 @@ export default function Combo() {
 
 
             {/* Cards grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {ITEMS.slice(0, 3).map(item => (
+            <div className="grid grid-cols-5 gap-2">
+              {ITEMS.map(item => (
                 <ItemCard
                   key={item.id}
                   item={item}
@@ -297,17 +297,7 @@ export default function Combo() {
                 />
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-3 px-8">
-              {ITEMS.slice(3).map(item => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  selected={selected.includes(item.id)}
-                  disabled={locked}
-                  onTap={() => toggleSelect(item.id)}
-                />
-              ))}
-            </div>
+
 
 
 
