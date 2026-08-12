@@ -556,18 +556,15 @@ function SubmissionTaskCard({
     <TaskCard>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: `${accent}26`, border: `1px solid ${accent}4d` }}
-          >
+          <TaskIconBox>
             {approved ? (
-              <CheckCircle2 className="w-5 h-5 text-violet-400" />
+              <CheckCircle2 className="w-5 h-5 text-primary" />
             ) : kind === 'twitter' ? (
-              <Twitter className="w-5 h-5" style={{ color: accent }} />
+              <Twitter className="w-5 h-5 text-primary" />
             ) : (
-              <Bot className="w-5 h-5" style={{ color: accent }} />
+              <Bot className="w-5 h-5 text-primary" />
             )}
-          </div>
+          </TaskIconBox>
           <div className="min-w-0">
             <div className={`font-bold text-sm ${approved ? 'text-white/50 line-through' : 'text-white'}`}>{task.title}</div>
             {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
