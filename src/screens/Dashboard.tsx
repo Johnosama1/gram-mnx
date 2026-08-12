@@ -59,9 +59,10 @@ export default function Dashboard() {
   const card = 'rounded-2xl bg-white border border-border shadow-[0_6px_18px_rgba(88,44,180,0.07)]';
 
   return (
-    <div className="h-full flex flex-col relative w-full">
-      {/* ── scrollable content ── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-3 pt-3 pb-4">
+    <div className="h-full flex flex-col relative w-full overflow-hidden">
+      {/* ── content (fits one screen) ── */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-3 pt-2 pb-2">
+
         {/* user strip */}
         <div className={`${card} flex items-center justify-between gap-3 px-3 py-2.5 shrink-0`}>
           <div className="flex min-w-0 items-center gap-3">
