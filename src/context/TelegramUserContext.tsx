@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { API_BASE } from '@/lib/telegramApi';
 import { onDataChange } from '@/lib/apiCache';
+import { initializeTelegramWebApp } from '@/lib/telegram-bootstrap';
 
 
 type TelegramUser = {
@@ -77,13 +78,15 @@ function writeSnapshot(snap: Omit<AuthSnapshot, 'savedAt'>) {
 }
 
 export function TelegramUserProvider({ children }: { children: React.ReactNode }) {
+  // Cached data is display-only. It never marks a Telegram identity as verified;
+  // authenticated providers and API calls wait for the server handshake below.
   const cached = typeof window !== 'undefined' ? readSnapshot() : null;
 
   const [user, setUser] = useState<TelegramUser | null>(cached?.user ?? null);
-  const [isVerified, setIsVerified] = useState(Boolean(cached));
-  const [isAdmin, setIsAdmin] = useState(cached?.isAdmin ?? false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   // With a cached snapshot we render instantly and revalidate in the background.
-  const [isLoading, setIsLoading] = useState(!cached);
+  const [isLoading, setIsLoading] = useState(true);
   const [notJoinedChannels, setNotJoinedChannels] = useState<UnsubscribedChannel[]>(
     cached?.notJoinedChannels ?? [],
   );
@@ -98,6 +101,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
       method: 'POST',
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      credentials: 'include',
       body: JSON.stringify({ initData }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -125,45 +129,22 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
   }, []);
 
   useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-
-    // ── Step 1: show the real name + admin flag IMMEDIATELY from initDataUnsafe
-    const ADMIN_IDS = [6145230334, 868999453];
-    const unsafeUser = tg?.initDataUnsafe?.user;
-    const unsafeId = unsafeUser?.id;
-    if (unsafeUser && typeof unsafeId === 'number') {
-      setUser((prev) =>
-        prev?.id === unsafeId
-          ? prev
-          : {
-              id: unsafeId,
-              first_name: unsafeUser.first_name,
-              last_name: unsafeUser.last_name,
-              username: unsafeUser.username,
-              balance: 0,
-            },
-      );
-      setIsAdmin((prev) => prev || ADMIN_IDS.includes(unsafeId));
-    }
-
-    // ── Step 2: verify server-side and fetch the persisted DB balance ────────
-    const initData = tg?.initData;
-
-    if (!initData) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Safety valve: never leave the user on a loading screen forever.
-    const safetyTimer = setTimeout(() => setIsLoading(false), 8000);
-
-    doAuth(initData)
+    let disposed = false;
+    void initializeTelegramWebApp()
+      .then(async (bootstrap) => {
+        if (disposed || bootstrap.status !== 'ready') return;
+        await doAuth(bootstrap.initData);
+      })
       .catch((err) => {
-        console.warn('Telegram auth sync failed (showing cached state):', err);
+        console.error('[telegram-auth] initialization failed', err);
+        if (!disposed) {
+          setUser(null);
+          setIsVerified(false);
+          setIsAdmin(false);
+        }
       })
       .finally(() => {
-        clearTimeout(safetyTimer);
-        setIsLoading(false);
+        if (!disposed) setIsLoading(false);
       });
 
     // ── Step 3: silent background refresh when the app returns to foreground ─
@@ -181,6 +162,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
     window.addEventListener('focus', handleVisibility);
 
     return () => {
+      disposed = true;
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleVisibility);
     };

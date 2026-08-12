@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { cachedFetch, notifyDataChange } from '@/lib/apiCache';
+import { notifyDataChange } from '@/lib/apiCache';
 import { Sparkles, CheckCircle2, XCircle, Loader2, Trophy, Clock } from 'lucide-react';
 import { useCoins } from '@/context/CoinsContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 
-import { API_BASE } from '@/lib/telegramApi';
+import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
 import comboCrystal from '@/assets/combo/crystal-v2.png.asset.json';
@@ -13,9 +13,6 @@ import comboBox from '@/assets/combo/box-v2.png.asset.json';
 import comboCart from '@/assets/combo/cart-v2.png.asset.json';
 import comboFlag from '@/assets/combo/flag-v2.png.asset.json';
 import comboCoins from '@/assets/combo/coins-v2.png.asset.json';
-
-const API = API_BASE;
-function getInitData(): string { return window.Telegram?.WebApp?.initData ?? ''; }
 
 // ─── Item definitions ────────────────────────────────────────────────────────
 const ITEMS = [
@@ -67,12 +64,7 @@ export default function Combo() {
 
   // ── Load today's status ──────────────────────────────────────────────────
   useEffect(() => {
-    const initData = getInitData();
-    if (!initData) { setLoading(false); return; }
-
-    cachedFetch(`${API}/api/tasks?type=combo`, {
-      headers: { 'x-telegram-initdata': initData },
-    })
+    telegramApiFetch('/tasks?type=combo')
       .then(r => r.json())
       .then(data => {
         const attempted = data.attemptedToday ?? false;
@@ -85,7 +77,10 @@ export default function Combo() {
         }
         if (data.nextResetAt) setNextReset(new Date(data.nextResetAt).getTime());
       })
-      .catch(() => {})
+      .catch((err: unknown) => {
+        console.error('[combo] status load failed', err);
+        setError(err instanceof Error ? err.message : t('combo_error'));
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -109,11 +104,10 @@ export default function Combo() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch(`${API}/api/tasks?type=combo&action=submit`, {
+      const res = await telegramApiFetch('/tasks?type=combo&action=submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-telegram-initdata': getInitData(),
         },
         body: JSON.stringify({ selectedIds: selected }),
       });
@@ -135,6 +129,12 @@ export default function Combo() {
       if (data.success && data.reward > 0) addCoins(data.reward);
       notifyDataChange('combo', 'balance');
     } catch (e: unknown) {
+      if (e instanceof ApiError && e.status === 409) {
+        setAttempted(true);
+        setAttemptsUsed(MAX_DAILY_ATTEMPTS);
+        setError(t('combo_already_attempted'));
+        return;
+      }
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg || t('combo_submit_failed'));
     } finally {

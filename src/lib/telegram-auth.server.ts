@@ -16,7 +16,9 @@ export type TelegramAuthUser = { id: number; username?: string; first_name?: str
  * Telegram does NOT refresh initData while a Mini App session stays open in
  * the client, so a short window logs real users out with "Missing User ID".
  */
-const MAX_AUTH_AGE_SECONDS = 30 * 24 * 60 * 60;
+const MAX_AUTH_AGE_SECONDS = 24 * 60 * 60;
+const USER_COOKIE = 'gm_telegram_session';
+const USER_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function getBotToken(): string | undefined {
   const t = process.env['BOT_TOKEN'] ?? process.env['TELEGRAM_BOT_TOKEN'];
@@ -93,7 +95,69 @@ export async function extractInitData(
 
 /** Verified Telegram identity for a request, or null. */
 export async function authenticateRequest(request: Request): Promise<TelegramAuthUser | null> {
+  const sessionUser = verifyUserSession(readCookie(request, USER_COOKIE));
+  if (sessionUser) return sessionUser;
   return authenticateInitData(await extractInitData(request));
+}
+
+function userSessionKey(): Buffer {
+  const secret = process.env['TELEGRAM_SESSION_SECRET'];
+  if (!secret) throw new Error('TELEGRAM_SESSION_SECRET is not configured');
+  return createHash('sha256').update(`gm-user-session::${secret}`).digest();
+}
+
+export function signUserSession(user: TelegramAuthUser): string {
+  const payload = JSON.stringify({
+    id: user.id,
+    username: user.username ?? null,
+    first_name: user.first_name ?? null,
+    exp: Date.now() + USER_SESSION_TTL_MS,
+  });
+  const encoded = Buffer.from(payload, 'utf8').toString('base64url');
+  const signature = createHmac('sha256', userSessionKey()).update(encoded).digest('hex');
+  return `${encoded}.${signature}`;
+}
+
+function verifyUserSession(raw: string | null): TelegramAuthUser | null {
+  if (!raw) return null;
+  const [encoded, signature] = raw.split('.');
+  if (!encoded || !signature) return null;
+  let expected: string;
+  try {
+    expected = createHmac('sha256', userSessionKey()).update(encoded).digest('hex');
+  } catch {
+    return null;
+  }
+  if (!safeEqualHex(expected, signature)) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8')) as {
+      id?: number;
+      username?: string | null;
+      first_name?: string | null;
+      exp?: number;
+    };
+    if (!Number.isFinite(parsed.id) || Number(parsed.id) <= 0 || !parsed.exp || parsed.exp <= Date.now()) {
+      return null;
+    }
+    return {
+      id: Number(parsed.id),
+      username: parsed.username ?? undefined,
+      first_name: parsed.first_name ?? undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function userSessionCookieHeader(user: TelegramAuthUser): string {
+  return [
+    `${USER_COOKIE}=${encodeURIComponent(signUserSession(user))}`,
+    'Path=/',
+    'HttpOnly',
+    'Secure',
+    'SameSite=Lax',
+    `Max-Age=${Math.floor(USER_SESSION_TTL_MS / 1000)}`,
+  ].join('; ');
 }
 
 // ─── Admin panel session (password gate) ───────────────────────────────────

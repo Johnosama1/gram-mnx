@@ -14,10 +14,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import AppShell, { LoadingScreen } from "../components/AppShell";
 import { Toaster } from "../components/ui/sonner";
-import { installApiAuth } from "../lib/api-auth-client";
-
-// Attach the verified Telegram initData to every /api request (server verifies it).
-installApiAuth();
 
 function NotFoundComponent() {
   return (
@@ -109,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
     scripts: [
-      { src: "https://telegram.org/js/telegram-web-app.js", async: true },
+      { src: "https://telegram.org/js/telegram-web-app.js", defer: true, 'data-telegram-web-app-sdk': 'true' },
     ],
   }),
   shellComponent: RootShell,
@@ -120,7 +116,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

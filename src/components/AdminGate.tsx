@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
-
-const API = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL ?? '');
-
-function initData(): string {
-  return window.Telegram?.WebApp?.initData ?? '';
-}
+import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 
 /**
  * Asks the SERVER whether this browser holds a valid admin session cookie.
@@ -13,11 +8,10 @@ function initData(): string {
  */
 export async function checkAdminSession(): Promise<boolean> {
   try {
-    const res = await fetch(`${API}/api/admin/gate`, {
+    const res = await telegramApiFetch('/admin/gate', {
       method: 'GET',
       credentials: 'include',
       cache: 'no-store',
-      headers: { 'x-telegram-initdata': initData() },
     });
     if (!res.ok) return false;
     const data = (await res.json()) as { ok?: boolean };
@@ -50,21 +44,18 @@ export default function AdminGate({ onUnlock }: { onUnlock: () => void }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API}/api/admin/gate`, {
+      const res = await telegramApiFetch('/admin/gate', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'x-telegram-initdata': initData(),
         },
         body: JSON.stringify({ password }),
       });
       if (!res.ok) {
         setError(
           res.status === 401
-            ? initData()
-              ? 'كلمة السر غير صحيحة'
-              : 'Missing User ID. Please open the app from Telegram bot.'
+            ? 'كلمة السر غير صحيحة'
             : res.status === 403
               ? 'ليس لديك صلاحية الدخول'
               : 'تعذر التحقق، حاول مرة أخرى',
@@ -72,8 +63,14 @@ export default function AdminGate({ onUnlock }: { onUnlock: () => void }) {
         return;
       }
       onUnlock();
-    } catch {
-      setError('تعذر الاتصال بالخادم');
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        setError('كلمة السر غير صحيحة');
+      } else if (error instanceof ApiError && error.status === 403) {
+        setError('ليس لديك صلاحية الدخول');
+      } else {
+        setError('تعذر الاتصال بالخادم');
+      }
     } finally {
       setLoading(false);
     }
