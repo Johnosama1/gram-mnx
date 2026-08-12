@@ -1989,6 +1989,55 @@ function ComboDailySection() {
   return <ComboDailySectionInner />;
 }
 
+// ─── Daily mining percentage ──────────────────────────────────────────────
+function MiningPctSection() {
+  const [pct, setPct] = useState('5');
+  const [loading, setLoading] = useState(true);
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    api<Record<string, string>>('GET', '/admin/general?type=settings')
+      .then(s => setPct(String(s?.mining_daily_pct ?? '5')))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function save() {
+    setMsg('');
+    const n = Number(pct);
+    if (!Number.isFinite(n) || n < 0) { setMsg('نسبة غير صحيحة'); return; }
+    try {
+      await api('POST', '/admin/general?type=settings', { key: 'mining_daily_pct', value: String(n) });
+      setMsg('تم الحفظ ✅ النسبة الجديدة مطبقة على كل المستخدمين');
+    } catch (e: any) {
+      setMsg(e.message);
+    }
+  }
+
+  if (loading) return <div className="text-muted-foreground text-sm">جارٍ التحميل…</div>;
+
+  return (
+    <div className="space-y-3" dir="rtl">
+      <div className="text-xs text-muted-foreground">
+        نسبة التعدين اليومية من رصيد العملات (الافتراضي 5%). مثال: 700 عملة = 1 جرام، وبنسبة 5% يعدّن المستخدم 0.05 جرام يوميًا لكل 700 عملة.
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          step="0.1"
+          min="0"
+          value={pct}
+          onChange={e => setPct(e.target.value)}
+          className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+        />
+        <span className="text-sm text-muted-foreground">% / يوم</span>
+      </div>
+      <Btn onClick={save} className="w-full">حفظ نسبة التعدين</Btn>
+      {msg && <div className="text-xs text-primary">{msg}</div>}
+    </div>
+  );
+}
+
 // ─── StartMiner button visibility ─────────────────────────────────────────
 function MiningButtonSection() {
   const [enabled, setEnabled] = useState(true);
@@ -2850,6 +2899,9 @@ export default function Admin() {
         </Section>
         <Section title={t('admin_sec_subadmins')} icon={UserPlus}>
           <AdminsSection />
+        </Section>
+        <Section title="نسبة التعدين اليومية" icon={Sparkles}>
+          <MiningPctSection />
         </Section>
         <Section title="زر StartMiner" icon={Sparkles}>
           <MiningButtonSection />
