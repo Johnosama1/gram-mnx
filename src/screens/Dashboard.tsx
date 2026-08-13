@@ -149,7 +149,7 @@ export default function Dashboard() {
 
         {/* total earned */}
         <div className="mt-2 shrink-0 rounded-2xl bg-secondary border border-primary/15 px-3 py-2.5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
             <Gem className="w-5 h-5 text-primary" />
           </div>
           <div className="min-w-0">

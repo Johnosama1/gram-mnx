@@ -61,7 +61,7 @@ function FriendRow({ friend, index }: { friend: InvitedFriend; index: number }) 
 
   return (
     <div
-      className="border border-white/10 rounded-xl p-3 flex items-center justify-between"
+      className="border border-violet-500/20 rounded-xl p-3 flex items-center justify-between"
       style={{ backgroundColor: 'rgba(0,0,0,0.50)' }}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -78,9 +78,9 @@ function FriendRow({ friend, index }: { friend: InvitedFriend; index: number }) 
           )}
         </div>
         <div className="min-w-0">
-          <div className="text-sm text-white font-medium truncate">{friend.name}</div>
+          <div className="text-sm text-foreground font-medium truncate">{friend.name}</div>
           {friend.username && (
-            <div className="text-[11px] text-white/50 truncate">@{friend.username}</div>
+            <div className="text-[11px] text-muted-foreground truncate">@{friend.username}</div>
           )}
         </div>
       </div>
@@ -213,9 +213,9 @@ function LeaderboardModal({
           />
           <button
             onClick={onClose}
-            className="relative z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+            className="relative z-10 w-8 h-8 rounded-full bg-secondary flex items-center justify-center"
           >
-            <X className="w-4 h-4 text-white/70" />
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
           <div className="relative z-10 mt-1 flex flex-col items-center">
             <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ function LeaderboardModal({
                 {tournament ? tournament.title : t('friends_leaderboard')}
               </h2>
             </div>
-            <p className="mt-1 text-[10px] font-black tracking-[0.35em] text-white/45 uppercase">
+            <p className="mt-1 text-[10px] font-black tracking-[0.35em] text-muted-foreground uppercase">
               {tournament ? `${t('friends_ends_in')} ${countdown}` : 'THE ELITE 20'}
             </p>
           </div>
@@ -243,7 +243,7 @@ function LeaderboardModal({
             <div className="flex items-center gap-2 mb-2">
               <Trophy className="w-4 h-4 text-primary flex-shrink-0" />
               <span className="text-xs font-black text-primary">{t('friends_contest_prizes')}</span>
-              <div className="ml-auto flex items-center gap-1 text-[10px] text-white/50">
+              <div className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 {countdown}
               </div>
@@ -259,14 +259,14 @@ function LeaderboardModal({
                 );
               })}
               {tournament.prizes.filter(p => (p.coins ?? p.gram) > 0).length > 8 && (
-                <span className="text-[10px] text-white/40">+{tournament.prizes.filter(p => (p.coins ?? p.gram) > 0).length - 8} {t('friends_more_ranks')}</span>
+                <span className="text-[10px] text-muted-foreground">+{tournament.prizes.filter(p => (p.coins ?? p.gram) > 0).length - 8} {t('friends_more_ranks')}</span>
               )}
             </div>
           </div>
         )}
 
         {!tournament && (
-          <p className="text-xs text-white/40 px-5 pb-3 font-medium">{t('friends_top20')}</p>
+          <p className="text-xs text-muted-foreground px-5 pb-3 font-medium">{t('friends_top20')}</p>
         )}
 
         {/* List */}
@@ -276,7 +276,7 @@ function LeaderboardModal({
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : leaderboard.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-14 text-white/40">
+            <div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
               <img src={LEADERBOARD_ICON} alt="" className="w-14 h-14 object-contain opacity-30 mb-3" />
               <p className="text-sm font-semibold">{t('friends_no_data')}</p>
             </div>
@@ -311,7 +311,7 @@ function LeaderboardModal({
                         <StickerBadge size={28} src={MEDALS[u.rank]} />
                       </span>
                     ) : (
-                      <span className="text-sm font-black text-white/40">{u.rank}</span>
+                      <span className="text-sm font-black text-muted-foreground">{u.rank}</span>
                     )}
                   </div>
 
@@ -320,11 +320,11 @@ function LeaderboardModal({
 
                   {/* Name + username */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-white truncate">{displayName}</div>
+                    <div className="text-sm font-bold text-foreground truncate">{displayName}</div>
                     {u.username ? (
-                      <div className="text-[11px] text-white/45 truncate">@{u.username}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">@{u.username}</div>
                     ) : (
-                      <div className="text-[11px] text-white/25 truncate">#{u.telegramId}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">#{u.telegramId}</div>
                     )}
                     {prize !== null && prize > 0 && (
                       <div className="text-[10px] text-primary font-bold mt-0.5">
@@ -338,7 +338,7 @@ function LeaderboardModal({
                     <div className="text-sm font-black text-primary">
                       {Math.floor(u.balance).toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-white/40 font-semibold">MNX</div>
+                    <div className="text-[10px] text-muted-foreground font-semibold">MNX</div>
                   </div>
                 </div>
               );
@@ -399,15 +399,15 @@ const PodiumSlot = memo(function PodiumSlot({
         </div>
       </div>
       <div
-        className={`mt-3 w-full truncate text-center font-black leading-tight text-white ${big ? 'text-[14px] tracking-[0.12em]' : 'text-[12px]'}`}
+        className={`mt-3 w-full truncate text-center font-black leading-tight text-foreground ${big ? 'text-[14px] tracking-[0.12em]' : 'text-[12px]'}`}
       >
         {name}
       </div>
-      <div className="w-full truncate text-center text-[10px] text-white/40">
+      <div className="w-full truncate text-center text-[10px] text-muted-foreground">
         {u.username ? `@${u.username}` : `#${u.telegramId}`}
       </div>
       <div className={`mt-0.5 font-black text-primary ${big ? 'text-[14px]' : 'text-[11px]'}`}>
-        {Math.floor(u.balance).toLocaleString()} <span className="text-[9px] text-white/40">MNX</span>
+        {Math.floor(u.balance).toLocaleString()} <span className="text-[9px] text-muted-foreground">MNX</span>
       </div>
       {prize !== null && prize > 0 && (
         <div className="text-[10px] font-bold text-primary">🎁 +{prize.toLocaleString()}</div>
@@ -574,13 +574,13 @@ export default function Friends() {
 
       {/* Header */}
       <div className="relative z-10 mb-5 flex items-center justify-between">
-        <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">{t('friends_title')}</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight drop-shadow-lg">{t('friends_title')}</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10 hover:bg-white/20 transition-colors"
+            className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center border border-violet-500/20 hover:bg-secondary transition-colors"
           >
-            <RefreshCw className={`w-4 h-4 text-white ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-foreground ${refreshing ? 'animate-spin' : ''}`} />
           </button>
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
             <StickerBadge size={30} src={inviteFriendSticker.url} />
@@ -590,13 +590,13 @@ export default function Friends() {
 
       {/* Stats */}
       <div className="relative z-10 flex gap-3 mb-4">
-        <div className="flex-1 rounded-2xl p-4 text-center border border-white/10" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
-          <div className="text-2xl font-black text-white">{displayCount}</div>
-          <div className="text-xs text-white/70 mt-1 font-semibold">{t('friends_total_referrals')}</div>
+        <div className="flex-1 rounded-2xl p-4 text-center border border-violet-500/20" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
+          <div className="text-2xl font-black text-foreground">{displayCount}</div>
+          <div className="text-xs text-muted-foreground mt-1 font-semibold">{t('friends_total_referrals')}</div>
         </div>
         <div className="flex-1 rounded-2xl p-4 text-center border border-primary/30" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
           <div className="text-2xl font-black text-primary">{Number(displayReward).toFixed(4)}</div>
-          <div className="text-xs text-white/70 mt-1 font-semibold">{t('friends_gmr_rewards')}</div>
+          <div className="text-xs text-muted-foreground mt-1 font-semibold">{t('friends_gmr_rewards')}</div>
         </div>
         <button
           onClick={() => setShowTasks(true)}
@@ -606,29 +606,29 @@ export default function Friends() {
           <div className="text-2xl font-black text-success">
             {milestones.filter(m => m.isEnabled && !m.credited).length}
           </div>
-          <div className="text-xs text-white/70 mt-1 font-semibold">Tasks</div>
+          <div className="text-xs text-muted-foreground mt-1 font-semibold">Tasks</div>
         </button>
       </div>
 
       {/* Tasks Modal (referral milestones) */}
       {showTasks && (
         <div
-          className="fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4"
           style={{ bottom: 'var(--nav-height)' }}
           onClick={() => setShowTasks(false)}
         >
           <div
-            className="w-full max-w-md rounded-3xl border border-white/10 flex min-h-0 flex-col overflow-hidden"
+            className="w-full max-w-md rounded-3xl border border-violet-500/20 flex min-h-0 flex-col overflow-hidden"
             style={{ backgroundColor: 'rgba(10,10,10,0.97)', height: 'min(680px, calc(100% - 16px))' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 pb-3 border-b border-white/5 flex-shrink-0">
-              <h3 className="text-sm font-black text-white/80 flex items-center gap-2">
+            <div className="flex items-center justify-between p-4 pb-3 border-b border-violet-500/20 flex-shrink-0">
+              <h3 className="text-sm font-black text-muted-foreground flex items-center gap-2">
                 <Star className="w-4 h-4 text-primary" />
                 {t('friends_milestones')}
               </h3>
-              <button onClick={() => setShowTasks(false)} className="text-white/60 text-sm font-bold px-2">✕</button>
+              <button onClick={() => setShowTasks(false)} className="text-muted-foreground text-sm font-bold px-2">✕</button>
             </div>
 
             {/* Scrollable list */}
@@ -637,7 +637,7 @@ export default function Friends() {
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {milestones.filter(m => m.isEnabled && !m.credited).length === 0 && (
-                <div className="text-center text-white/50 text-sm py-6">No tasks available</div>
+                <div className="text-center text-muted-foreground text-sm py-6">No tasks available</div>
               )}
               <div className="space-y-2 pb-8">
                 {milestones.filter(m => m.isEnabled && !m.credited).map(m => {
@@ -650,28 +650,28 @@ export default function Friends() {
                           ? 'bg-success/10 border-success/30'
                           : m.reached
                           ? 'bg-primary/10 border-primary/30'
-                          : 'bg-white/5 border-white/10'
+                          : 'bg-secondary border-violet-500/20'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        m.credited ? 'bg-success/20' : m.reached ? 'bg-primary/20' : 'bg-white/10'
+                        m.credited ? 'bg-success/20' : m.reached ? 'bg-primary/20' : 'bg-secondary'
                       }`}>
-                        <Gift className={`w-5 h-5 ${m.credited ? 'text-success' : m.reached ? 'text-primary' : 'text-white/40'}`} />
+                        <Gift className={`w-5 h-5 ${m.credited ? 'text-success' : m.reached ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-bold text-white">{m.inviteCount} {t('friends_invites_word')}</span>
-                          <span className={`text-xs font-black ${m.credited ? 'text-success' : m.reached ? 'text-primary' : 'text-white/60'}`}>
+                          <span className="text-sm font-bold text-foreground">{m.inviteCount} {t('friends_invites_word')}</span>
+                          <span className={`text-xs font-black ${m.credited ? 'text-success' : m.reached ? 'text-primary' : 'text-muted-foreground'}`}>
                             +{m.rewardCoins} MNX
                           </span>
                         </div>
-                        <div className="w-full bg-black/40 rounded-full h-1.5">
+                        <div className="w-full bg-secondary rounded-full h-1.5">
                           <div
                             className={`h-1.5 rounded-full transition-all ${m.credited ? 'bg-success' : 'bg-primary'}`}
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
-                        <div className="text-[10px] text-white/50 mt-0.5">
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
                           {m.credited
                             ? t('friends_reward_claimed')
                             : m.reached
@@ -689,14 +689,14 @@ export default function Friends() {
       )}
 
       {/* Invite Card */}
-      <div className="relative z-10 backdrop-blur-sm border border-white/10 rounded-3xl p-5 mb-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
+      <div className="relative z-10 backdrop-blur-sm border border-violet-500/20 rounded-3xl p-5 mb-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shadow-[0_0_15px_rgba(245,166,35,0.2)]">
             <StickerBadge size={38} src={inviteFriendSticker.url} />
           </div>
           <div>
-            <h2 className="text-lg font-black text-white">{t('friends_invite_title')}</h2>
-            <p className="text-sm text-white/80">
+            <h2 className="text-lg font-black text-foreground">{t('friends_invite_title')}</h2>
+            <p className="text-sm text-muted-foreground">
               {t('friends_invite_desc', { reward: '1' })}
             </p>
           </div>
@@ -705,15 +705,15 @@ export default function Friends() {
         {/* Referral Link + Leaderboard Button */}
         <div className="flex gap-2 mb-4">
           {/* Referral Link Box */}
-          <div className="flex-1 rounded-xl p-3 border border-white/10" style={{ backgroundColor: 'rgba(0,0,0,0.50)' }}>
-            <div className="text-[10px] text-white/60 mb-1 font-semibold">{t('friends_referral_link')}</div>
+          <div className="flex-1 rounded-xl p-3 border border-violet-500/20" style={{ backgroundColor: 'rgba(0,0,0,0.50)' }}>
+            <div className="text-[10px] text-muted-foreground mb-1 font-semibold">{t('friends_referral_link')}</div>
             <div className="text-xs text-primary font-mono break-all">{referralLink}</div>
           </div>
 
           {/* Leaderboard Button */}
           <button
             onClick={handleOpenLeaderboard}
-            className="w-[60px] flex-shrink-0 rounded-xl border border-white/20 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform overflow-hidden"
+            className="w-[60px] flex-shrink-0 rounded-xl border border-violet-500/20 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform overflow-hidden"
             style={{ backgroundColor: '#ffffff' }}
           >
             <img
@@ -737,7 +737,7 @@ export default function Friends() {
           </button>
           <button
             onClick={handleCopy}
-            className="px-4 py-3 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center gap-2 transition-colors font-bold text-sm border border-white/10"
+            className="px-4 py-3 rounded-xl bg-secondary hover:bg-secondary text-foreground flex items-center justify-center gap-2 transition-colors font-bold text-sm border border-violet-500/20"
           >
             {copied ? <CheckCircle2 className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
             {copied ? t('friends_copied') : t('friends_copy')}
@@ -746,15 +746,15 @@ export default function Friends() {
       </div>
 
       {/* How it works */}
-      <div className="relative z-10 border border-white/10 rounded-2xl p-4 mb-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
-        <h3 className="text-sm font-black text-white mb-3">{t('friends_how_it_works')}</h3>
+      <div className="relative z-10 border border-violet-500/20 rounded-2xl p-4 mb-4" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}>
+        <h3 className="text-sm font-black text-foreground mb-3">{t('friends_how_it_works')}</h3>
         <div className="space-y-2">
           {steps.map((step, i) => (
             <div key={i} className="flex items-center justify-between gap-3">
               <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black text-xs flex-shrink-0">
                 {i + 1}
               </div>
-              <span className="text-sm text-white/85 font-medium">{step}</span>
+              <span className="text-sm text-muted-foreground font-medium">{step}</span>
             </div>
           ))}
         </div>
@@ -764,14 +764,14 @@ export default function Friends() {
 
       {/* Friends List */}
       <div className="relative z-10 flex-1 pb-40">
-        <h3 className="text-xs font-black text-white/60 mb-3 tracking-widest">
+        <h3 className="text-xs font-black text-muted-foreground mb-3 tracking-widest">
           {t('friends_your_friends', { count: String(friends.length || displayCount) })}
         </h3>
         {(friends.length || displayCount) === 0 ? (
-          <div className="flex flex-col items-center justify-center h-32 rounded-2xl border border-white/10 border-dashed" style={{ backgroundColor: 'rgba(0,0,0,0.40)' }}>
-            <Users className="w-8 h-8 text-white/30 mb-2" />
-            <p className="text-sm font-medium text-white/60">{t('friends_no_friends')}</p>
-            <p className="text-xs text-white/40 mt-1">{t('friends_share_to_earn')}</p>
+          <div className="flex flex-col items-center justify-center h-32 rounded-2xl border border-violet-500/20 border-dashed" style={{ backgroundColor: 'rgba(0,0,0,0.40)' }}>
+            <Users className="w-8 h-8 text-muted-foreground mb-2" />
+            <p className="text-sm font-medium text-muted-foreground">{t('friends_no_friends')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('friends_share_to_earn')}</p>
           </div>
         ) : (
           <div className="space-y-2">

@@ -118,7 +118,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
             <CalendarCheck className="w-6 h-6 text-primary" />
           </TaskIconBox>
           <div className="min-w-0">
-            <div className="font-bold text-sm text-white">{t('tasks_checkin_title')}</div>
+            <div className="font-bold text-sm text-foreground">{t('tasks_checkin_title')}</div>
             <div className="text-xs text-muted-foreground mt-0.5">
               {t('tasks_checkin_day', { day: String(displayDay), reward: String(rewards[displayDay - 1] ?? 0) })}
             </div>
@@ -157,8 +157,8 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
                 border: `1px solid ${claimed ? 'rgba(139,92,246,0.35)' : isNext ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'}`,
               }}
             >
-              <div className="text-[9px] text-white/40 whitespace-nowrap">{t('tasks_checkin_day_short', { day: String(day) })}</div>
-              <div className="text-[11px] font-bold text-white">{r}</div>
+              <div className="text-[9px] text-muted-foreground whitespace-nowrap">{t('tasks_checkin_day_short', { day: String(day) })}</div>
+              <div className="text-[11px] font-bold text-foreground">{r}</div>
             </div>
           );
         })}
@@ -266,13 +266,13 @@ function PartnerTaskCard({
             fallback={<Radio className="w-5 h-5 text-primary" />}
           />
           <div className="min-w-0">
-            <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
+            <div className={`font-bold text-sm truncate ${isDone ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
               {task.title}
             </div>
             {task.description && (
-              <p className="text-xs text-white/40 mt-0.5 truncate">{task.description}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">{task.description}</p>
             )}
-            <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
+            <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-muted-foreground' : 'text-primary'}`}>
               +{task.reward} MNX
             </div>
           </div>
@@ -371,8 +371,8 @@ function TwitterLinkCard({
           <Twitter className="w-5 h-5 text-primary" />
         </TaskIconBox>
         <div className="min-w-0">
-          <div className="font-bold text-sm text-white">{t('tasks_x_account')}</div>
-          <p className="text-xs text-white/50 mt-0.5">
+          <div className="font-bold text-sm text-foreground">{t('tasks_x_account')}</div>
+          <p className="text-xs text-muted-foreground mt-0.5">
             {handle ? t('tasks_x_linked', { handle }) : t('tasks_x_link_hint')}
           </p>
         </div>
@@ -385,7 +385,7 @@ function TwitterLinkCard({
             onChange={(e) => setValue(e.target.value)}
             dir="ltr"
             placeholder={t('tasks_x_placeholder')}
-            className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-primary/50"
+            className="flex-1 min-w-0 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary/50"
           />
           <button
             onClick={link}
@@ -454,11 +454,11 @@ function TwitterTaskCard({
           )}
         </TaskIconBox>
         <div className="min-w-0 flex-1">
-          <div className={`font-bold text-sm ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
+          <div className={`font-bold text-sm ${isDone ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
             {task.title}
           </div>
-          {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
-          <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
+          {task.description && <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>}
+          <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-muted-foreground' : 'text-primary'}`}>
             +{task.reward} MNX
           </div>
         </div>
@@ -566,9 +566,9 @@ function SubmissionTaskCard({
             )}
           </TaskIconBox>
           <div className="min-w-0">
-            <div className={`font-bold text-sm ${approved ? 'text-white/50 line-through' : 'text-white'}`}>{task.title}</div>
-            {task.description && <p className="text-xs text-white/40 mt-0.5">{task.description}</p>}
-            <div className={`text-xs font-black mt-0.5 ${approved ? 'text-white/30' : 'text-primary'}`}>+{task.reward} MNX</div>
+            <div className={`font-bold text-sm ${approved ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{task.title}</div>
+            {task.description && <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>}
+            <div className={`text-xs font-black mt-0.5 ${approved ? 'text-muted-foreground' : 'text-primary'}`}>+{task.reward} MNX</div>
           </div>
         </div>
         {openLink && !approved && (
@@ -602,7 +602,7 @@ function SubmissionTaskCard({
                   onChange={(e) => setValue(e.target.value)}
                   dir="ltr"
                   placeholder={kind === 'twitter' ? t('tasks_x_placeholder') : 'https://t.me/bot?start=...'}
-                  className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-primary/50"
+                  className="flex-1 min-w-0 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-xs focus:outline-none focus:border-primary/50"
                 />
                 <button
                   onClick={submit}
@@ -670,11 +670,11 @@ function FriendsMilestones() {
               {m.reached ? <CheckCircle2 className="w-5 h-5 text-primary" /> : <Users className="w-5 h-5 text-primary" />}
             </TaskIconBox>
             <div className="min-w-0">
-              <div className="text-white font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
+              <div className="text-foreground font-bold text-sm">{t('tasks_invite_n', { n: String(m.inviteCount) })}</div>
               <div className="text-xs text-primary font-black">+{m.rewardCoins} MNX</div>
             </div>
           </div>
-          <div className={`text-xs font-bold flex-shrink-0 ${m.reached ? 'text-primary' : 'text-white/35'}`}>
+          <div className={`text-xs font-bold flex-shrink-0 ${m.reached ? 'text-primary' : 'text-muted-foreground'}`}>
             {m.reached ? t('tasks_done') : `${count}/${m.inviteCount}`}
           </div>
         </TaskCard>
@@ -892,7 +892,7 @@ export default function Tasks() {
       <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} />
 
       <div className="relative z-10 mb-3 flex items-center justify-between">
-        <h1 className="text-3xl font-black text-white tracking-tight">{t('tasks_header')}</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight">{t('tasks_header')}</h1>
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
           <StickerBadge size={30} src={bookmarkSticker.url} />
         </div>
@@ -1018,14 +1018,14 @@ export default function Tasks() {
                   <TaskAvatar
                     task={task}
                     isDone={isDone}
-                    fallback={<Circle className="w-5 h-5 text-white/30" />}
+                    fallback={<Circle className="w-5 h-5 text-muted-foreground" />}
                   />
                   <div className="min-w-0">
-                    <div className={`font-bold text-sm truncate ${isDone ? 'text-white/50 line-through' : 'text-white'}`}>
+                    <div className={`font-bold text-sm truncate ${isDone ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                       {task.title}
                     </div>
-                    {task.description && <p className="text-xs text-white/40 mt-0.5 truncate">{task.description}</p>}
-                    <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-white/30' : 'text-primary'}`}>
+                    {task.description && <p className="text-xs text-muted-foreground mt-0.5 truncate">{task.description}</p>}
+                    <div className={`text-xs font-black mt-0.5 ${isDone ? 'text-muted-foreground' : 'text-primary'}`}>
                       +{task.reward} MNX
                     </div>
                   </div>
@@ -1033,7 +1033,7 @@ export default function Tasks() {
 
                 <div className="flex flex-col gap-1 flex-shrink-0 items-end">
                   {slotsFull ? (
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs font-bold">
+                    <div className="px-3 py-1.5 rounded-full bg-secondary border border-violet-500/20 text-muted-foreground text-xs font-bold">
                       {t('tasks_full')}
                     </div>
                   ) : isCountingDown ? (
@@ -1053,7 +1053,7 @@ export default function Tasks() {
                         <button
                           onClick={() => handleChannelVerify(task)}
                           disabled={isCompleting}
-                          className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold"
+                          className="px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary text-foreground text-xs font-bold"
                         >
                           {isCompleting ? '...' : t('tasks_verify')}
                         </button>
@@ -1062,7 +1062,7 @@ export default function Tasks() {
                       <button
                         onClick={() => handleComplete(task)}
                         disabled={isCompleting}
-                        className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                        className="px-4 py-2 rounded-full bg-secondary hover:bg-secondary text-foreground text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
                       >
                         {isCompleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-3 h-3" />}
                         {t('tasks_complete')}
@@ -1075,10 +1075,10 @@ export default function Tasks() {
               {slotLimit > 0 && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-[11px] font-bold mb-1">
-                    <span className="text-white/40">{t('tasks_joined')}</span>
+                    <span className="text-muted-foreground">{t('tasks_joined')}</span>
                     <span className="text-primary">{slotsFilled}/{slotLimit}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{

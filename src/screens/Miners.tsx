@@ -198,7 +198,7 @@ function PackageModal({
         {/* Close */}
         <div className="flex justify-end px-4 pt-3">
           <button onClick={onClose} className="p-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -350,8 +350,8 @@ function PackageModal({
               className="flex-shrink-0 flex items-center justify-center rounded-full"
               style={{ width: 38, height: 38, background: 'rgba(255,255,255,0.2)' }}
             >
-              {status === 'loading' ? <Loader2 className="w-5 h-5 text-white animate-spin" />
-               : status === 'ok'    ? <CheckCircle2 className="w-5 h-5 text-white" />
+              {status === 'loading' ? <Loader2 className="w-5 h-5 text-foreground animate-spin" />
+               : status === 'ok'    ? <CheckCircle2 className="w-5 h-5 text-foreground" />
                : <span style={{ fontSize: 20 }}>◈</span>}
             </div>
             <div className="text-left">
@@ -415,14 +415,14 @@ export default function Store() {
         {/* Top row */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-lg font-black text-white">{t('store_title')}</h1>
-            <p className="text-[10px] text-white/40 mt-0.5">
+            <h1 className="text-lg font-black text-foreground">{t('store_title')}</h1>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
               {settings.coinsPerGram} MNX = 1 GRAM
             </p>
           </div>
-          <div className="flex items-center gap-1.5 bg-black/60 border border-primary/30 rounded-xl px-3 py-1.5">
+          <div className="flex items-center gap-1.5 bg-secondary border border-primary/30 rounded-xl px-3 py-1.5">
             <span className="text-primary font-bold text-sm">{coins.toLocaleString()}</span>
-            <span className="text-white/50 text-xs">MNX</span>
+            <span className="text-muted-foreground text-xs">MNX</span>
           </div>
         </div>
 
@@ -440,7 +440,7 @@ export default function Store() {
           style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.15)' }}
         >
           <Download className="w-3.5 h-3.5 text-primary/60 flex-shrink-0" />
-          <p className="text-[10px] text-white/40 leading-tight">
+          <p className="text-[10px] text-muted-foreground leading-tight">
             {t('store_deposit_hint')}
           </p>
         </div>
@@ -465,7 +465,7 @@ export default function Store() {
         {/* Purchase history */}
         {history.length > 0 && (
           <div>
-            <p className="text-[10px] font-black text-white/40 mb-2 flex items-center gap-1.5 uppercase tracking-widest">
+            <p className="text-[10px] font-black text-muted-foreground mb-2 flex items-center gap-1.5 uppercase tracking-widest">
               <Clock className="w-3 h-3" /> {t('store_recent_purchases')}
             </p>
             <div className="space-y-1.5">
@@ -473,10 +473,10 @@ export default function Store() {
                 <div key={h.id} className="flex items-center justify-between rounded-xl px-3 py-2.5"
                   style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div>
-                    <div className="text-white font-bold text-xs">
+                    <div className="text-foreground font-bold text-xs">
                       {h.gram_amount.toFixed(2)} gram → <span className="text-primary">{h.coins_amount.toLocaleString()} MNX</span>
                     </div>
-                    <div className="text-white/30 text-[9px]">{new Date(h.created_at).toLocaleDateString(lang)}</div>
+                    <div className="text-muted-foreground text-[9px]">{new Date(h.created_at).toLocaleDateString(lang)}</div>
                   </div>
                   <CheckCircle2 className="w-3.5 h-3.5 text-primary/60 flex-shrink-0" />
                 </div>

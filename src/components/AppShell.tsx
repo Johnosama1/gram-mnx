@@ -137,7 +137,7 @@ function ChannelGate() {
             href={`https://t.me/${ch.channelUsername}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full bg-card/80 bg-white border border-border rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-white/10 transition-all group"
+            className="flex items-center justify-between w-full bg-card/80 bg-white border border-border rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-secondary transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">

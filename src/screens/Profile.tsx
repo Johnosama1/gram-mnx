@@ -87,14 +87,14 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
           onClick={onClose}
           className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
-        <h2 className="text-lg font-black text-white">{t('swap_gram_to_coin')}</h2>
+        <h2 className="text-lg font-black text-foreground">{t('swap_gram_to_coin')}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
         {/* Rate info */}
         <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 text-center">
           <div className="text-primary font-black text-lg">1 GRAM = {gramToCoinsRate.toLocaleString()} {t('unit_coin')}</div>
-          <div className="text-xs text-white/60 mt-1">{t('swap_rate')}</div>
+          <div className="text-xs text-muted-foreground mt-1">{t('swap_rate')}</div>
         </div>
 
         {/* From */}
@@ -109,7 +109,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
               value={inputVal}
               onChange={e => { setInputVal(e.target.value); setStatus({ type: 'idle', msg: '' }); }}
               placeholder="0.00"
-              className="flex-1 bg-transparent text-2xl font-black text-white outline-none"
+              className="flex-1 bg-transparent text-2xl font-black text-foreground outline-none"
               dir="ltr"
             />
             <div className="bg-primary/20 border border-primary/40 rounded-xl px-3 py-1.5">
@@ -129,11 +129,11 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('swap_to')}</div>
           <div className="flex items-center gap-3">
-            <div className="flex-1 text-2xl font-black text-white/70">
+            <div className="flex-1 text-2xl font-black text-muted-foreground">
               {inputNum > 0 ? outputNum.toLocaleString() : '0'}
             </div>
-            <div className="bg-white/10 border border-white/20 rounded-xl px-3 py-1.5">
-              <span className="text-white font-black text-sm">{t('unit_coin')}</span>
+            <div className="bg-secondary border border-violet-500/20 rounded-xl px-3 py-1.5">
+              <span className="text-foreground font-black text-sm">{t('unit_coin')}</span>
             </div>
           </div>
         </div>
@@ -162,9 +162,9 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('swap_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-secondary border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-white text-sm">
+                  <div className="font-bold text-foreground text-sm">
                     {h.direction === 'gram_to_coins'
                       ? `${h.gram_amount} GRAM → ${h.coins_amount.toLocaleString()} ${t('unit_coin')}`
                       : `${h.coins_amount.toLocaleString()} ${t('unit_coin')} → ${h.gram_amount} GRAM`}
@@ -389,7 +389,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
               value={amount}
               onChange={e => { setAmount(e.target.value); setStatus({ type: 'idle', msg: '' }); }}
               placeholder="0.00"
-              className="flex-1 bg-transparent text-3xl font-black text-white outline-none"
+              className="flex-1 bg-transparent text-3xl font-black text-foreground outline-none"
               dir="ltr"
               min="0"
               step="0.01"
@@ -399,7 +399,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
             </div>
           </div>
           {amtNum > 0 && (
-            <div className="text-xs text-white/40">≈ {amtNum.toFixed(4)} GRAM</div>
+            <div className="text-xs text-muted-foreground">≈ {amtNum.toFixed(4)} GRAM</div>
           )}
           <div className="text-xs text-primary/70 font-bold">{t('min_label')} {minDeposit} GRAM</div>
 
@@ -431,7 +431,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
         </button>
 
         {/* Info footer */}
-        <div className="bg-black/30 border border-violet-500/15 rounded-2xl p-4">
+        <div className="bg-secondary border border-violet-500/15 rounded-2xl p-4">
           <div className="grid grid-cols-2 gap-y-2 text-xs text-gray-400">
             <span>{t('deposit_payment_method')}</span>
             <span className="text-right text-blue-400 font-bold">TON Connect</span>
@@ -448,9 +448,9 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('deposit_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-secondary border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-white text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
+                  <div className="font-bold text-foreground text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
                   <div className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString(lang)}</div>
                 </div>
                 <div className={`text-xs font-bold ${statusColor(h.status)}`}>{statusLabel(h.status)}</div>
@@ -467,7 +467,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('deposit_title')}</h2>
+        <h2 className="text-lg font-black text-foreground">{t('deposit_title')}</h2>
       </div>
       {body}
     </div>
@@ -553,7 +553,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
           {walletAddress ? (
-            <div className="font-mono text-sm text-white/80 break-all">{toFriendlyAddress(walletAddress)}</div>
+            <div className="font-mono text-sm text-muted-foreground break-all">{toFriendlyAddress(walletAddress)}</div>
           ) : (
             <div className="text-red-400 text-sm font-medium">{t('withdraw_no_wallet')}</div>
           )}
@@ -561,7 +561,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
 
         {/* Balance */}
         <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 text-center">
-          <div className="text-xs text-white/60 mb-1">{t('withdraw_available')}</div>
+          <div className="text-xs text-muted-foreground mb-1">{t('withdraw_available')}</div>
           <div className="text-3xl font-black text-primary">{holdingWallet.toFixed(4)} GRAM</div>
         </div>
 
@@ -574,7 +574,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
               value={amount}
               onChange={e => setAmount(e.target.value)}
               placeholder="0.00"
-              className="flex-1 min-w-0 bg-transparent text-3xl font-black text-white outline-none"
+              className="flex-1 min-w-0 bg-transparent text-3xl font-black text-foreground outline-none"
               dir="ltr"
             />
             <button
@@ -620,9 +620,9 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
           <div className="space-y-2 pb-4">
             <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('withdraw_history')}</div>
             {history.map(h => (
-              <div key={h.id} className="bg-black/40 border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
+              <div key={h.id} className="bg-secondary border border-violet-500/15 rounded-xl p-3 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-white text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
+                  <div className="font-bold text-foreground text-sm">{Number(h.amount).toFixed(4)} GRAM</div>
                   <div className="text-xs text-muted-foreground">{new Date(h.created_at).toLocaleDateString(lang)}</div>
                 </div>
                 <div className={`text-xs font-bold ${statusColor(h.status)}`}>{statusLabel(h.status)}</div>
@@ -639,7 +639,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
-        <h2 className="text-lg font-black text-white">{t('withdraw_title')}</h2>
+        <h2 className="text-lg font-black text-foreground">{t('withdraw_title')}</h2>
       </div>
       {body}
     </div>
@@ -689,7 +689,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
           onClick={back}
           className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
-        <h2 className="text-lg font-black text-white">{t('support_title')}</h2>
+        <h2 className="text-lg font-black text-foreground">{t('support_title')}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-3">
@@ -697,13 +697,13 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
           <>
             <button
               onClick={() => setView('pick')}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <StickerBadge size={30} src={supportBalloonSticker.url} />
               </div>
               <div className="flex-1">
-                <div className="font-bold text-white mb-0.5">{t('support_complaints')}</div>
+                <div className="font-bold text-foreground mb-0.5">{t('support_complaints')}</div>
                 <div className="text-xs text-muted-foreground">{t('support_complaints_desc')}</div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -711,13 +711,13 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <Link
               to="/faq"
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <HelpCircle className="w-5 h-5" />
               </div>
               <div className="flex-1">
-                <div className="font-bold text-white mb-0.5">{t('faq_title')}</div>
+                <div className="font-bold text-foreground mb-0.5">{t('faq_title')}</div>
                 <div className="text-xs text-muted-foreground">{t('faq_desc')}</div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -725,13 +725,13 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <button
               onClick={openSupportChat}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-success/15 flex items-center justify-center text-success">
                 <Headphones className="w-5 h-5" />
               </div>
               <div className="flex-1">
-                <div className="font-bold text-white mb-0.5">{t('support_direct')}</div>
+                <div className="font-bold text-foreground mb-0.5">{t('support_direct')}</div>
                 <div className="text-xs text-muted-foreground">{t('support_direct_desc', { account: SUPPORT_ACCOUNT })}</div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -744,22 +744,22 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">{t('support_pick_type')}</p>
             <button
               onClick={() => { setKind('complaint'); setView('form'); }}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-destructive/15 flex items-center justify-center text-destructive">
                 <MessageSquare className="w-5 h-5" />
               </div>
-              <div className="flex-1 font-bold text-white">{t('support_complaint')}</div>
+              <div className="flex-1 font-bold text-foreground">{t('support_complaint')}</div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
             <button
               onClick={() => { setKind('suggestion'); setView('form'); }}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-white/10 transition-colors"
+              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <Lightbulb className="w-5 h-5" />
               </div>
-              <div className="flex-1 font-bold text-white">{t('support_suggestion')}</div>
+              <div className="flex-1 font-bold text-foreground">{t('support_suggestion')}</div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           </>
@@ -767,7 +767,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
         {view === 'form' && (
           <>
-            <div className="text-sm font-bold text-white">
+            <div className="text-sm font-bold text-foreground">
               {kind === 'complaint' ? t('support_write_complaint') : t('support_write_suggestion')}
             </div>
             <textarea
@@ -855,7 +855,7 @@ export default function Profile() {
           <div className="absolute bottom-0 right-0 w-6 h-6 bg-success rounded-full border-2 border-background shadow-[0_0_10px_rgba(0,255,136,0.5)]" />
         </div>
         <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-black text-white tracking-tight">{userName}</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">{userName}</h1>
           <StickerBadge src={capWingsSticker.url} size={30} />
         </div>
 
@@ -879,13 +879,13 @@ export default function Profile() {
         {/* Wallet (connect + deposit/withdraw hub) */}
         <div
           onClick={() => (walletAddress ? setShowWalletHub(true) : setShowWallet(true))}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
+          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={walletSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">Wallet</div>
+            <div className="font-bold text-foreground mb-0.5">Wallet</div>
             <div className="text-xs text-muted-foreground">
               {walletAddress ? `${t('deposit_title')} • ${t('profile_withdraw')}` : t('profile_wallet_desc')}
             </div>
@@ -897,13 +897,13 @@ export default function Profile() {
         {/* Swap */}
         <div
           onClick={() => setShowSwap(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
+          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={30} src={swapSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_swap')}</div>
+            <div className="font-bold text-foreground mb-0.5">{t('profile_swap')}</div>
             <div className="text-xs text-muted-foreground">{t('profile_swap_desc')}</div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -912,13 +912,13 @@ export default function Profile() {
         {/* Settings */}
         <div
           onClick={() => setShowSettings(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
+          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={gearSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('profile_settings')}</div>
+            <div className="font-bold text-foreground mb-0.5">{t('profile_settings')}</div>
             <div className="text-xs text-muted-foreground">{t('profile_settings_desc')}</div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -927,13 +927,13 @@ export default function Profile() {
         {/* Support */}
         <div
           onClick={() => setShowSupport(true)}
-          className="bg-[#171522]/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-[#201b36]/90 transition-colors"
+          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
             <StickerBadge size={32} src={supportBalloonSticker.url} />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white mb-0.5">{t('support_complaints')}</div>
+            <div className="font-bold text-foreground mb-0.5">{t('support_complaints')}</div>
             <div className="text-xs text-muted-foreground">{t('support_complaints_desc')}</div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -957,13 +957,13 @@ export default function Profile() {
               onClick={() => setShowWalletHub(false)}
               className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
             >‹</button>
-            <h2 className="text-lg font-black text-white">Wallet</h2>
+            <h2 className="text-lg font-black text-foreground">Wallet</h2>
           </div>
 
           <div className="px-4 py-4">
             <div className="rounded-2xl bg-violet-500/[0.07] border border-violet-500/25 p-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-bold uppercase">{t('profile_wallet_connection')}</span>
-              <span className="font-mono text-[11px] text-white">{shortAddr ?? '—'}</span>
+              <span className="font-mono text-[11px] text-foreground">{shortAddr ?? '—'}</span>
             </div>
           </div>
 
@@ -975,7 +975,7 @@ export default function Profile() {
                   key={tab}
                   onClick={() => setWalletTab(tab)}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black transition-colors ${
-                    walletTab === tab ? 'bg-primary text-black' : 'text-white/70 hover:bg-violet-500/15'
+                    walletTab === tab ? 'bg-primary text-black' : 'text-muted-foreground hover:bg-violet-500/15'
                   }`}
                 >
                   <StickerBadge size={20} src={tab === 'deposit' ? downloadSticker.url : purseSticker.url} />
@@ -1006,7 +1006,7 @@ export default function Profile() {
               onClick={() => setShowSettings(false)}
               className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
             >‹</button>
-            <h2 className="text-lg font-black text-white">{t('profile_settings')}</h2>
+            <h2 className="text-lg font-black text-foreground">{t('profile_settings')}</h2>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
@@ -1020,7 +1020,7 @@ export default function Profile() {
                   className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-colors ${
                     lang === l.value
                       ? 'bg-primary/15 border-primary/50 text-white'
-                      : 'bg-violet-500/[0.07] border-violet-500/25 text-white/70 hover:bg-violet-500/15'
+                      : 'bg-violet-500/[0.07] border-violet-500/25 text-muted-foreground hover:bg-violet-500/15'
                   }`}
                 >
                   {l.value === 'en' ? (
