@@ -170,17 +170,38 @@ export default function Dashboard() {
             style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
           />
           <div
-            className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
-            style={{ perspective: '900px' }}
+            className={`gem3d-stage relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            <img
-              src={crystalGem}
-              alt="GRAM MNX mining crystal"
-              width={1024}
-              height={660}
-              className="min-h-0 max-h-[68%] max-w-[78%] w-auto object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)] animate-[gem-spin-3d_7s_cubic-bezier(0.45,0,0.55,1)_infinite]"
-              style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'visible' }}
-            />
+            {/* volumetric crystal: facet layers spun together so it never flattens */}
+            <div
+              className="relative min-h-0 max-h-[68%] max-w-[78%] w-auto drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)]"
+              style={{ aspectRatio: '1024 / 660', height: '68%', animation: 'gem-bob 4.5s ease-in-out infinite' }}
+            >
+              <div className="gem3d-solid absolute inset-0">
+                {Array.from({ length: 12 }).map((_, i) => {
+                  const angle = (i * 180) / 12;
+                  const depth = Math.cos((angle * Math.PI) / 180) * 6;
+                  return (
+                    <div
+                      key={i}
+                      className="gem3d-facet"
+                      style={{
+                        transform: `rotateY(${angle}deg) translateZ(${depth}px)`,
+                        opacity: i === 0 ? 1 : 0.3,
+                      }}
+                    >
+                      <img
+                        src={crystalGem}
+                        alt={i === 0 ? 'GRAM MNX mining crystal' : ''}
+                        aria-hidden={i !== 0}
+                        width={1024}
+                        height={660}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
             <img
               src={crystalBase}
               alt=""

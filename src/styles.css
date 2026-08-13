@@ -349,3 +349,36 @@ body {
   75%  { transform: perspective(900px) rotateX(-4deg) rotateY(270deg) rotateZ(-2deg) scale(0.94); }
   100% { transform: perspective(900px) rotateX(6deg) rotateY(360deg) rotateZ(0deg) scale(1); }
 }
+
+/* ── Volumetric 3D crystal: a stack of facet layers spun as one solid ── */
+@keyframes gem-spin-y {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+@keyframes gem-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2.5%); }
+}
+.gem3d-stage {
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+.gem3d-solid {
+  transform-style: preserve-3d;
+  animation: gem-spin-y 9s linear infinite;
+  will-change: transform;
+}
+.gem3d-facet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: visible;
+  transform-style: preserve-3d;
+}
+.gem3d-facet > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
