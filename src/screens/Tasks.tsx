@@ -131,7 +131,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
           className="flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5"
           style={{
             background: canClaim ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
-            color: canClaim ? '#000' : 'rgba(255,255,255,0.3)',
+            color: canClaim ? '#fff' : '#9a97ad',
             cursor: canClaim ? 'pointer' : 'not-allowed',
           }}
         >
@@ -910,8 +910,8 @@ export default function Tasks() {
                 className="px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all active:scale-95"
                 style={{
                   background: active ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
-                  color: active ? '#000' : 'rgba(255,255,255,0.6)',
-                  border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
+                  color: active ? '#fff' : '#6b6880',
+                  border: `1px solid ${active ? 'transparent' : 'rgba(139,92,246,0.20)'}`,
                 }}
               >
                 {t(item.labelKey)}

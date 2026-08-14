@@ -258,7 +258,7 @@ function PackageModal({
                     style={{
                       width: 34, height: 34,
                       background: isSelected ? 'rgba(245,166,35,0.15)' : 'rgba(139,92,246,0.10)',
-                      border: `1px solid ${isSelected ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                      border: `1px solid ${isSelected ? 'rgba(245,166,35,0.4)' : 'rgba(139,92,246,0.20)'}`,
                     }}
                   >
                     {d.dayIcon
