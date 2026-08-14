@@ -44,11 +44,11 @@
   --primary: 262 83% 62%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 258 60% 96%;
+  --secondary: 255 100% 96%;
   --secondary-foreground: 262 60% 35%;
 
-  --muted: 255 30% 95%;
-  --muted-foreground: 255 10% 45%;
+  --muted: 255 100% 97%;
+  --muted-foreground: 255 8% 48%;
 
   --accent: 262 90% 70%;
   --accent-foreground: 0 0% 100%;
