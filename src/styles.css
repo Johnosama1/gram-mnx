@@ -37,9 +37,9 @@
      Includes the nav's own min-height (~72px) + version line + safe-area inset.
      Overlays/sheets use this to sit on top of the nav instead of behind it. */
   --nav-height: calc(80px + env(safe-area-inset-bottom, 0px));
-  --background: 250 40% 98%;
-  --foreground: 258 30% 14%;
-  --border: 255 30% 92%;
+  --background: 0 0% 100%;
+  --foreground: 258 25% 12%;
+  --border: 258 55% 92%;
 
   --primary: 262 83% 62%;
   --primary-foreground: 0 0% 100%;
