@@ -197,7 +197,7 @@ function PackageModal({
       >
         {/* Close */}
         <div className="flex justify-end px-4 pt-3">
-          <button onClick={onClose} className="p-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <button onClick={onClose} className="p-1.5 rounded-full" style={{ background: 'rgba(139,92,246,0.12)' }}>
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -262,12 +262,12 @@ function PackageModal({
                     }}
                   >
                     {d.dayIcon
-                      ? <span className="font-black" style={{ fontSize: 10, color: isSelected ? '#F5A623' : 'rgba(255,255,255,0.4)' }}>{d.dayIcon}</span>
+                      ? <span className="font-black" style={{ fontSize: 10, color: isSelected ? '#F5A623' : 'rgba(60,50,90,0.55)' }}>{d.dayIcon}</span>
                       : <span style={{ fontSize: 15, lineHeight: 1 }}>📅</span>
                     }
                   </div>
                   <div className="text-left">
-                    <div className="font-black text-sm tracking-wide" style={{ color: isSelected ? '#FFFFFF' : 'rgba(255,255,255,0.5)' }}>
+                    <div className="font-black text-sm tracking-wide" style={{ color: isSelected ? '#2b2440' : 'rgba(60,50,90,0.6)' }}>
                       {d.label}
                     </div>
                     {/* Daily mining income */}
@@ -285,7 +285,7 @@ function PackageModal({
                   <div className="font-black text-base" style={{ color: isSelected ? '#F5A623' : 'rgba(245,166,35,0.5)' }}>
                     {dGram.toFixed(2)} Gram
                   </div>
-                  <div className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <div className="text-xs font-semibold" style={{ color: 'rgba(60,50,90,0.45)' }}>
                     {dCoins.toLocaleString()} MNX
                   </div>
                 </div>
@@ -303,13 +303,13 @@ function PackageModal({
           }}
         >
           <div>
-            <div className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('store_you_pay')}</div>
+            <div className="text-xs font-bold" style={{ color: 'rgba(60,50,90,0.6)' }}>{t('store_you_pay')}</div>
             <div className="font-black text-lg leading-none" style={{ color: canAfford ? '#F5A623' : '#fbbf24' }}>
               {gram.toFixed(2)} GRAM
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('store_your_balance')}</div>
+            <div className="text-xs font-bold" style={{ color: 'rgba(60,50,90,0.6)' }}>{t('store_your_balance')}</div>
             <div
               className="font-bold text-sm"
               style={{ color: canAfford ? '#4ade80' : '#f87171' }}
@@ -348,7 +348,7 @@ function PackageModal({
           >
             <div
               className="flex-shrink-0 flex items-center justify-center rounded-full"
-              style={{ width: 38, height: 38, background: 'rgba(255,255,255,0.2)' }}
+              style={{ width: 38, height: 38, background: 'rgba(139,92,246,0.18)' }}
             >
               {status === 'loading' ? <Loader2 className="w-5 h-5 text-foreground animate-spin" />
                : status === 'ok'    ? <CheckCircle2 className="w-5 h-5 text-foreground" />

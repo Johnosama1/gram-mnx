@@ -153,8 +153,8 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
               key={day}
               className="flex-1 rounded-lg py-1.5 text-center"
               style={{
-                background: claimed ? 'rgba(139,92,246,0.2)' : isNext ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${claimed ? 'rgba(139,92,246,0.35)' : isNext ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                background: claimed ? 'rgba(139,92,246,0.2)' : isNext ? 'rgba(139,92,246,0.18)' : 'rgba(139,92,246,0.06)',
+                border: `1px solid ${claimed ? 'rgba(139,92,246,0.35)' : isNext ? 'rgba(139,92,246,0.4)' : 'rgba(139,92,246,0.15)'}`,
               }}
             >
               <div className="text-[9px] text-muted-foreground whitespace-nowrap">{t('tasks_checkin_day_short', { day: String(day) })}</div>
@@ -1010,7 +1010,7 @@ export default function Tasks() {
                 background: isDone
                   ? 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, #FFFFFF 100%)'
                   : 'rgba(0,0,0,0.5)',
-                border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.15)'}`,
               }}
             >
               <div className="flex items-center justify-between gap-3">
