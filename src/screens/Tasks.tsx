@@ -225,7 +225,7 @@ function TaskAvatar({
 
 function TaskCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 text-right ${className ?? ''}`}>
+    <div className={`w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-right ${className ?? ''}`}>
       {children}
     </div>
   );

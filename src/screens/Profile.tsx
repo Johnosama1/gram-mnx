@@ -98,7 +98,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* From */}
-        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
+        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground font-bold uppercase">{t('swap_from')}</span>
             <span className="text-xs text-muted-foreground">{t('swap_balance')}: {fromBalance}</span>
@@ -126,7 +126,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* To */}
-        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
+        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('swap_to')}</div>
           <div className="flex items-center gap-3">
             <div className="flex-1 text-2xl font-black text-muted-foreground">
@@ -355,7 +355,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
 
         {/* Wallet status */}
-        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-violet-500/[0.07] border-violet-500/25'}`}>
+        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-white border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)]'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
           {connected ? (
             <div className="flex items-center gap-2">
@@ -381,7 +381,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
         )}
 
         {/* Amount input */}
-        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-2">
+        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('deposit_amount_label')}</div>
           <div className="flex items-center gap-3">
             <input
@@ -550,7 +550,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
 
         {/* Wallet address */}
-        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4">
+        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
           {walletAddress ? (
             <div className="font-mono text-sm text-muted-foreground break-all">{toFriendlyAddress(walletAddress)}</div>
@@ -566,7 +566,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         </div>
 
         {/* Amount input */}
-        <div className="bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 space-y-3">
+        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-3">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('withdraw_amount_label')}</div>
           <div className="flex items-center gap-3">
             <input
@@ -697,7 +697,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
           <>
             <button
               onClick={() => setView('pick')}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <StickerBadge size={30} src={supportBalloonSticker.url} />
@@ -711,7 +711,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <Link
               to="/faq"
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <HelpCircle className="w-5 h-5" />
@@ -725,7 +725,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <button
               onClick={openSupportChat}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-success/15 flex items-center justify-center text-success">
                 <Headphones className="w-5 h-5" />
@@ -744,7 +744,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">{t('support_pick_type')}</p>
             <button
               onClick={() => { setKind('complaint'); setView('form'); }}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-destructive/15 flex items-center justify-center text-destructive">
                 <MessageSquare className="w-5 h-5" />
@@ -754,7 +754,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             </button>
             <button
               onClick={() => { setKind('suggestion'); setView('form'); }}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <Lightbulb className="w-5 h-5" />
@@ -776,7 +776,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               maxLength={1000}
               rows={7}
               placeholder={t('support_placeholder')}
-              className="w-full bg-violet-500/[0.07] border border-violet-500/25 rounded-2xl p-4 text-white text-sm outline-none focus:border-primary/50 resize-none select-text"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-white text-sm outline-none focus:border-primary/50 resize-none select-text"
             />
             <div className="text-[10px] text-muted-foreground text-left">{text.length}/1000</div>
             <button
@@ -862,7 +862,7 @@ export default function Profile() {
         <div className="text-sm text-primary font-bold mt-1">
           {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
         </div>
-        <div className="px-4 py-1.5 rounded-full bg-violet-500/[0.07] border border-violet-500/25 text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
+        <div className="px-4 py-1.5 rounded-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
           {walletAddress ? (
             <>
               <span className="text-success font-semibold">{t('profile_connected')}</span>
@@ -961,7 +961,7 @@ export default function Profile() {
           </div>
 
           <div className="px-4 py-4">
-            <div className="rounded-2xl bg-violet-500/[0.07] border border-violet-500/25 p-3 flex items-center justify-between">
+            <div className="rounded-2xl bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-bold uppercase">{t('profile_wallet_connection')}</span>
               <span className="font-mono text-[11px] text-foreground">{shortAddr ?? '—'}</span>
             </div>
@@ -969,7 +969,7 @@ export default function Profile() {
 
           {/* Tabs: Deposit / Withdraw */}
           <div className="px-4">
-            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-violet-500/[0.07] border border-violet-500/25">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)]">
               {(['deposit', 'withdraw'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -1020,7 +1020,7 @@ export default function Profile() {
                   className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-colors ${
                     lang === l.value
                       ? 'bg-primary/15 border-primary/50 text-white'
-                      : 'bg-violet-500/[0.07] border-violet-500/25 text-muted-foreground hover:bg-violet-500/15'
+                      : 'bg-white border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-muted-foreground hover:bg-violet-500/15'
                   }`}
                 >
                   {l.value === 'en' ? (
