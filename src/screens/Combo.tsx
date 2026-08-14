@@ -153,7 +153,7 @@ export default function Combo() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.80)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-violet-500/20">

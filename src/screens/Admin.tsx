@@ -2968,7 +2968,7 @@ export default function Admin() {
   const { t } = useLanguage();
   return (
     <div className="min-h-full flex flex-col relative w-full" dir="rtl">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.75)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       {/* Header */}
       <div className="relative z-10 flex items-center gap-3 px-4 py-4 border-b border-violet-500/20">

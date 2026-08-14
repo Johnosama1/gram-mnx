@@ -93,7 +93,7 @@ function PackageCard({
       onClick={onClick}
       className="flex flex-col items-center justify-center rounded-2xl p-3 transition-all active:scale-95"
       style={{
-        background: 'linear-gradient(160deg, #1a1205 0%, #0d0a04 100%)',
+        background: 'linear-gradient(160deg, #FFFFFF 0%, #F7F4FF 100%)',
         border: '1px solid rgba(245,166,35,0.25)',
         boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
         minHeight: 100,
@@ -189,7 +189,7 @@ function PackageModal({
       <div
         className="w-full max-w-sm rounded-t-3xl overflow-hidden"
         style={{
-          background: 'linear-gradient(160deg, #1c1508 0%, #0d0a04 60%, #120e06 100%)',
+          background: 'linear-gradient(160deg, #FFFFFF 0%, #F7F4FF 100%)',
           border: '1px solid rgba(245,166,35,0.2)',
           borderBottom: 'none',
           boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
@@ -233,7 +233,7 @@ function PackageModal({
         </div>
 
         {/* Duration options */}
-        <div className="mx-4 rounded-2xl overflow-hidden mb-3" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="mx-4 rounded-2xl overflow-hidden mb-3" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(139,92,246,0.10)' }}>
           {DURATIONS.map((d, i) => {
             const dGram  = d.getGram(settings, multiplier);
             const dCoins = d.getCoins(settings, multiplier);
@@ -245,7 +245,7 @@ function PackageModal({
                 onClick={() => setSelectedDur(d.id)}
                 className="w-full flex items-center justify-between px-4 py-3.5 transition-all active:scale-[0.98]"
                 style={{
-                  borderBottom: i < DURATIONS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  borderBottom: i < DURATIONS.length - 1 ? '1px solid rgba(139,92,246,0.10)' : 'none',
                   background: isSelected ? 'rgba(245,166,35,0.09)' : 'transparent',
                   outline: isSelected ? '1.5px solid rgba(245,166,35,0.3)' : 'none',
                   outlineOffset: '-1.5px',
@@ -257,7 +257,7 @@ function PackageModal({
                     className="flex-shrink-0 flex items-center justify-center rounded-lg"
                     style={{
                       width: 34, height: 34,
-                      background: isSelected ? 'rgba(245,166,35,0.15)' : 'rgba(255,255,255,0.06)',
+                      background: isSelected ? 'rgba(245,166,35,0.15)' : 'rgba(139,92,246,0.10)',
                       border: `1px solid ${isSelected ? 'rgba(245,166,35,0.4)' : 'rgba(255,255,255,0.1)'}`,
                     }}
                   >
@@ -409,7 +409,7 @@ export default function Store() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.72)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       <div className="relative z-10 w-full px-3 pt-3 pb-28">
         {/* Top row */}
@@ -471,7 +471,7 @@ export default function Store() {
             <div className="space-y-1.5">
               {history.map(h => (
                 <div key={h.id} className="flex items-center justify-between rounded-xl px-3 py-2.5"
-                  style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  style={{ background: '#FFFFFF', border: '1px solid rgba(139,92,246,0.10)' }}>
                   <div>
                     <div className="text-foreground font-bold text-xs">
                       {h.gram_amount.toFixed(2)} gram → <span className="text-primary">{h.coins_amount.toLocaleString()} MNX</span>

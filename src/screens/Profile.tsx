@@ -80,7 +80,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
@@ -464,7 +464,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
   if (embedded) return body;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('deposit_title')}</h2>
@@ -636,7 +636,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   if (embedded) return body;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('withdraw_title')}</h2>
@@ -683,7 +683,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={back}
@@ -842,7 +842,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       {/* ── User info ── */}
       <div className="relative z-10 flex flex-col items-center mt-2 mb-8">
@@ -951,7 +951,7 @@ export default function Profile() {
         />
       )}
       {showWalletHub && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowWalletHub(false)}
@@ -1000,7 +1000,7 @@ export default function Profile() {
 
       {/* ── Settings Panel ── */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }}>
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowSettings(false)}

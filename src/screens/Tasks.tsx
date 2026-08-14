@@ -130,7 +130,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
           disabled={claiming || !canClaim}
           className="flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5"
           style={{
-            background: canClaim ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(255,255,255,0.06)',
+            background: canClaim ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
             color: canClaim ? '#000' : 'rgba(255,255,255,0.3)',
             cursor: canClaim ? 'pointer' : 'not-allowed',
           }}
@@ -889,7 +889,7 @@ export default function Tasks() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       <div className="relative z-10 mb-3 flex items-center justify-between">
         <h1 className="text-3xl font-black text-foreground tracking-tight">{t('tasks_header')}</h1>
@@ -909,7 +909,7 @@ export default function Tasks() {
                 onClick={() => setTab(item.key)}
                 className="px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all active:scale-95"
                 style={{
-                  background: active ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(255,255,255,0.06)',
+                  background: active ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
                   color: active ? '#000' : 'rgba(255,255,255,0.6)',
                   border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
                 }}
@@ -1008,7 +1008,7 @@ export default function Tasks() {
               className="rounded-2xl p-4"
               style={{
                 background: isDone
-                  ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(0,0,0,0.6) 100%)'
+                  ? 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, #FFFFFF 100%)'
                   : 'rgba(0,0,0,0.5)',
                 border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
               }}

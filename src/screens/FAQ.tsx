@@ -86,7 +86,7 @@ export default function FAQ() {
   const { t } = useLanguage();
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }} />
 
       <div className="relative z-10 flex items-center gap-3 mb-6">
         <Link
