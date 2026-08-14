@@ -66,7 +66,7 @@ export default function PromoCodeCard() {
   };
 
   return (
-    <div className="rounded-2xl border border-violet-500/25 bg-violet-500/[0.07] p-4 space-y-2.5">
+    <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4 space-y-2.5">
       <div className="flex items-center gap-2.5">
         <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
           <Ticket className="w-5 h-5 text-primary" />
