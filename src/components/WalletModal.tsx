@@ -121,7 +121,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
       >
         {/* Backdrop */}
         <motion.div
-          className="absolute inset-0 bg-black/70"
+          className="absolute inset-0 bg-foreground/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -130,19 +130,19 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
 
         {/* Sheet */}
         <motion.div
-          className="relative w-full max-w-[640px] bg-[#0f0f1a] rounded-t-3xl p-6 pb-8 border-t border-white/10"
+          className="relative w-full max-w-[640px] bg-white rounded-t-3xl p-6 pb-8 border-t border-violet-500/20"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         >
           {/* Handle bar */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 bg-white/20 rounded-full" />
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 bg-secondary rounded-full" />
 
           {/* Header */}
           <div className="flex items-center justify-between mb-5 mt-2">
-            <h2 className="text-xl font-black text-white">{t('wallet_title')}</h2>
-            <button onClick={onClose} className="p-2 text-muted-foreground hover:text-white">
+            <h2 className="text-xl font-black text-foreground">{t('wallet_title')}</h2>
+            <button onClick={onClose} className="p-2 text-muted-foreground hover:text-foreground">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -163,7 +163,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
                 <div className="text-xs text-success">{t('wallet_saved')}</div>
               )}
 
-              <div className="bg-black/40 rounded-xl px-6 py-2.5 border border-success/30">
+              <div className="bg-secondary rounded-xl px-6 py-2.5 border border-success/30">
                 <span className="text-success font-mono text-base font-bold tracking-wider">{shortAddr}</span>
               </div>
 
@@ -192,7 +192,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
                   <span className="text-2xl">💎</span>
                 </div>
                 <div className="text-left">
-                  <div className="font-bold text-white">TON Connect</div>
+                  <div className="font-bold text-foreground">TON Connect</div>
                   <div className="text-xs text-muted-foreground">{t('wallet_ton_wallets')}</div>
                 </div>
               </button>

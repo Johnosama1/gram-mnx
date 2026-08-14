@@ -113,18 +113,18 @@ function Section({ title, icon: Icon, children, defaultOpen = false }: {
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-secondary/40 border border-white/5 rounded-2xl overflow-hidden mb-3">
+    <div className="bg-secondary/40 border border-violet-500/20 rounded-2xl overflow-hidden mb-3">
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-4 py-3.5 text-left"
       >
         <div className="flex items-center gap-2.5">
           <Icon className="w-4 h-4 text-primary flex-shrink-0" />
-          <span className="font-black text-white text-sm">{title}</span>
+          <span className="font-black text-foreground text-sm">{title}</span>
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
       </button>
-      {open && <div className="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">{children}</div>}
+      {open && <div className="px-4 pb-4 space-y-3 border-t border-violet-500/20 pt-3">{children}</div>}
     </div>
   );
 }
@@ -133,7 +133,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50 ${props.className ?? ''}`}
+      className={`w-full bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50 ${props.className ?? ''}`}
     />
   );
 }
@@ -146,7 +146,7 @@ function Btn({ children, onClick, variant = 'primary', size = 'md', disabled, cl
   const colors = {
     primary: 'bg-primary text-black hover:opacity-90',
     danger:  'bg-destructive/20 text-destructive hover:bg-destructive/30',
-    ghost:   'bg-white/5 text-white hover:bg-white/10',
+    ghost:   'bg-secondary text-foreground hover:bg-secondary',
     success: 'bg-success/20 text-success hover:bg-success/30',
   };
   const sizes = { sm: 'px-3 py-1.5 text-xs', md: 'px-4 py-2.5 text-sm' };
@@ -219,7 +219,7 @@ function StatsSection() {
             type="button"
             onClick={c.onClick}
             disabled={!c.onClick}
-            className="bg-black/40 rounded-xl p-3 text-center border border-white/5 disabled:cursor-default"
+            className="bg-secondary rounded-xl p-3 text-center border border-violet-500/20 disabled:cursor-default"
           >
             <div className={`text-2xl font-black ${c.color}`}>{c.value}</div>
             <div className="text-[10px] text-muted-foreground mt-0.5">{c.label}</div>
@@ -228,8 +228,8 @@ function StatsSection() {
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-3" onClick={() => setOpen(false)}>
-          <div className="bg-card w-full max-w-md max-h-[75vh] rounded-2xl border border-white/10 p-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-foreground/40 flex items-end sm:items-center justify-center p-3" onClick={() => setOpen(false)}>
+          <div className="bg-card w-full max-w-md max-h-[75vh] rounded-2xl border border-violet-500/20 p-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-sm">{t('admin_stat_blocked')} · {stats.blockedUsers}</h3>
               <button className="text-xs text-muted-foreground" onClick={() => setOpen(false)}>✕</button>
@@ -238,7 +238,7 @@ function StatsSection() {
             {!list && !listErr && <div className="text-muted-foreground text-xs">{t('admin_loading')}</div>}
             <div className="space-y-2">
               {(list ?? []).map(u => (
-                <div key={u.telegramId} className="flex items-center justify-between gap-2 bg-black/30 rounded-xl px-3 py-2">
+                <div key={u.telegramId} className="flex items-center justify-between gap-2 bg-secondary rounded-xl px-3 py-2">
                   <div className="min-w-0">
                     <div className="text-xs font-bold truncate">
                       {u.firstName || u.username || u.telegramId}
@@ -295,7 +295,7 @@ function BroadcastSection() {
         onChange={e => setMsg(e.target.value)}
         rows={5}
         placeholder={t('admin_broadcast_placeholder')}
-        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm resize-none focus:outline-none focus:border-primary/50"
+        className="w-full bg-secondary border border-violet-500/20 rounded-xl p-3 text-foreground text-sm resize-none focus:outline-none focus:border-primary/50"
       />
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={send} disabled={loading || !msg.trim()} className="w-full">
@@ -367,8 +367,8 @@ function MaintenanceSection() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-3">
-        <span className="text-white font-bold text-sm">{t('admin_maintenance_mode')}</span>
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+        <span className="text-foreground font-bold text-sm">{t('admin_maintenance_mode')}</span>
         <button
           type="button"
           disabled={loading || saving}
@@ -388,7 +388,7 @@ function MaintenanceSection() {
         onChange={(e) => setMessage(e.target.value)}
         rows={3}
         placeholder={t('admin_maintenance_placeholder')}
-        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm resize-none focus:outline-none focus:border-primary/50"
+        className="w-full bg-secondary border border-violet-500/20 rounded-xl p-3 text-foreground text-sm resize-none focus:outline-none focus:border-primary/50"
       />
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={() => void save(on, message)} disabled={loading || saving} className="w-full">
@@ -440,11 +440,11 @@ function AdsSection() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-3">
-        <span className="text-white font-bold text-sm">إظهار مهمة الإعلانات</span>
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+        <span className="text-foreground font-bold text-sm">إظهار مهمة الإعلانات</span>
         <button
           onClick={() => setEnabled((v) => !v)}
-          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-white/20'}`}
+          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-secondary'}`}
         >
           <div
             className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? 'right-1' : 'left-1'}`}
@@ -457,7 +457,7 @@ function AdsSection() {
           <input
             value={reward}
             onChange={(e) => setReward(e.target.value)}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
         <label className="text-xs text-muted-foreground">
@@ -465,7 +465,7 @@ function AdsSection() {
           <input
             value={limit}
             onChange={(e) => setLimit(e.target.value)}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
       </div>
@@ -586,11 +586,11 @@ function GiftSection() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-3">
-        <span className="text-white font-bold text-sm">فتح قسم الهدايا للمستخدمين</span>
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+        <span className="text-foreground font-bold text-sm">فتح قسم الهدايا للمستخدمين</span>
         <button
           onClick={() => { void toggle(); }}
-          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-white/20'}`}
+          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-secondary'}`}
         >
           <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? 'right-1' : 'left-1'}`} />
         </button>
@@ -603,12 +603,12 @@ function GiftSection() {
           onChange={(e) => setMessage(e.target.value)}
           onBlur={() => { void saveSettings(); }}
           placeholder="قريباً — الهدايا لسه مش متاحة"
-          className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
         />
       </label>
 
-      <div className="space-y-2 bg-black/30 rounded-xl p-3 border border-white/5">
-        <p className="text-white font-bold text-sm">إضافة مسابقة / هدية</p>
+      <div className="space-y-2 bg-secondary rounded-xl p-3 border border-violet-500/20">
+        <p className="text-foreground font-bold text-sm">إضافة مسابقة / هدية</p>
 
         <label className="text-[11px] text-muted-foreground block">
           1) اسم الهدية
@@ -616,7 +616,7 @@ function GiftSection() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="اسم الهدية في المسابقة"
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
 
@@ -627,7 +627,7 @@ function GiftSection() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="وصف المسابقة"
             rows={2}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
 
@@ -637,7 +637,7 @@ function GiftSection() {
             value={capacity}
             onChange={(e) => setCapacity(e.target.value)}
             placeholder="$& = بدون حد"
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
 
@@ -648,7 +648,7 @@ function GiftSection() {
             value={endsAt}
             onChange={(e) => setEndsAt(e.target.value)}
             dir="ltr"
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
 
@@ -658,7 +658,7 @@ function GiftSection() {
             type="file"
             accept=".json,image/*"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadFile(f); }}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-xs"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-xs"
           />
         </label>
         {uploading && <p className="text-[11px] text-muted-foreground">جاري رفع الملف…</p>}
@@ -674,7 +674,7 @@ function GiftSection() {
           onChange={(e) => setImageUrl(e.target.value)}
           placeholder="أو ضع رابط الصورة/الملف مباشرة"
           dir="ltr"
-          className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+          className="w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
         />
 
         <div className="grid grid-cols-1 gap-2">
@@ -682,7 +682,7 @@ function GiftSection() {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="رابط (اختياري)"
-            className="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </div>
 
@@ -696,10 +696,10 @@ function GiftSection() {
 
       <div className="space-y-2">
         {gifts.map((g) => (
-          <div key={g.id} className="flex items-center justify-between bg-black/40 rounded-xl px-3 py-2 gap-2">
+          <div key={g.id} className="flex items-center justify-between bg-secondary rounded-xl px-3 py-2 gap-2">
             <GiftMedia url={g.imageUrl} size={40} />
             <div className="min-w-0 flex-1">
-              <p className="text-white text-sm font-bold truncate">{g.title}</p>
+              <p className="text-foreground text-sm font-bold truncate">{g.title}</p>
               <p className="text-muted-foreground text-xs truncate">{g.description}</p>
               <p className="text-muted-foreground text-[11px]">
                 👥 {g.participants ?? 0}{g.capacity > 0 ? ` / ${g.capacity}` : ' (بدون حد)'}
@@ -717,7 +717,7 @@ function GiftSection() {
       </div>
 
 
-      {status && <p className="text-xs text-white">{status}</p>}
+      {status && <p className="text-xs text-foreground">{status}</p>}
     </div>
   );
 }
@@ -798,11 +798,11 @@ function PromoSection() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between bg-black/40 rounded-xl px-4 py-3">
-        <span className="text-white font-bold text-sm">إظهار قسم أكواد الخصم للمستخدمين</span>
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+        <span className="text-foreground font-bold text-sm">إظهار قسم أكواد الخصم للمستخدمين</span>
         <button
           onClick={() => { void toggleVisibility(); }}
-          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-white/20'}`}
+          className={`w-12 h-6 rounded-full transition-colors relative ${enabled ? 'bg-primary' : 'bg-secondary'}`}
         >
           <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? 'right-1' : 'left-1'}`} />
         </button>
@@ -815,7 +815,7 @@ function PromoSection() {
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="SUMMER2026"
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm tracking-wider"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm tracking-wider"
           />
         </label>
         <label className="text-xs text-muted-foreground col-span-1">
@@ -823,7 +823,7 @@ function PromoSection() {
           <input
             value={reward}
             onChange={(e) => setReward(e.target.value)}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
         <label className="text-xs text-muted-foreground col-span-2">
@@ -831,7 +831,7 @@ function PromoSection() {
           <input
             value={maxUses}
             onChange={(e) => setMaxUses(e.target.value)}
-            className="mt-1 w-full bg-black/40 border border-white/10 rounded-xl p-2 text-white text-sm"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
       </div>
@@ -848,19 +848,19 @@ function PromoSection() {
           const full = c.maxUses > 0 && c.currentUses >= c.maxUses;
           const label = full ? 'مكتمل' : c.isActive ? 'نشط' : 'مخفي';
           return (
-            <div key={c.id} className="bg-black/40 rounded-xl px-3 py-2 flex items-center gap-2">
+            <div key={c.id} className="bg-secondary rounded-xl px-3 py-2 flex items-center gap-2">
               <div className="min-w-0 flex-1">
-                <div className="text-white font-bold text-sm tracking-wider truncate">{c.code}</div>
+                <div className="text-foreground font-bold text-sm tracking-wider truncate">{c.code}</div>
                 <div className="text-[11px] text-muted-foreground">
                   {c.rewardCoins} MNX • {c.currentUses} / {c.maxUses || '∞'} •{' '}
-                  <span className={full ? 'text-amber-400' : c.isActive ? 'text-emerald-400' : 'text-white/50'}>
+                  <span className={full ? 'text-amber-400' : c.isActive ? 'text-emerald-400' : 'text-muted-foreground'}>
                     {label}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => { void toggleCode(c.id); }}
-                className="p-2 rounded-lg bg-white/5 text-white/70"
+                className="p-2 rounded-lg bg-secondary text-muted-foreground"
                 title={c.isActive ? 'إخفاء' : 'تفعيل'}
               >
                 {c.isActive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -914,7 +914,7 @@ function WelcomeSection() {
         onChange={e => setMsg(e.target.value)}
         rows={6}
         placeholder={t('admin_welcome_placeholder')}
-        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm resize-none focus:outline-none focus:border-primary/50"
+        className="w-full bg-secondary border border-violet-500/20 rounded-xl p-3 text-foreground text-sm resize-none focus:outline-none focus:border-primary/50"
       />
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full"><MessageSquare className="w-3.5 h-3.5" />{t('admin_save_message')}</Btn>
@@ -995,13 +995,13 @@ function TasksSection() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-black/40 rounded-xl p-3 space-y-2 border border-white/5">
+      <div className="bg-secondary rounded-xl p-3 space-y-2 border border-violet-500/20">
         <div>
           <label className="text-xs text-muted-foreground">قسم المهمة</label>
           <select
             value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="w-full mt-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
+            className="w-full mt-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50"
           >
             <option value="general">عام (كل المهام)</option>
             <option value="channels">القنوات (تحقق تلقائي)</option>
@@ -1018,7 +1018,7 @@ function TasksSection() {
           <>
             <Input value={form.channelUsername} onChange={e => setForm(f => ({ ...f, channelUsername: e.target.value }))} placeholder={tr('admin_channel_user_ph')} dir="ltr" />
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-secondary border border-violet-500/20 flex items-center justify-center">
                 {form.iconUrl
                   ? <img src={form.iconUrl} alt="" className="w-full h-full object-cover" />
                   : <span className="text-[10px] text-muted-foreground">صورة</span>}
@@ -1028,7 +1028,7 @@ function TasksSection() {
                   type="file"
                   accept="image/*"
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadIcon(f); e.target.value = ''; }}
-                  className="block w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary/20 file:text-primary file:text-xs file:font-bold"
+                  className="block w-full text-xs text-muted-foreground file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary/20 file:text-primary file:text-xs file:font-bold"
                 />
                 <Input
                   value={form.iconUrl}
@@ -1060,7 +1060,7 @@ function TasksSection() {
                       key={n}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, slotLimit: String(n) }))}
-                      className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-white/80 hover:bg-white/10"
+                      className="px-2.5 py-1 rounded-lg bg-secondary border border-violet-500/20 text-xs text-muted-foreground hover:bg-secondary"
                     >
                       {n}
                     </button>
@@ -1080,7 +1080,7 @@ function TasksSection() {
         {form.category === 'bots' && (
           <Input value={form.botUsername} onChange={e => setForm(f => ({ ...f, botUsername: e.target.value }))} placeholder="يوزر البوت المطلوب (بدون @)" dir="ltr" />
         )}
-        <label className="flex items-center gap-2 cursor-pointer text-sm text-white">
+        <label className="flex items-center gap-2 cursor-pointer text-sm text-foreground">
           <input type="checkbox" checked={form.isDaily} onChange={e => setForm(f => ({ ...f, isDaily: e.target.checked }))} className="w-4 h-4 accent-primary" />
           {tr('admin_daily_task')}
         </label>
@@ -1089,13 +1089,13 @@ function TasksSection() {
       </div>
       <div className="space-y-2">
         {tasks.map(t => (
-          <div key={t.id} className={`bg-black/40 rounded-xl p-3 border border-white/5 flex items-start justify-between gap-2 ${t.isHidden ? 'opacity-50' : ''}`}>
+          <div key={t.id} className={`bg-secondary rounded-xl p-3 border border-violet-500/20 flex items-start justify-between gap-2 ${t.isHidden ? 'opacity-50' : ''}`}>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {t.iconUrl && (
-                  <img src={t.iconUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10 flex-shrink-0" />
+                  <img src={t.iconUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-violet-500/20 flex-shrink-0" />
                 )}
-                <div className="font-bold text-white text-sm truncate">{t.title}</div>
+                <div className="font-bold text-foreground text-sm truncate">{t.title}</div>
               </div>
               <div className="text-xs text-muted-foreground">
                 {t.reward} MNX
@@ -1112,7 +1112,7 @@ function TasksSection() {
                     المقاعد: {t.slotsFilled ?? 0}/{t.slotLimit}
                     {(t.slotsFilled ?? 0) >= t.slotLimit ? ' · مكتملة' : ''}
                   </div>
-                  <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
                     <div
                       className="h-full bg-primary rounded-full"
                       style={{ width: `${Math.min(100, ((t.slotsFilled ?? 0) / t.slotLimit) * 100)}%` }}
@@ -1126,7 +1126,7 @@ function TasksSection() {
               <button onClick={() => setLimit(t)} className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 text-[10px] font-bold">
                 {t.slotLimit ?? '∞'}
               </button>
-              <button onClick={() => toggle(t)} className="p-1.5 rounded-lg text-muted-foreground bg-white/5 hover:text-white">
+              <button onClick={() => toggle(t)} className="p-1.5 rounded-lg text-muted-foreground bg-secondary hover:text-foreground">
                 {t.isHidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
               <button onClick={() => del(t.id)} className="p-1.5 rounded-lg text-destructive bg-destructive/10 hover:bg-destructive/20">
@@ -1176,14 +1176,14 @@ function TaskSubmissionsSection() {
           <button
             key={v}
             onClick={() => setFilter(v)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold ${filter === v ? 'bg-primary text-black' : 'bg-white/5 text-muted-foreground'}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold ${filter === v ? 'bg-primary text-black' : 'bg-secondary text-muted-foreground'}`}
           >{label}</button>
         ))}
       </div>
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       {rows.map(r => (
-        <div key={r.id} className="bg-black/40 rounded-xl p-3 border border-white/5 space-y-1.5">
-          <div className="text-white text-sm font-bold">{r.taskTitle}</div>
+        <div key={r.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-1.5">
+          <div className="text-foreground text-sm font-bold">{r.taskTitle}</div>
           <div className="text-xs text-muted-foreground">
             {r.kind === 'twitter' ? '🐦 تويتر' : '🤖 بوت'} · {r.firstName ?? ''} {r.username ? `@${r.username}` : `#${r.telegramId}`}
           </div>
@@ -1237,7 +1237,7 @@ function ReferralSection() {
         value={desc}
         onChange={e => setDesc(e.target.value)}
         rows={3}
-        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm resize-none focus:outline-none focus:border-primary/50"
+        className="w-full bg-secondary border border-violet-500/20 rounded-xl p-3 text-foreground text-sm resize-none focus:outline-none focus:border-primary/50"
       />
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full"><DollarSign className="w-3.5 h-3.5" />{t('admin_save')}</Btn>
@@ -1335,7 +1335,7 @@ function MilestonesSection() {
     <div className="space-y-3">
 
       {/* ── Add form ── */}
-      <div className="bg-black/40 rounded-xl p-3 border border-primary/20 space-y-2">
+      <div className="bg-secondary rounded-xl p-3 border border-primary/20 space-y-2">
         <p className="text-xs text-primary font-black uppercase tracking-widest">{t('admin_milestone_new')}</p>
         <div className="grid grid-cols-2 gap-2">
           <div>
@@ -1374,8 +1374,8 @@ function MilestonesSection() {
         return (
           <div
             key={m.id}
-            className={`bg-black/40 rounded-xl p-3 border transition-colors ${
-              m.isEnabled ? 'border-white/5' : 'border-white/5 opacity-50'
+            className={`bg-secondary rounded-xl p-3 border transition-colors ${
+              m.isEnabled ? 'border-violet-500/20' : 'border-violet-500/20 opacity-50'
             }`}
           >
             {isEdit ? (
@@ -1417,11 +1417,11 @@ function MilestonesSection() {
                     <Users className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <div className="text-white font-black text-sm">{m.inviteCount.toLocaleString()} {t('admin_invite_word')}</div>
+                    <div className="text-foreground font-black text-sm">{m.inviteCount.toLocaleString()} {t('admin_invite_word')}</div>
                     <div className="text-primary text-xs font-bold">+{m.rewardCoins.toLocaleString()} MNX</div>
                   </div>
                   {!m.isEnabled && (
-                    <span className="text-[10px] bg-white/10 text-white/40 px-2 py-0.5 rounded-full font-bold">{t('admin_hidden')}</span>
+                    <span className="text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded-full font-bold">{t('admin_hidden')}</span>
                   )}
                 </div>
 
@@ -1431,7 +1431,7 @@ function MilestonesSection() {
                   <button
                     onClick={() => toggleEnabled(m)}
                     title={m.isEnabled ? t('admin_hide') : t('admin_enable')}
-                    className="p-1.5 rounded-lg text-muted-foreground bg-white/5 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg text-muted-foreground bg-secondary hover:text-foreground transition-colors"
                   >
                     {m.isEnabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                   </button>
@@ -1439,7 +1439,7 @@ function MilestonesSection() {
                   {/* Edit */}
                   <button
                     onClick={() => startEdit(m)}
-                    className="p-1.5 rounded-lg text-muted-foreground bg-white/5 hover:text-primary transition-colors"
+                    className="p-1.5 rounded-lg text-muted-foreground bg-secondary hover:text-primary transition-colors"
                   >
                     <Settings className="w-3.5 h-3.5" />
                   </button>
@@ -1526,14 +1526,14 @@ function UsersSection() {
       {/* Results list */}
       {!u && results.map(r => (
         <button key={r.id} onClick={() => setSelected(r)}
-          className="w-full text-left bg-black/40 rounded-xl p-3 border border-white/5 hover:border-primary/30 transition-colors">
-          <div className="font-bold text-white text-sm">{r.firstName ?? r.username ?? t('admin_unknown')}</div>
+          className="w-full text-left bg-secondary rounded-xl p-3 border border-violet-500/20 hover:border-primary/30 transition-colors">
+          <div className="font-bold text-foreground text-sm">{r.firstName ?? r.username ?? t('admin_unknown')}</div>
           <div className="text-xs text-muted-foreground font-mono">ID: {r.telegramId} {r.username && `· @${r.username}`}</div>
           <div className="text-xs text-primary font-bold mt-0.5">{Number(r.balance).toFixed(4)} gram</div>
           <div className="text-xs text-amber-400 font-bold">{Number(r.coins ?? 0).toLocaleString()} MNX</div>
           <div className="flex flex-wrap gap-1.5 mt-1">
-            <span className="text-[10px] bg-white/5 text-muted-foreground px-2 py-0.5 rounded-full font-bold">إحالات: {r.referralCount ?? 0}</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${(r.ipSiblingCount ?? 0) > 0 ? 'bg-destructive/20 text-destructive' : 'bg-white/5 text-muted-foreground'}`}>نفس الـ IP: {r.ipSiblingCount ?? 0}</span>
+            <span className="text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded-full font-bold">إحالات: {r.referralCount ?? 0}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${(r.ipSiblingCount ?? 0) > 0 ? 'bg-destructive/20 text-destructive' : 'bg-secondary text-muted-foreground'}`}>نفس الـ IP: {r.ipSiblingCount ?? 0}</span>
             {r.isBanned && <span className="text-[10px] bg-destructive/20 text-destructive px-2 py-0.5 rounded-full font-bold">محظور</span>}
           </div>
         </button>
@@ -1543,11 +1543,11 @@ function UsersSection() {
       {u && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <button onClick={() => setSelected(null)} className="p-1.5 rounded-lg bg-white/5 text-muted-foreground hover:text-white">
+            <button onClick={() => setSelected(null)} className="p-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground">
               <ChevronDown className="w-4 h-4 rotate-90" />
             </button>
             <div>
-              <div className="font-bold text-white">{u.firstName ?? u.username ?? t('admin_unknown')}</div>
+              <div className="font-bold text-foreground">{u.firstName ?? u.username ?? t('admin_unknown')}</div>
               <div className="text-xs text-muted-foreground font-mono">ID: {u.telegramId}</div>
             </div>
             <div className="ml-auto flex gap-1.5">
@@ -1556,18 +1556,18 @@ function UsersSection() {
             </div>
           </div>
 
-          <div className="bg-black/40 rounded-xl p-3 text-center space-y-1">
+          <div className="bg-secondary rounded-xl p-3 text-center space-y-1">
             <div className="text-2xl font-black text-primary">{Number(u.balance).toFixed(4)} gram</div>
             <div className="text-base font-black text-amber-400">{Number(u.coins ?? 0).toLocaleString()} MNX</div>
           </div>
 
           {/* Full account info */}
-          <div className="bg-black/40 rounded-xl p-3 space-y-1.5 border border-white/5">
+          <div className="bg-secondary rounded-xl p-3 space-y-1.5 border border-violet-500/20">
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">معلومات الحساب</p>
             {!details ? (
               <div className="text-xs text-muted-foreground">جاري التحميل…</div>
             ) : (
-              <div className="text-xs text-white/80 space-y-1 font-mono">
+              <div className="text-xs text-muted-foreground space-y-1 font-mono">
                 <div>ID: {details.telegramId}</div>
                 <div>Username: {details.username ? `@${details.username}` : '—'}</div>
                 <div>الاسم: {[details.firstName, details.lastName].filter(Boolean).join(' ') || '—'}</div>
@@ -1585,10 +1585,10 @@ function UsersSection() {
                   حسابات بنفس الـ IP: {details.ipSiblingCount ?? 0}
                 </div>
                 {details.siblings?.length > 0 && (
-                  <div className="pt-1 space-y-1 border-t border-white/10">
+                  <div className="pt-1 space-y-1 border-t border-violet-500/20">
                     {details.siblings.map(s => (
                       <button key={s.telegramId} onClick={() => setSelected(s)}
-                        className="w-full text-left text-[11px] text-white/70 hover:text-white">
+                        className="w-full text-left text-[11px] text-muted-foreground hover:text-foreground">
                         · {s.telegramId} {s.username ? `@${s.username}` : ''} {s.isBanned ? '🚫' : ''}
                       </button>
                     ))}
@@ -1599,7 +1599,7 @@ function UsersSection() {
           </div>
 
           {/* Coins adjustment */}
-          <div className="bg-black/40 rounded-xl p-3 space-y-2">
+          <div className="bg-secondary rounded-xl p-3 space-y-2">
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">تعديل MNX</p>
             <Input value={coinAmount} onChange={e => setCoinAmount(e.target.value)} type="number" placeholder="عدد MNX" />
             <div className="flex gap-2">
@@ -1612,7 +1612,7 @@ function UsersSection() {
                 <Coins className="w-3 h-3" />خصم
               </Btn>
             </div>
-            <div className="pt-1 border-t border-white/10">
+            <div className="pt-1 border-t border-violet-500/20">
               <p className="text-[10px] text-amber-400 font-bold mb-1.5">تعيين رصيد MNX مباشرة</p>
               <Btn variant="ghost" size="sm" className="w-full"
                 onClick={() => {
@@ -1625,7 +1625,7 @@ function UsersSection() {
           </div>
 
           {/* Balance adjustment */}
-          <div className="bg-black/40 rounded-xl p-3 space-y-2">
+          <div className="bg-secondary rounded-xl p-3 space-y-2">
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('admin_adjust_balance')}</p>
             <Input value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder={t('admin_amount')} />
             <div className="flex gap-2">
@@ -1639,7 +1639,7 @@ function UsersSection() {
               </Btn>
             </div>
             {/* Direct balance correction — overwrites the stored value entirely */}
-            <div className="pt-1 border-t border-white/10">
+            <div className="pt-1 border-t border-violet-500/20">
               <p className="text-[10px] text-amber-400 font-bold mb-1.5">{t('admin_balance_correct')}</p>
               <div className="flex gap-2">
                 <Input value={amount} onChange={e => setAmount(e.target.value)} type="number"
@@ -1656,14 +1656,14 @@ function UsersSection() {
           </div>
 
           {/* Warning message */}
-          <div className="bg-black/40 rounded-xl p-3 space-y-2">
+          <div className="bg-secondary rounded-xl p-3 space-y-2">
             <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('admin_send_warning')}</p>
             <textarea
               value={warnMsg}
               onChange={e => setWarnMsg(e.target.value)}
               rows={2}
               placeholder={t('admin_warning_text')}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-2 text-white text-sm resize-none focus:outline-none"
+              className="w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm resize-none focus:outline-none"
             />
             <Btn variant="ghost" size="sm" className="w-full"
               onClick={() => act(`/admin/users?action=warn&id=${u.telegramId}`, { message: warnMsg }, t('admin_sent'))}>
@@ -1672,14 +1672,14 @@ function UsersSection() {
           </div>
 
           {/* Private message to this user only */}
-          <div className="bg-black/40 rounded-xl p-3 space-y-2 border border-primary/30">
+          <div className="bg-secondary rounded-xl p-3 space-y-2 border border-primary/30">
             <p className="text-xs text-primary font-bold uppercase tracking-widest">إرسال رسالة خاصة</p>
             <textarea
               value={privateMsg}
               onChange={e => setPrivateMsg(e.target.value)}
               rows={3}
               placeholder="اكتب الرسالة التي ستصل لهذا المستخدم فقط…"
-              className="w-full bg-white/5 border border-primary/20 rounded-xl p-2 text-white text-sm resize-none focus:outline-none focus:border-primary/50"
+              className="w-full bg-secondary border border-primary/20 rounded-xl p-2 text-foreground text-sm resize-none focus:outline-none focus:border-primary/50"
             />
             <div className="flex gap-2">
               <Btn variant="success" size="sm" className="flex-1"
@@ -1803,7 +1803,7 @@ function MinersSection() {
   return (
     <div className="space-y-3">
       {miners.map(m => (
-        <div key={m.id} className="bg-black/40 rounded-xl p-3 border border-white/5 space-y-2">
+        <div key={m.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-primary font-bold text-xs">{t('admin_miner_hash')} #{m.id}</span>
             <button onClick={() => removeMiner(m.id)} className="p-1 rounded-lg text-destructive bg-destructive/10 hover:bg-destructive/20">
@@ -1820,7 +1820,7 @@ function MinersSection() {
       ))}
 
       {/* Add new */}
-      <div className="bg-black/40 rounded-xl p-3 border border-primary/20 space-y-2">
+      <div className="bg-secondary rounded-xl p-3 border border-primary/20 space-y-2">
         <p className="text-xs text-primary font-bold uppercase tracking-widest">{t('admin_add_miner')}</p>
         <Input value={newMiner.name} onChange={e => setNewMiner(n => ({ ...n, name: e.target.value }))} placeholder={t('admin_name_required')} />
         <div className="grid grid-cols-2 gap-2">
@@ -1885,13 +1885,13 @@ function WithdrawalsSection() {
       <Btn onClick={load} variant="ghost" size="sm" className="w-full">{t('admin_refresh')}</Btn>
       {items.length === 0 && <div className="text-center text-muted-foreground text-sm py-4">{t('admin_no_requests')}</div>}
       {items.map(w => (
-        <div key={w.id} className="bg-black/40 rounded-xl p-3 border border-white/5 space-y-2">
+        <div key={w.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
           <div className="flex items-start justify-between">
             <div>
-              <div className="font-bold text-white text-sm">{w.first_name ?? w.username ?? w.telegram_id}</div>
+              <div className="font-bold text-foreground text-sm">{w.first_name ?? w.username ?? w.telegram_id}</div>
               <div className="text-xs text-muted-foreground font-mono">ID: {w.telegram_id}</div>
               <div className="text-primary font-black text-sm mt-0.5">{Number(w.amount).toFixed(4)} gram</div>
-              <div className="text-[10px] font-mono text-white/50 break-all mt-0.5">{w.wallet_address}</div>
+              <div className="text-[10px] font-mono text-muted-foreground break-all mt-0.5">{w.wallet_address}</div>
               <div className="text-xs text-muted-foreground mt-0.5">{new Date(w.created_at).toLocaleString(lang)}</div>
             </div>
             <span className={`text-xs font-bold ${statusColor(w.status)}`}>{statusLabel(w.status)}</span>
@@ -1996,16 +1996,16 @@ function ChannelsSection() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-black/40 rounded-xl p-3 space-y-2 border border-white/5">
+      <div className="bg-secondary rounded-xl p-3 space-y-2 border border-violet-500/20">
         <Input value={username} onChange={e => setUsername(e.target.value)} placeholder="@channelUsername *" dir="ltr" />
         <Input value={name} onChange={e => setName(e.target.value)} placeholder={t('admin_display_name')} />
         <StatusMsg msg={status} isError={status.startsWith('❌')} />
         <Btn onClick={add} className="w-full"><Plus className="w-3.5 h-3.5" />{t('admin_add_channel')}</Btn>
       </div>
       {channels.map(c => (
-        <div key={c.id} className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center justify-between">
+        <div key={c.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 flex items-center justify-between">
           <div>
-            <div className="font-bold text-white text-sm">{c.channelName || c.channelUsername}</div>
+            <div className="font-bold text-foreground text-sm">{c.channelName || c.channelUsername}</div>
             <div className="text-xs text-muted-foreground font-mono">@{c.channelUsername}</div>
           </div>
           <button onClick={() => del(c.id)} className="p-1.5 rounded-lg text-destructive bg-destructive/10 hover:bg-destructive/20"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -2052,7 +2052,7 @@ function AdminsSection() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-black/40 rounded-xl p-3 space-y-2 border border-white/5">
+      <div className="bg-secondary rounded-xl p-3 space-y-2 border border-violet-500/20">
         <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('admin_add_new_admin')}</p>
         <Input value={tid} onChange={e => setTid(e.target.value)} placeholder="معرّف تيليجرام (ID) *" type="number" dir="ltr" />
         <Input value={uname} onChange={e => setUname(e.target.value)} placeholder={t('admin_username_optional')} dir="ltr" />
@@ -2064,7 +2064,7 @@ function AdminsSection() {
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             {ALL_PERMISSIONS.map(p => (
-              <label key={p.key} className="flex items-center gap-1.5 cursor-pointer text-xs text-white bg-white/5 rounded-lg px-2 py-1.5">
+              <label key={p.key} className="flex items-center gap-1.5 cursor-pointer text-xs text-foreground bg-secondary rounded-lg px-2 py-1.5">
                 <input type="checkbox" checked={perms.includes(p.key)} onChange={() => togglePerm(p.key)} className="w-3.5 h-3.5 accent-primary" />
                 {t(p.labelKey)}
               </label>
@@ -2077,10 +2077,10 @@ function AdminsSection() {
       </div>
 
       {admins.map(a => (
-        <div key={a.telegramId} className="bg-black/40 rounded-xl p-3 border border-white/5">
+        <div key={a.telegramId} className="bg-secondary rounded-xl p-3 border border-violet-500/20">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <div className="font-bold text-white text-sm">{a.username ? `@${a.username}` : `ID: ${a.telegramId}`}</div>
+              <div className="font-bold text-foreground text-sm">{a.username ? `@${a.username}` : `ID: ${a.telegramId}`}</div>
               <div className="text-xs text-muted-foreground font-mono">{a.telegramId}</div>
             </div>
             <button onClick={() => remove(a.telegramId)} className="p-1.5 rounded-lg text-destructive bg-destructive/10 hover:bg-destructive/20"><X className="w-3.5 h-3.5" /></button>
@@ -2090,7 +2090,7 @@ function AdminsSection() {
               ? <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full">{t('admin_all_permissions')}</span>
               : a.permissions.map(p => {
                 const found = ALL_PERMISSIONS.find(x => x.key === p);
-                return <span key={p} className="text-[10px] bg-white/10 text-muted-foreground px-2 py-0.5 rounded-full">{found ? t(found.labelKey) : p}</span>;
+                return <span key={p} className="text-[10px] bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">{found ? t(found.labelKey) : p}</span>;
               })
             }
           </div>
@@ -2153,7 +2153,7 @@ function MiningPctSection() {
           min="0"
           value={pct}
           onChange={e => setPct(e.target.value)}
-          className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+          className="flex-1 bg-secondary border border-violet-500/20 rounded-lg px-3 py-2 text-sm text-foreground"
         />
         <span className="text-sm text-muted-foreground">% / يوم</span>
       </div>
@@ -2268,7 +2268,7 @@ function DailyCheckinSection() {
               step="0.5"
               value={v}
               onChange={e => setVals(prev => prev.map((x, j) => (j === i ? e.target.value : x)))}
-              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-2 text-sm text-white"
+              className="w-full bg-secondary border border-violet-500/20 rounded-lg px-2 py-2 text-sm text-foreground"
             />
           </div>
         ))}
@@ -2378,13 +2378,13 @@ function ComboDailyInner() {
     <div className="space-y-3">
       {combo.date ? (
         <>
-          <div className="text-xs text-muted-foreground">{t('admin_combo_today_date')} <span className="text-white font-bold">{combo.date}</span></div>
+          <div className="text-xs text-muted-foreground">{t('admin_combo_today_date')} <span className="text-foreground font-bold">{combo.date}</span></div>
           <div className="text-xs text-muted-foreground mb-1">{t('admin_combo_correct')}</div>
           <div className="flex gap-2 flex-wrap">
             {combo.correctIds.map(id => (
               <div key={id} className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-3 py-2">
                 <span className="text-lg">{COMBO_EMOJIS[id]}</span>
-                <span className="text-white font-bold text-xs">{COMBO_ITEM_NAMES[id]}</span>
+                <span className="text-foreground font-bold text-xs">{COMBO_ITEM_NAMES[id]}</span>
               </div>
             ))}
           </div>
@@ -2393,7 +2393,7 @@ function ComboDailyInner() {
         <div className="text-muted-foreground text-sm">{t('admin_combo_none')}</div>
       )}
 
-      <div className="pt-2 border-t border-white/10 space-y-2">
+      <div className="pt-2 border-t border-violet-500/20 space-y-2">
         <div className="text-xs text-muted-foreground">نطاق مكافأة الكومبو اليومي (عشوائي بين الحدين)</div>
         <div className="flex items-center gap-2">
           <input
@@ -2401,7 +2401,7 @@ function ComboDailyInner() {
             onChange={e => setRewardMin(e.target.value)}
             inputMode="numeric"
             placeholder="أقل مكافأة"
-            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-sm text-foreground"
           />
           <span className="text-muted-foreground text-xs">–</span>
           <input
@@ -2409,7 +2409,7 @@ function ComboDailyInner() {
             onChange={e => setRewardMax(e.target.value)}
             inputMode="numeric"
             placeholder="أعلى مكافأة"
-            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-sm text-foreground"
           />
           <button
             onClick={saveRange}
@@ -2422,19 +2422,19 @@ function ComboDailyInner() {
         <div className="text-[10px] text-muted-foreground">يُستخدم فقط لو كل النسب بالأسفل = 0.</div>
       </div>
 
-      <div className="pt-2 border-t border-white/10 space-y-2">
+      <div className="pt-2 border-t border-violet-500/20 space-y-2">
         <div className="text-xs text-muted-foreground">
           نسبة ظهور كل مكافأة (%) — المكافأة اللي نسبتها 0% لن تظهر لأي مستخدم
         </div>
         <div className="space-y-1.5">
           {COMBO_REWARD_VALUES.map(v => (
             <div key={v} className="flex items-center gap-2">
-              <span className="w-16 text-xs font-bold text-white">{v} MNX</span>
+              <span className="w-16 text-xs font-bold text-foreground">{v} MNX</span>
               <input
                 value={weights[String(v)] ?? '0'}
                 onChange={e => setWeights(prev => ({ ...prev, [String(v)]: e.target.value }))}
                 inputMode="numeric"
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-white"
+                className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-1.5 text-sm text-foreground"
               />
               <span className="text-xs text-muted-foreground w-4">%</span>
             </div>
@@ -2449,7 +2449,7 @@ function ComboDailyInner() {
       </div>
 
 
-      <div className="pt-2 border-t border-white/10 space-y-2">
+      <div className="pt-2 border-t border-violet-500/20 space-y-2">
         <div className="text-xs text-muted-foreground">اختر 3 عناصر لكومبو اليوم ({selected.length}/3)</div>
         <div className="flex gap-2 flex-wrap">
           {[1, 2, 3, 4, 5].map(id => (
@@ -2459,7 +2459,7 @@ function ComboDailyInner() {
               className={`flex items-center gap-2 rounded-xl px-3 py-2 border text-xs font-bold transition ${
                 selected.includes(id)
                   ? 'bg-primary/20 border-primary/50 text-white'
-                  : 'bg-white/5 border-white/10 text-muted-foreground'
+                  : 'bg-secondary border-violet-500/20 text-muted-foreground'
               }`}
             >
               <span className="text-lg">{COMBO_EMOJIS[id]}</span>
@@ -2473,7 +2473,7 @@ function ComboDailyInner() {
             onChange={e => setReward(e.target.value)}
             inputMode="numeric"
             placeholder="المكافأة (MNX)"
-            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-sm text-foreground"
           />
           <button
             onClick={save}
@@ -2591,8 +2591,8 @@ function TournamentSection() {
   return (
     <div className="space-y-4">
       {/* ── Create form ── */}
-      <div className="bg-black/30 rounded-xl p-3 space-y-3 border border-white/10">
-        <p className="text-xs font-black text-white/70 flex items-center gap-1.5">
+      <div className="bg-secondary rounded-xl p-3 space-y-3 border border-violet-500/20">
+        <p className="text-xs font-black text-muted-foreground flex items-center gap-1.5">
           <Plus className="w-3.5 h-3.5 text-primary" /> {tr('admin_trn_create_new')}
         </p>
 
@@ -2604,21 +2604,21 @@ function TournamentSection() {
 
         <div className="flex gap-2">
           <div className="flex-1">
-            <p className="text-[10px] text-white/50 mb-1">{tr('admin_trn_ranks_count')}</p>
+            <p className="text-[10px] text-muted-foreground mb-1">{tr('admin_trn_ranks_count')}</p>
             <select
               value={topN}
               onChange={e => setTopN(Number(e.target.value))}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
+              className="w-full bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none"
             >
               {[3,5,10,20,30,50].map(n => <option key={n} value={n}>{tr('admin_trn_ranks_n', { n: String(n) })}</option>)}
             </select>
           </div>
           <div className="flex-1">
-            <p className="text-[10px] text-white/50 mb-1">{tr('admin_trn_duration')}</p>
+            <p className="text-[10px] text-muted-foreground mb-1">{tr('admin_trn_duration')}</p>
             <select
               value={durationH}
               onChange={e => setDurationH(Number(e.target.value))}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
+              className="w-full bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none"
             >
               {DURATION_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
             </select>
@@ -2627,25 +2627,25 @@ function TournamentSection() {
 
         {/* Prize inputs — show up to first 10 or topN */}
         <div className="space-y-1.5">
-          <p className="text-[10px] text-white/50">{tr('admin_trn_prizes_gram')}</p>
+          <p className="text-[10px] text-muted-foreground">{tr('admin_trn_prizes_gram')}</p>
           <div className="grid grid-cols-2 gap-1.5">
             {Array.from({ length: Math.min(topN, 10) }, (_, i) => (
-              <div key={i + 1} className="flex items-center gap-2 bg-black/20 rounded-xl px-2 py-1.5">
-                <span className="text-xs font-bold text-white/70 w-7 flex-shrink-0">{rankLabel(i + 1)}</span>
+              <div key={i + 1} className="flex items-center gap-2 bg-secondary rounded-xl px-2 py-1.5">
+                <span className="text-xs font-bold text-muted-foreground w-7 flex-shrink-0">{rankLabel(i + 1)}</span>
                 <input
                   type="number"
                   min={0}
                   placeholder="0"
                   value={prizeValues[i + 1] ?? ''}
                   onChange={e => setPrizeValues(p => ({ ...p, [i + 1]: e.target.value }))}
-                  className="w-full bg-transparent text-white text-sm focus:outline-none"
+                  className="w-full bg-transparent text-foreground text-sm focus:outline-none"
                 />
-                <span className="text-[10px] text-white/30 flex-shrink-0">gram</span>
+                <span className="text-[10px] text-muted-foreground flex-shrink-0">gram</span>
               </div>
             ))}
           </div>
           {topN > 10 && (
-            <p className="text-[10px] text-white/40">
+            <p className="text-[10px] text-muted-foreground">
               {tr('admin_trn_ranks_noprize', { topN: String(topN) })}
             </p>
           )}
@@ -2669,11 +2669,11 @@ function TournamentSection() {
             <div key={t.id} className="bg-success/10 border border-success/30 rounded-xl p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-white font-black text-sm">{t.title}</p>
-                  <p className="text-[11px] text-white/50 flex items-center gap-1 mt-0.5">
+                  <p className="text-foreground font-black text-sm">{t.title}</p>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" /> {tr('admin_trn_ends')}: {formatDate(t.endsAt)} · {tr('admin_trn_remaining')}: {timeLeft(t.endsAt)}
                   </p>
-                  <p className="text-[11px] text-white/40 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {tr('admin_trn_top_users', { n: String(t.topN) })} · {tr('admin_trn_prizes_count', { n: String(t.prizes.filter(p => p.gram > 0).length) })}
                   </p>
                 </div>
@@ -2696,7 +2696,7 @@ function TournamentSection() {
               {/* Prize summary */}
               <div className="flex flex-wrap gap-1.5">
                 {t.prizes.filter(p => p.gram > 0).slice(0, 5).map(p => (
-                  <span key={p.rank} className="text-[10px] bg-black/30 rounded-lg px-2 py-0.5 text-white/70">
+                  <span key={p.rank} className="text-[10px] bg-secondary rounded-lg px-2 py-0.5 text-muted-foreground">
                     {rankLabel(p.rank)} {p.gram}g
                   </span>
                 ))}
@@ -2705,24 +2705,24 @@ function TournamentSection() {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-white/40 text-center py-2">{tr('admin_trn_no_active')}</p>
+        <p className="text-xs text-muted-foreground text-center py-2">{tr('admin_trn_no_active')}</p>
       )}
 
       {/* ── Past tournaments ── */}
       {past.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-black text-white/50">{tr('admin_trn_past', { n: String(past.length) })}</p>
+          <p className="text-xs font-black text-muted-foreground">{tr('admin_trn_past', { n: String(past.length) })}</p>
           {past.slice(0, 5).map(t => (
-            <div key={t.id} className="bg-white/5 border border-white/10 rounded-xl p-3">
+            <div key={t.id} className="bg-secondary border border-violet-500/20 rounded-xl p-3">
               <div className="flex items-center justify-between">
-                <p className="text-white/80 font-bold text-sm">{t.title}</p>
+                <p className="text-muted-foreground font-bold text-sm">{t.title}</p>
                 <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${
-                  t.status === 'settled' ? 'bg-success/20 text-success' : 'bg-white/10 text-white/40'
+                  t.status === 'settled' ? 'bg-success/20 text-success' : 'bg-secondary text-muted-foreground'
                 }`}>
                   {t.status === 'settled' ? tr('admin_trn_finished') : tr('admin_trn_cancelled_status')}
                 </span>
               </div>
-              <p className="text-[10px] text-white/40 mt-0.5">{formatDate(t.endsAt)}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(t.endsAt)}</p>
             </div>
           ))}
         </div>
@@ -2847,8 +2847,8 @@ function CoinTournamentSection() {
             <div key={t.id} className="bg-primary/10 border border-primary/30 rounded-xl p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-white font-black text-sm">{t.title}</p>
-                  <p className="text-[11px] text-white/50 flex items-center gap-1 mt-0.5">
+                  <p className="text-foreground font-black text-sm">{t.title}</p>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Clock className="w-3 h-3" /> {tr('admin_trn_ends')}: {formatDate(t.endsAt)} · {tr('admin_trn_remaining')}: {timeLeft(t.endsAt)}
                   </p>
                 </div>
@@ -2871,7 +2871,7 @@ function CoinTournamentSection() {
               {/* Prize preview */}
               <div className="flex flex-wrap gap-1">
                 {t.prizes.filter(p => (p.coins ?? p.gram) > 0).slice(0, 6).map(p => (
-                  <span key={p.rank} className="text-[10px] bg-black/30 rounded-lg px-2 py-0.5 text-primary font-bold">
+                  <span key={p.rank} className="text-[10px] bg-secondary rounded-lg px-2 py-0.5 text-primary font-bold">
                     {rankLabel(p.rank)} {(p.coins ?? p.gram).toLocaleString()} MNX
                   </span>
                 ))}
@@ -2882,8 +2882,8 @@ function CoinTournamentSection() {
       ) : null}
 
       {/* ── Create / Restart form ── */}
-      <div className="bg-black/30 rounded-xl p-3 space-y-3 border border-white/10">
-        <p className="text-xs font-black text-white/70 flex items-center gap-1.5">
+      <div className="bg-secondary rounded-xl p-3 space-y-3 border border-violet-500/20">
+        <p className="text-xs font-black text-muted-foreground flex items-center gap-1.5">
           <Plus className="w-3.5 h-3.5 text-primary" />
           {hasActive ? tr('admin_coin_new_cycle') : tr('admin_coin_create_new')}
         </p>
@@ -2895,11 +2895,11 @@ function CoinTournamentSection() {
         />
 
         <div>
-          <p className="text-[10px] text-white/50 mb-1">{tr('admin_trn_duration_full')}</p>
+          <p className="text-[10px] text-muted-foreground mb-1">{tr('admin_trn_duration_full')}</p>
           <select
             value={durationH}
             onChange={e => setDurationH(Number(e.target.value))}
-            className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
+            className="w-full bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none"
           >
             {DURATION_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
           </select>
@@ -2907,18 +2907,18 @@ function CoinTournamentSection() {
 
         {/* Prize editor */}
         <div className="space-y-1.5">
-          <p className="text-[10px] text-white/50">{tr('admin_trn_prizes_coin')}</p>
+          <p className="text-[10px] text-muted-foreground">{tr('admin_trn_prizes_coin')}</p>
           <div className="grid grid-cols-2 gap-1.5">
             {Array.from({ length: topN }, (_, i) => (
-              <div key={i + 1} className="flex items-center gap-2 bg-black/20 rounded-xl px-2 py-1.5">
-                <span className="text-xs font-bold text-white/70 w-7 flex-shrink-0">{rankLabel(i + 1)}</span>
+              <div key={i + 1} className="flex items-center gap-2 bg-secondary rounded-xl px-2 py-1.5">
+                <span className="text-xs font-bold text-muted-foreground w-7 flex-shrink-0">{rankLabel(i + 1)}</span>
                 <input
                   type="number"
                   min={0}
                   placeholder="0"
                   value={prizeValues[i + 1] ?? ''}
                   onChange={e => setPrizeValues(p => ({ ...p, [i + 1]: e.target.value }))}
-                  className="w-full bg-transparent text-white text-sm focus:outline-none"
+                  className="w-full bg-transparent text-foreground text-sm focus:outline-none"
                 />
                 <span className="text-[10px] text-primary/60 flex-shrink-0">MNX</span>
               </div>
@@ -2943,18 +2943,18 @@ function CoinTournamentSection() {
       {/* ── Past coin tournaments ── */}
       {past.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-black text-white/50">{tr('admin_trn_past', { n: String(past.length) })}</p>
+          <p className="text-xs font-black text-muted-foreground">{tr('admin_trn_past', { n: String(past.length) })}</p>
           {past.slice(0, 5).map(t => (
-            <div key={t.id} className="bg-white/5 border border-white/10 rounded-xl p-3">
+            <div key={t.id} className="bg-secondary border border-violet-500/20 rounded-xl p-3">
               <div className="flex items-center justify-between">
-                <p className="text-white/80 font-bold text-sm">{t.title}</p>
+                <p className="text-muted-foreground font-bold text-sm">{t.title}</p>
                 <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${
-                  t.status === 'settled' ? 'bg-success/20 text-success' : 'bg-white/10 text-white/40'
+                  t.status === 'settled' ? 'bg-success/20 text-success' : 'bg-secondary text-muted-foreground'
                 }`}>
                   {t.status === 'settled' ? tr('admin_trn_finished') : tr('admin_trn_cancelled_status')}
                 </span>
               </div>
-              <p className="text-[10px] text-white/40 mt-0.5">{formatDate(t.endsAt)}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(t.endsAt)}</p>
             </div>
           ))}
         </div>
@@ -2968,15 +2968,15 @@ export default function Admin() {
   const { t } = useLanguage();
   return (
     <div className="min-h-full flex flex-col relative w-full" dir="rtl">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.75)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center gap-3 px-4 py-4 border-b border-white/10">
+      <div className="relative z-10 flex items-center gap-3 px-4 py-4 border-b border-violet-500/20">
         <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center">
           <Shield className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-lg font-black text-white">{t('admin_dashboard')}</h1>
+          <h1 className="text-lg font-black text-foreground">{t('admin_dashboard')}</h1>
           <p className="text-[10px] text-muted-foreground">لوحة إدارة GRAM MNX</p>
         </div>
       </div>
@@ -3116,42 +3116,42 @@ function StoreSettingsSection() {
   return (
     <div className="space-y-4">
       {/* Exchange rate */}
-      <div className="bg-black/40 rounded-xl p-3 space-y-2">
-        <p className="text-xs text-white/50 font-bold uppercase tracking-wider">{t('admin_exchange_rate')}</p>
+      <div className="bg-secondary rounded-xl p-3 space-y-2">
+        <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t('admin_exchange_rate')}</p>
         <div className="flex items-center gap-2">
           <input
             type="number" min="1" step="1" value={coinsPerGram}
             onChange={e => setCoinsPerGram(e.target.value)}
-            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50"
           />
-          <span className="text-white/60 text-sm font-bold whitespace-nowrap">MNX = 1 gram</span>
+          <span className="text-muted-foreground text-sm font-bold whitespace-nowrap">MNX = 1 gram</span>
         </div>
       </div>
 
       {/* Daily plan */}
-      <div className="bg-black/40 rounded-xl p-3 space-y-2">
-        <p className="text-xs text-white/50 font-bold uppercase tracking-wider">{t('admin_daily_plan')}</p>
+      <div className="bg-secondary rounded-xl p-3 space-y-2">
+        <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t('admin_daily_plan')}</p>
         <div className="flex items-center gap-2">
           <input
             type="number" min="0.001" step="0.001" value={dailyGram}
             onChange={e => setDailyGram(e.target.value)}
-            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50"
           />
-          <span className="text-white/60 text-sm font-bold whitespace-nowrap">gram</span>
+          <span className="text-muted-foreground text-sm font-bold whitespace-nowrap">gram</span>
         </div>
         <p className="text-xs text-primary/70">= {dailyCoins} MNX {t('admin_base_plan_700')}</p>
       </div>
 
       {/* Monthly plan */}
-      <div className="bg-black/40 rounded-xl p-3 space-y-2">
-        <p className="text-xs text-white/50 font-bold uppercase tracking-wider">{t('admin_monthly_plan')}</p>
+      <div className="bg-secondary rounded-xl p-3 space-y-2">
+        <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t('admin_monthly_plan')}</p>
         <div className="flex items-center gap-2">
           <input
             type="number" min="0.001" step="0.001" value={monthlyGram}
             onChange={e => setMonthlyGram(e.target.value)}
-            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-primary/50"
+            className="flex-1 bg-secondary border border-violet-500/20 rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-primary/50"
           />
-          <span className="text-white/60 text-sm font-bold whitespace-nowrap">gram</span>
+          <span className="text-muted-foreground text-sm font-bold whitespace-nowrap">gram</span>
         </div>
         <p className="text-xs text-primary/70">= {monthlyCoins} MNX {t('admin_base_plan_700')}</p>
       </div>
@@ -3199,12 +3199,12 @@ function CountriesSection() {
       ) : (
         <div className="space-y-2">
           {data.countries.map(c => (
-            <div key={c.code} className="bg-black/40 rounded-xl p-2.5 border border-white/5">
+            <div key={c.code} className="bg-secondary rounded-xl p-2.5 border border-violet-500/20">
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-white font-bold">{flagOf(c.code)} {c.name}</span>
-                <span className="text-primary font-black">{c.percent}% <span className="text-white/40 font-normal">({c.users})</span></span>
+                <span className="text-foreground font-bold">{flagOf(c.code)} {c.name}</span>
+                <span className="text-primary font-black">{c.percent}% <span className="text-muted-foreground font-normal">({c.users})</span></span>
               </div>
-              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full" style={{ width: `${Math.max(2, c.percent)}%` }} />
               </div>
             </div>
@@ -3359,12 +3359,12 @@ function SecuritySection() {
   return (
     <div className="space-y-4">
       {/* Risk meter */}
-      <div className="bg-black/40 rounded-xl p-3 border border-white/5">
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-muted-foreground">نسبة الخطر (آخر 24 ساعة)</span>
-          <span className="text-sm font-black text-white">{data.score}% · {data.label}</span>
+          <span className="text-sm font-black text-foreground">{data.score}% · {data.label}</span>
         </div>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div className="h-2 rounded-full bg-secondary overflow-hidden">
           <div className={`h-full ${barColor} transition-all`} style={{ width: `${data.score}%` }} />
         </div>
         <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
@@ -3383,9 +3383,9 @@ function SecuritySection() {
           <div className="text-xs text-muted-foreground text-center py-3">لا توجد محاولات مسجّلة ✅</div>
         )}
         {data.events.map(e => (
-          <div key={e.id} className="bg-black/40 rounded-xl p-3 border border-white/5 text-xs space-y-1">
+          <div key={e.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 text-xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className={`font-bold ${SEV_COLOR[e.severity] ?? 'text-white'}`}>{e.type}</span>
+              <span className={`font-bold ${SEV_COLOR[e.severity] ?? 'text-foreground'}`}>{e.type}</span>
               <span className="text-[10px] text-muted-foreground">{new Date(e.at).toLocaleString('ar-EG')}</span>
             </div>
             {e.detail && <div className="text-muted-foreground">{e.detail}</div>}
@@ -3400,10 +3400,10 @@ function SecuritySection() {
       </div>
 
       {/* Wallet keys */}
-      <div className="bg-black/40 rounded-xl p-3 border border-white/5 space-y-2">
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
         <div className="flex items-center gap-2">
           <Wallet className="w-4 h-4 text-primary" />
-          <span className="text-sm font-black text-white">مفاتيح محفظة الدفع</span>
+          <span className="text-sm font-black text-foreground">مفاتيح محفظة الدفع</span>
         </div>
         <div className="text-[11px] text-muted-foreground break-all">
           الحالة: {data.wallet.configured ? 'مفعّلة' : 'غير مضبوطة'} · المصدر: {data.wallet.custom ? 'مفتاح مُغيَّر من اللوحة' : 'المفتاح الأصلي'}

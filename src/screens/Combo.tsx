@@ -153,14 +153,14 @@ export default function Combo() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'rgba(0,0,0,0.80)' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-white/10">
+      <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-violet-500/20">
         <div className="flex items-center gap-3">
           <StickerBadge size={36} src={sparksSticker.url} />
           <div>
-            <h1 className="text-lg font-black text-white">{t('combo_title')}</h1>
+            <h1 className="text-lg font-black text-foreground">{t('combo_title')}</h1>
             <p className="text-[10px] text-muted-foreground">{t('combo_subtitle')}</p>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function Combo() {
             <div className="relative rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-transparent p-3 pt-8">
               {/* Countdown chip (top-right) */}
               {countdown && (
-                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/50 border border-violet-500/30 px-2 py-1">
+                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-secondary border border-violet-500/30 px-2 py-1">
                   <Clock className="w-3 h-3 text-primary" />
                   <span className="text-[10px] font-black tabular-nums text-primary">{countdown}</span>
                 </div>
@@ -224,16 +224,16 @@ export default function Combo() {
                       disabled={!id || locked}
                       className={`relative aspect-square rounded-xl border-2 border-dashed flex items-center justify-center
                         overflow-hidden transition-all duration-300
-                        ${item ? 'border-solid animate-scale-in' : 'bg-white/5'}
-                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-violet-500/60' : 'border-white/15'}
+                        ${item ? 'border-solid animate-scale-in' : 'bg-secondary'}
+                        ${wrong ? 'border-destructive' : good ? 'border-emerald-500' : item ? 'border-violet-500/60' : 'border-violet-500/20'}
                         ${item && !locked ? 'active:scale-95' : ''}`}
                     >
                       {item ? (
                         <img src={item.img} alt={item.name} className="w-full h-full object-cover" draggable={false} />
                       ) : locked ? (
-                        <CheckCircle2 className={`w-7 h-7 ${good ? 'text-emerald-400' : 'text-white/40'}`} />
+                        <CheckCircle2 className={`w-7 h-7 ${good ? 'text-emerald-400' : 'text-muted-foreground'}`} />
                       ) : (
-                        <span className="text-white/25 text-lg font-black">{i + 1}</span>
+                        <span className="text-muted-foreground text-lg font-black">{i + 1}</span>
                       )}
                     </button>
                   );
@@ -266,7 +266,7 @@ export default function Combo() {
 
             {/* Already used today (and no fresh result yet) */}
             {isDone && showSuccess === null && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center gap-3">
+              <div className="rounded-2xl border border-violet-500/20 bg-secondary p-4 flex items-center gap-3">
                 <Clock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <p className="text-muted-foreground text-sm">
                   {t('combo_used_today', { time: countdown ?? '24:00:00' })}
@@ -278,7 +278,7 @@ export default function Combo() {
             {!isDone && !result && (
               <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 text-center">
                 <p className="text-primary text-sm font-bold">
-                  {t('combo_instructions_pre')} <span className="text-white font-black">{t('combo_instructions_items')}</span> {t('combo_instructions_post')}
+                  {t('combo_instructions_pre')} <span className="text-foreground font-black">{t('combo_instructions_items')}</span> {t('combo_instructions_post')}
                 </p>
                 <p className="text-muted-foreground text-xs mt-1">{t('combo_one_per_day')}</p>
               </div>
@@ -345,7 +345,7 @@ function ItemCard({
       className={`
         relative flex flex-col items-center justify-center gap-1
         rounded-2xl border p-1.5 pb-2
-        bg-[#171522] border-violet-500/30
+        bg-white border-violet-500/30
         transition-all duration-200 touch-manipulation
         ${selected ? 'ring-2 ring-violet-500 border-violet-400 shadow-lg shadow-violet-600/25' : 'opacity-90'}
         ${disabled ? 'cursor-default' : 'active:scale-95'}
@@ -353,7 +353,7 @@ function ItemCard({
     >
       {selected && (
         <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
-          <CheckCircle2 className="w-3 h-3 text-white" />
+          <CheckCircle2 className="w-3 h-3 text-foreground" />
         </div>
       )}
       <img
@@ -362,7 +362,7 @@ function ItemCard({
         className="w-full aspect-square object-contain rounded-xl"
         draggable={false}
       />
-      <span className="text-white text-[10px] font-bold text-center leading-tight whitespace-pre-line">
+      <span className="text-foreground text-[10px] font-bold text-center leading-tight whitespace-pre-line">
         {item.name}
       </span>
     </button>

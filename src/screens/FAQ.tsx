@@ -68,15 +68,15 @@ const FAQS: FAQItem[] = [
 
 function FAQRow({ item, index }: { item: FAQItem; index: number }) {
   return (
-    <div className="border border-violet-500/25 rounded-2xl overflow-hidden bg-[#171522]/85 backdrop-blur-sm">
+    <div className="border border-violet-500/25 rounded-2xl overflow-hidden bg-white/85 backdrop-blur-sm">
       <div className="flex items-start gap-3 px-4 pt-4 text-right">
         <span className="w-6 h-6 shrink-0 rounded-lg bg-violet-500/20 text-violet-200 text-[11px] font-black flex items-center justify-center">
           {index + 1}
         </span>
-        <span className="flex-1 text-sm font-bold text-white leading-relaxed">{item.q}</span>
+        <span className="flex-1 text-sm font-bold text-foreground leading-relaxed">{item.q}</span>
       </div>
       <div className="px-4 pb-4 pt-3 mt-3 border-t border-violet-500/15">
-        <p className="text-sm text-white/75 leading-relaxed text-right">{item.a}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed text-right">{item.a}</p>
       </div>
     </div>
   );
@@ -86,7 +86,7 @@ export default function FAQ() {
   const { t } = useLanguage();
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#1b1730 0%,#100d1c 100%)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }} />
 
       <div className="relative z-10 flex items-center gap-3 mb-6">
         <Link
@@ -95,7 +95,7 @@ export default function FAQ() {
         >
           ‹
         </Link>
-        <h1 className="text-lg font-black text-white flex items-center gap-2">
+        <h1 className="text-lg font-black text-foreground flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-violet-300" />
           {t('faq_title')}
         </h1>
