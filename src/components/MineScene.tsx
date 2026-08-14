@@ -182,7 +182,7 @@ function MineSceneBase({ active, claimKey, gramPerSec = 0 }: Props) {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(120% 70% at 50% 45%, transparent 40%, rgba(0,0,0,0.45) 100%), linear-gradient(180deg, #FFFFFF 0%, transparent 22%, transparent 70%, rgba(0,0,0,0.6) 100%)',
+            'radial-gradient(120% 70% at 50% 45%, transparent 40%, rgba(0,0,0,0.45) 100%), linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 22%, transparent 70%, rgba(0,0,0,0.6) 100%)',
         }}
       />
 
