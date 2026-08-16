@@ -307,7 +307,7 @@ export default function Combo() {
               <button
                 onClick={handleSubmit}
                 disabled={selected.length !== 3 || submitting}
-                className="w-full bg-primary text-black font-black rounded-2xl py-3.5 text-sm
+                className="w-full bg-primary text-primary-foreground font-black rounded-2xl py-3.5 text-sm
                            flex items-center justify-center gap-2
                            disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
               >

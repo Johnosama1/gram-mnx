@@ -85,7 +85,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-foreground">{t('swap_gram_to_coin')}</h2>
       </div>
@@ -152,7 +152,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         <button
           onClick={handleSwap}
           disabled={status.type === 'loading' || !inputNum || inputNum <= 0}
-          className="w-full py-4 rounded-2xl bg-primary text-black font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
+          className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading' ? t('swap_converting') : `🔄 ${t('swap_gram_to_coin')}`}
         </button>
@@ -466,7 +466,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('deposit_title')}</h2>
       </div>
       {body}
@@ -610,7 +610,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         <button
           onClick={submit}
           disabled={status.type === 'loading' || !walletAddress || !amount}
-          className="w-full py-4 rounded-2xl bg-primary text-black font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
+          className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading' ? t('withdraw_sending') : t('withdraw_request_btn')}
         </button>
@@ -638,7 +638,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
-        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
+        <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('withdraw_title')}</h2>
       </div>
       {body}
@@ -687,7 +687,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={back}
-          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-foreground">{t('support_title')}</h2>
       </div>
@@ -776,13 +776,13 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               maxLength={1000}
               rows={7}
               placeholder={t('support_placeholder')}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-white text-sm outline-none focus:border-primary/50 resize-none select-text"
+              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-primary text-sm outline-none focus:border-primary/50 resize-none select-text"
             />
             <div className="text-[10px] text-muted-foreground text-left">{text.length}/1000</div>
             <button
               onClick={submit}
               disabled={!text.trim() || status.type === 'loading'}
-              className="w-full py-4 rounded-2xl bg-primary text-black font-black disabled:opacity-40"
+              className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black disabled:opacity-40"
             >
               {status.type === 'loading' ? t('support_sending') : t('support_send')}
             </button>
@@ -881,7 +881,7 @@ export default function Profile() {
           onClick={() => (walletAddress ? setShowWalletHub(true) : setShowWallet(true))}
           className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={walletSticker.url} />
           </div>
           <div className="flex-1">
@@ -899,7 +899,7 @@ export default function Profile() {
           onClick={() => setShowSwap(true)}
           className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={30} src={swapSticker.url} />
           </div>
           <div className="flex-1">
@@ -914,7 +914,7 @@ export default function Profile() {
           onClick={() => setShowSettings(true)}
           className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={gearSticker.url} />
           </div>
           <div className="flex-1">
@@ -929,7 +929,7 @@ export default function Profile() {
           onClick={() => setShowSupport(true)}
           className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={supportBalloonSticker.url} />
           </div>
           <div className="flex-1">
@@ -955,7 +955,7 @@ export default function Profile() {
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowWalletHub(false)}
-              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
             >‹</button>
             <h2 className="text-lg font-black text-foreground">Wallet</h2>
           </div>
@@ -975,7 +975,7 @@ export default function Profile() {
                   key={tab}
                   onClick={() => setWalletTab(tab)}
                   className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black transition-colors ${
-                    walletTab === tab ? 'bg-primary text-black' : 'text-muted-foreground hover:bg-violet-500/15'
+                    walletTab === tab ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-violet-500/15'
                   }`}
                 >
                   <StickerBadge size={20} src={tab === 'deposit' ? downloadSticker.url : purseSticker.url} />
@@ -1004,7 +1004,7 @@ export default function Profile() {
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowSettings(false)}
-              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+              className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
             >‹</button>
             <h2 className="text-lg font-black text-foreground">{t('profile_settings')}</h2>
           </div>

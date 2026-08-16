@@ -355,10 +355,10 @@ function PackageModal({
                : <span style={{ fontSize: 20 }}>◈</span>}
             </div>
             <div className="text-left">
-              <div className="text-black font-black text-base leading-tight">
+              <div className="text-primary-foreground font-black text-base leading-tight">
                 {status === 'loading' ? t('store_purchasing') : status === 'ok' ? t('store_done') : `${gram.toFixed(2)} GRAM`}
               </div>
-              <div className="text-black/60 font-bold text-[11px] tracking-wider">PAY WITH GRAM</div>
+              <div className="text-primary-foreground/60 font-bold text-[11px] tracking-wider">PAY WITH GRAM</div>
             </div>
           </button>
         </div>
