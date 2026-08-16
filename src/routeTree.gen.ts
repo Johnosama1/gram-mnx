@@ -35,6 +35,8 @@ import { Route as ApiGiftStatusRouteImport } from './routes/api/gift/status'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
+import { Route as ApiTasksAdsStatusRouteImport } from './routes/api/tasks/ads-status'
+import { Route as ApiTasksAdsWatchedRouteImport } from './routes/api/tasks/ads-watched'
 import { Route as ApiTasksCheckinRouteImport } from './routes/api/tasks/checkin'
 import { Route as ApiTasksCompleteRouteImport } from './routes/api/tasks/complete'
 import { Route as ApiTasksCompletedRouteImport } from './routes/api/tasks/completed'
@@ -198,6 +200,16 @@ const ApiSupportSubmitRoute = ApiSupportSubmitRouteImport.update({
 const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
   id: '/api/tasks/',
   path: '/api/tasks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksAdsStatusRoute = ApiTasksAdsStatusRouteImport.update({
+  id: '/api/tasks/ads-status',
+  path: '/api/tasks/ads-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksAdsWatchedRoute = ApiTasksAdsWatchedRouteImport.update({
+  id: '/api/tasks/ads-watched',
+  path: '/api/tasks/ads-watched',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTasksCheckinRoute = ApiTasksCheckinRouteImport.update({
@@ -399,6 +411,8 @@ export interface FileRoutesByFullPath {
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
+  '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -460,6 +474,8 @@ export interface FileRoutesByTo {
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
+  '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -522,6 +538,8 @@ export interface FileRoutesById {
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
+  '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
+  '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -585,6 +603,8 @@ export interface FileRouteTypes {
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
+    | '/api/tasks/ads-status'
+    | '/api/tasks/ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -646,6 +666,8 @@ export interface FileRouteTypes {
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
+    | '/api/tasks/ads-status'
+    | '/api/tasks/ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -707,6 +729,8 @@ export interface FileRouteTypes {
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
+    | '/api/tasks/ads-status'
+    | '/api/tasks/ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -769,6 +793,8 @@ export interface RootRouteChildren {
   ApiGiftStatusRoute: typeof ApiGiftStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
+  ApiTasksAdsStatusRoute: typeof ApiTasksAdsStatusRoute
+  ApiTasksAdsWatchedRoute: typeof ApiTasksAdsWatchedRoute
   ApiTasksCheckinRoute: typeof ApiTasksCheckinRoute
   ApiTasksCompleteRoute: typeof ApiTasksCompleteRoute
   ApiTasksCompletedRoute: typeof ApiTasksCompletedRoute
@@ -983,6 +1009,20 @@ declare module '@tanstack/react-router' {
       path: '/api/tasks'
       fullPath: '/api/tasks/'
       preLoaderRoute: typeof ApiTasksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/ads-status': {
+      id: '/api/tasks/ads-status'
+      path: '/api/tasks/ads-status'
+      fullPath: '/api/tasks/ads-status'
+      preLoaderRoute: typeof ApiTasksAdsStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/ads-watched': {
+      id: '/api/tasks/ads-watched'
+      path: '/api/tasks/ads-watched'
+      fullPath: '/api/tasks/ads-watched'
+      preLoaderRoute: typeof ApiTasksAdsWatchedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tasks/checkin': {
@@ -1284,6 +1324,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGiftStatusRoute: ApiGiftStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,
+  ApiTasksAdsStatusRoute: ApiTasksAdsStatusRoute,
+  ApiTasksAdsWatchedRoute: ApiTasksAdsWatchedRoute,
   ApiTasksCheckinRoute: ApiTasksCheckinRoute,
   ApiTasksCompleteRoute: ApiTasksCompleteRoute,
   ApiTasksCompletedRoute: ApiTasksCompletedRoute,

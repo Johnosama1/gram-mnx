@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { cachedFetch, notifyDataChange, onDataChange } from '@/lib/apiCache';
-import { CheckCircle2, Circle, ExternalLink, Loader2, Radio, Users, Twitter, Bot, CalendarCheck } from 'lucide-react';
+import { CheckCircle2, Circle, ExternalLink, Loader2, Radio, Users, Twitter, Bot, CalendarCheck, PlayCircle } from 'lucide-react';
 import StickerBadge from '@/components/StickerBadge';
 import PromoCodeCard from '@/components/PromoCodeCard';
 import { toast } from 'sonner';
 
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
+import { showMonetagAd } from '@/lib/monetag';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -162,6 +163,127 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
             </div>
           );
         })}
+      </div>
+
+      {msg && (
+        <div
+          className="mt-2 text-xs font-medium px-2 py-1 rounded-lg"
+          style={{
+            background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+            color: msg.ok ? '#a78bfa' : '#f87171',
+          }}
+        >
+          {msg.text}
+        </div>
+      )}
+    </TaskCard>
+  );
+}
+
+// ─── Watch & Earn Ad Card (Monetag, zone 11590639) ───────────────────────────
+interface AdsStatus {
+  enabled: boolean;
+  watchedToday: number;
+  remainingToday: number;
+  rewardCoins: number;
+  dailyLimit: number;
+}
+
+function WatchAdCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) {
+  const { t } = useLanguage();
+  const [status, setStatus] = useState<AdsStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const load = useCallback(async () => {
+    const initData = getInitData();
+    if (!initData) return;
+    try {
+      const res = await cachedFetch(`${API_BASE}/api/tasks/ads-status`, {
+        headers: { 'x-init-data': initData },
+      });
+      if (res.ok) setStatus((await res.json()) as AdsStatus);
+    } catch {
+      /* best-effort — the card just stays hidden/disabled until the next load */
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const canWatch = !!status?.enabled && status.remainingToday > 0;
+
+  const watch = async () => {
+    // Guards against a double-tap or reopening the ad firing a second reward.
+    if (busy || !canWatch) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      // Resolves only once the ad was watched to completion; a skip/close/
+      // load failure rejects and no reward is requested below.
+      await showMonetagAd();
+      const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number }>(
+        '/tasks/ads-watched',
+        { credit: true },
+      );
+      if (data.ok && data.coinsEarned) {
+        onCoinsEarned(data.coinsEarned);
+        setMsg({ ok: true, text: `✅ +${data.coinsEarned} MNX` });
+        notifyDataChange('balance', 'tasks');
+      } else {
+        setMsg({ ok: false, text: t('tasks_ads_limit_reached') });
+      }
+      await load();
+    } catch {
+      setMsg({ ok: false, text: t('tasks_ads_failed') });
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMsg(null), 3500);
+    }
+  };
+
+  if (!status?.enabled) return null;
+
+  return (
+    <TaskCard>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <TaskIconBox>
+            <PlayCircle className="w-6 h-6 text-primary" />
+          </TaskIconBox>
+          <div className="min-w-0">
+            <div className="font-bold text-sm text-foreground">{t('tasks_ads_title')}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t('tasks_ads_desc', { reward: String(status.rewardCoins) })}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              {t('tasks_ads_remaining', {
+                remaining: String(status.remainingToday),
+                limit: String(status.dailyLimit),
+              })}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={watch}
+          disabled={busy || !canWatch}
+          className="flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5"
+          style={{
+            background: canWatch ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
+            color: canWatch ? '#fff' : '#9a97ad',
+            cursor: busy || !canWatch ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {busy ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : !canWatch ? (
+            t('tasks_ads_limit_reached')
+          ) : (
+            t('tasks_ads_watch')
+          )}
+        </button>
       </div>
 
       {msg && (
@@ -925,6 +1047,7 @@ export default function Tasks() {
         {(tab === 'all' || tab === 'daily') && (
           <>
             <DailyCheckInCard onCoinsEarned={(n) => addCoins(n)} />
+            <WatchAdCard onCoinsEarned={(n) => addCoins(n)} />
             <PromoCodeCard />
           </>
         )}
