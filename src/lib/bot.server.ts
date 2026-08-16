@@ -188,7 +188,11 @@ async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en', path
     ...action,
     style: 'success',
   });
-  const newsBtn = btn('GramMNXNews', { url: 'https://t.me/GramMNXNews' }, 'primary');
+  const newsBtn = btn(
+    'GramMNXNews',
+    { icon_custom_emoji_id: '5902441879785447561', url: 'https://t.me/GramMNXNews' },
+    'primary',
+  );
   const res = await send(chatId, welcome, {
     inline_keyboard: [[startBtn({ web_app: { url } })], [newsBtn]],
   });
