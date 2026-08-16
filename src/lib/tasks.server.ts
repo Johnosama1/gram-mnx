@@ -511,7 +511,7 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
   // ── Ads ────────────────────────────────────────────────────────────────────
   if (sub === 'ads-status' && method === 'GET') {
     const rewardCoins = Number((await getSetting('ad_reward_coins')) ?? 0.5) || 0.5;
-    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 20) || 20;
+    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 10) || 10;
     const enabled = (await getSetting('ads_task_enabled')) !== 'false';
     const quota = await getAdQuota(db, auth.id);
     return json({
@@ -530,7 +530,7 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     // stream a second time returns an empty object and incorrectly credits 0.
     const credit = body.credit === true;
     const rewardCoins = Number((await getSetting('ad_reward_coins')) ?? 0.5) || 0.5;
-    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 20) || 20;
+    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 10) || 10;
     const watchedToday = (await getAdQuota(db, auth.id)).watched;
     if (watchedToday >= dailyLimit)
       return json({ ok: false, message: 'daily limit reached' }, 400);

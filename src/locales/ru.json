@@ -434,7 +434,7 @@
   "tasks_ads_desc": "Посмотрите короткую рекламу и заработайте {reward} MNX",
   "tasks_ads_watch": "Смотреть рекламу",
   "tasks_ads_watching": "Загрузка рекламы…",
-  "tasks_ads_remaining": "Осталось {remaining}/{limit} сегодня",
+  "tasks_ads_progress": "Просмотрено {watched}/{limit}",
   "tasks_ads_limit_reached": "Дневной лимит исчерпан",
   "tasks_ads_failed": "❌ Реклама не была досмотрена, награда не начислена",
   "tasks_ads_unavailable": "❌ Реклама сейчас недоступна, попробуйте позже",

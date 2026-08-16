@@ -258,8 +258,8 @@ function WatchAdCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) 
               {t('tasks_ads_desc', { reward: String(status.rewardCoins) })}
             </div>
             <div className="text-[10px] text-muted-foreground mt-0.5">
-              {t('tasks_ads_remaining', {
-                remaining: String(status.remainingToday),
+              {t('tasks_ads_progress', {
+                watched: String(status.watchedToday),
                 limit: String(status.dailyLimit),
               })}
             </div>

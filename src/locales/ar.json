@@ -436,7 +436,7 @@
   "tasks_ads_desc": "شاهد إعلان قصير واربح {reward} MNX",
   "tasks_ads_watch": "شاهد إعلان",
   "tasks_ads_watching": "جاري تحميل الإعلان…",
-  "tasks_ads_remaining": "متبقي {remaining}/{limit} اليوم",
+  "tasks_ads_progress": "تمت مشاهدة {watched}/{limit}",
   "tasks_ads_limit_reached": "وصلت للحد اليومي",
   "tasks_ads_failed": "❌ لم تكتمل مشاهدة الإعلان، لم يتم صرف مكافأة",
   "tasks_ads_unavailable": "❌ الإعلان غير متاح حاليًا، حاول لاحقًا",

@@ -434,7 +434,7 @@
   "tasks_ads_desc": "Watch a short ad to earn {reward} MNX",
   "tasks_ads_watch": "Watch ad",
   "tasks_ads_watching": "Loading ad…",
-  "tasks_ads_remaining": "{remaining}/{limit} left today",
+  "tasks_ads_progress": "Watched {watched}/{limit}",
   "tasks_ads_limit_reached": "Daily limit reached",
   "tasks_ads_failed": "❌ Ad was not completed, no reward given",
   "tasks_ads_unavailable": "❌ Ad is not available right now, try again later",

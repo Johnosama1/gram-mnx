@@ -106,6 +106,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       { src: "https://telegram.org/js/telegram-web-app.js", defer: true, 'data-telegram-web-app-sdk': 'true' },
+      // Monetag rewarded-ad SDK (zone 11590639) for the "Watch & Earn" task.
+      { src: "//libtl.com/sdk.js", async: true, 'data-zone': '11590639', 'data-sdk': 'show_11590639' },
     ],
   }),
   shellComponent: RootShell,

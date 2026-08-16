@@ -403,7 +403,7 @@ function MaintenanceSection() {
 function AdsSection() {
   const [enabled, setEnabled] = useState(true);
   const [reward, setReward] = useState('0.5');
-  const [limit, setLimit] = useState('20');
+  const [limit, setLimit] = useState('10');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -412,7 +412,7 @@ function AdsSection() {
       .then((s) => {
         setEnabled(s['ads_task_enabled'] !== 'false');
         setReward(s['ad_reward_coins'] ?? '0.5');
-        setLimit(s['ad_daily_limit'] ?? '20');
+        setLimit(s['ad_daily_limit'] ?? '10');
       })
       .finally(() => setLoading(false));
   }, []);
