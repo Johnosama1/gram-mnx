@@ -186,6 +186,9 @@ export default function Dashboard() {
                   className="w-full h-full object-contain"
                 />
               </div>
+              {/* A flat image is edge-on (zero width) twice per turn; this glint
+                  fills that instant with light instead of a blank gap. */}
+              <div className="gem3d-glint" aria-hidden />
             </div>
             <img
               src={crystalBase}
