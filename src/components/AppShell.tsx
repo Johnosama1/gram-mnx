@@ -208,10 +208,18 @@ function OutsideTelegramScreen({ onRetry }: { onRetry: () => void }) {
         Please open this app from the official Telegram bot.
       </p>
       <a
-        href="https://t.me/GramMNXNews"
+        href="https://t.me/GRAMMNX1_bot"
         target="_blank"
         rel="noopener noreferrer"
         className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+      >
+        Open
+      </a>
+      <a
+        href="https://t.me/GramMNXNews"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-2xl bg-blue-500 px-6 py-3 text-sm font-bold text-white"
       >
         GramMNXNews
       </a>
