@@ -175,6 +175,20 @@ export async function handleWithdraw(request: Request) {
   if (row.restrict_withdrawal) return json({ message: tr(lang, 'withdraw_restricted') }, 403);
   if (!row.wallet_address) return json({ message: tr(lang, 'withdraw_link_wallet') }, 400);
 
+  // One active request at a time: blocks duplicate submissions from a
+  // double-tap or from closing and reopening the withdraw screen while an
+  // earlier request is still pending/processing.
+  const { data: activeRequest } = await db
+    .from('gm_withdrawals')
+    .select('id')
+    .eq('telegram_id', user.id)
+    .in('status', ['pending', 'processing'])
+    .limit(1)
+    .maybeSingle();
+  if (activeRequest) {
+    return json({ message: tr(lang, 'withdraw_already_pending') }, 409);
+  }
+
   // Multi-account abuse guard: reject when too many accounts share this IP.
   const limit = await getMaxAccountsPerIp();
   const shared = await countAccountsSharingIp(user.id);

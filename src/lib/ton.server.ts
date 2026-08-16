@@ -91,6 +91,51 @@ export async function findIncomingDeposit(
   return null;
 }
 
+export type ChainPayout = { txHash: string; amountTon: number };
+
+/**
+ * Looks for a recent outgoing transfer from any payout wallet address to
+ * `toAddress` of about `amountTon`, sent at or after `sinceUnix`. Used to
+ * recover a withdrawal whose payout attempt was interrupted mid-flight
+ * (e.g. the server process was killed) without ever resending — resending
+ * a transfer that already reached the network would pay the user twice.
+ */
+export async function findOutgoingPayout(
+  toAddress: string,
+  amountTon: number,
+  sinceUnix: number,
+): Promise<ChainPayout | null> {
+  const wanted = await normalizeAddress(toAddress);
+  if (!wanted) return null;
+  const tolerance = Math.max(0.0005, amountTon * 0.005);
+
+  for (const { address } of await getPayoutWalletAddresses()) {
+    const url = `${TONCENTER}/api/v3/transactions?account=${encodeURIComponent(address)}&limit=50&sort=desc`;
+    const res = await fetch(url, { headers: { Accept: 'application/json', ...(await apiKeyHeaders()) } });
+    if (!res.ok) continue;
+    const body = (await res.json().catch(() => null)) as {
+      transactions?: {
+        hash: string;
+        now?: number;
+        out_msgs?: { destination?: string | null; value?: string | number | null }[];
+      }[];
+    } | null;
+
+    for (const tx of body?.transactions ?? []) {
+      if ((tx.now ?? 0) < sinceUnix) continue;
+      for (const msg of tx.out_msgs ?? []) {
+        if (!msg.destination) continue;
+        const norm = await normalizeAddress(msg.destination);
+        if (norm !== wanted) continue;
+        const sent = Number(msg.value ?? 0) / 1e9;
+        if (Math.abs(sent - amountTon) > tolerance) continue;
+        return { txHash: tx.hash, amountTon: sent };
+      }
+    }
+  }
+  return null;
+}
+
 /** Reads the on-chain TON balance of any address. Returns null when unavailable. */
 export async function getWalletBalanceTon(address: string): Promise<number | null> {
   try {

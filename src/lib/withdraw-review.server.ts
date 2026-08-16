@@ -244,6 +244,109 @@ export async function reviewWithdrawal(
   return { ok: true, message: 'Approved and sent' };
 }
 
+/**
+ * Recovers withdrawals whose payout attempt was interrupted mid-flight (the
+ * server process was killed — e.g. because the user closed the withdraw
+ * screen — while the request sat reserved in `processing`). Only rows older
+ * than `staleMinutes` are touched: `sendTonPayout` normally resolves within
+ * ~15s, so anything still `processing` well past that either never actually
+ * reached the network (safe to hand back to the normal retry queue) or did
+ * reach it (in which case it shows up on-chain and is recorded as approved).
+ * Either way this never resends a transfer, so it can never double-pay.
+ */
+export async function recoverStaleWithdrawals(staleMinutes = 5) {
+  const db = (await getDb()) as any;
+  const cutoff = new Date(Date.now() - staleMinutes * 60_000).toISOString();
+  const { data: stuck } = await db
+    .from('gm_withdrawals')
+    .select('id, telegram_id, wallet_address, amount, created_at')
+    .eq('status', 'processing')
+    .lt('created_at', cutoff);
+
+  let recovered = 0;
+  let requeued = 0;
+  for (const w of (stuck ?? []) as {
+    id: number;
+    telegram_id: number;
+    wallet_address: string;
+    amount: number;
+    created_at: string;
+  }[]) {
+    try {
+      // Re-check status: another recovery pass or an admin action may have
+      // already resolved it between the select above and now.
+      const { data: reserved } = await db
+        .from('gm_withdrawals')
+        .update({ status: 'recovering' })
+        .eq('id', w.id)
+        .eq('status', 'processing')
+        .select('id')
+        .maybeSingle();
+      if (!reserved) continue;
+
+      const { findOutgoingPayout } = await import('@/lib/ton.server');
+      const sinceUnix = Math.floor(new Date(w.created_at).getTime() / 1000);
+      const found = await findOutgoingPayout(w.wallet_address, Number(w.amount), sinceUnix);
+
+      if (found) {
+        await db
+          .from('gm_withdrawals')
+          .update({
+            status: 'approved',
+            tx_hash: found.txHash,
+            rejection_reason: null,
+            processed_at: new Date().toISOString(),
+          })
+          .eq('id', w.id);
+        const { announceWithdrawal } = await import('@/lib/withdraw-notify.server');
+        await announceWithdrawal({
+          requestId: Number(w.id),
+          telegramId: Number(w.telegram_id),
+          amount: Number(w.amount),
+          wallet: String(w.wallet_address),
+          txHash: found.txHash,
+          channelMessageId: null,
+        });
+        await announceReviewToAdmins({
+          requestId: Number(w.id),
+          action: 'approve',
+          ok: true,
+          message: 'Recovered after an interrupted payout attempt: the transfer had already reached the network.',
+          amount: Number(w.amount),
+          telegramId: Number(w.telegram_id),
+        });
+        recovered += 1;
+      } else {
+        // Never actually sent — safe to hand back to the normal payout queue.
+        await db
+          .from('gm_withdrawals')
+          .update({ status: 'pending', rejection_reason: null })
+          .eq('id', w.id);
+        await announceReviewToAdmins({
+          requestId: Number(w.id),
+          action: 'approve',
+          ok: false,
+          message: 'The previous payout attempt was interrupted before it reached the network. Requeued for automatic retry.',
+          amount: Number(w.amount),
+          telegramId: Number(w.telegram_id),
+        });
+        requeued += 1;
+      }
+    } catch (err) {
+      console.error(`recoverStaleWithdrawals: failed to recover #${w.id}:`, err);
+      // The lookup itself failed (e.g. toncenter hiccup) — release the
+      // reservation back to 'processing' so the next scheduled run (created_at
+      // is unchanged, so it's still past the cutoff) tries the recovery again.
+      await db
+        .from('gm_withdrawals')
+        .update({ status: 'processing' })
+        .eq('id', w.id)
+        .eq('status', 'recovering');
+    }
+  }
+  return { checked: (stuck ?? []).length, recovered, requeued };
+}
+
 function looksLikeInsufficientFunds(message: string): boolean {
   const m = String(message ?? '').toLowerCase();
   return (

@@ -14,20 +14,28 @@ async function run() {
   const { rateLimit, tooMany } = await import('@/lib/rate-limit.server');
   if (!(await rateLimit('deposit-scan', 6, 60))) return tooMany('busy');
 
+  // Recover withdrawals whose payout attempt was interrupted (e.g. the user
+  // closed the withdraw screen mid-request) before they can go stale forever
+  // in `processing`, then drain the pending withdrawal queue with whatever
+  // balance is now available (oldest requests first). Runs independently of
+  // the deposit scan below so a deposit-scan hiccup never stalls this queue.
+  let withdrawals: unknown = null;
+  try {
+    const { recoverStaleWithdrawals, processPendingWithdrawals } = await import(
+      '@/lib/withdraw-review.server'
+    );
+    const recovery = await recoverStaleWithdrawals();
+    const queue = await processPendingWithdrawals(25);
+    withdrawals = { ...queue, ...recovery };
+  } catch (e) {
+    console.error('processPendingWithdrawals failed:', e);
+  }
+
   try {
     const result = await scanDeposits(50);
-    // Whenever new funds land, drain the pending withdrawal queue with
-    // whatever balance is now available (oldest requests first).
-    let withdrawals: unknown = null;
-    try {
-      const { processPendingWithdrawals } = await import('@/lib/withdraw-review.server');
-      withdrawals = await processPendingWithdrawals(25);
-    } catch (e) {
-      console.error('processPendingWithdrawals failed:', e);
-    }
     return json({ ok: true, ...result, withdrawals });
   } catch (e) {
-    return json({ ok: false, error: e instanceof Error ? e.message : 'scan failed' }, 500);
+    return json({ ok: false, error: e instanceof Error ? e.message : 'scan failed', withdrawals }, 500);
   }
 }
 

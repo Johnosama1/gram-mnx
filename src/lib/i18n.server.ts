@@ -186,6 +186,11 @@ const MESSAGES = {
     ar: '✅ تم إرسال طلب السحب وهو قيد المراجعة',
     ru: '✅ Заявка на вывод отправлена и находится на рассмотрении',
   },
+  withdraw_already_pending: {
+    en: 'You already have a withdrawal request being processed. Please wait for it to finish.',
+    ar: 'لديك بالفعل طلب سحب قيد المعالجة. من فضلك انتظر حتى ينتهي.',
+    ru: 'У вас уже есть заявка на вывод в обработке. Пожалуйста, дождитесь её завершения.',
+  },
 
   // ---- wallet ----
   wallet_taken: {
