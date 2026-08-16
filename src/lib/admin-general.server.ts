@@ -51,6 +51,19 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
     }
 
 
+    if (type === 'ads-stats') {
+      const dayStart = new Date();
+      dayStart.setUTCHours(0, 0, 0, 0);
+      const { data, error } = await db
+        .from('gm_ad_views')
+        .select('coins')
+        .gte('created_at', dayStart.toISOString());
+      if (error) return json({ error: error.message }, 500);
+      const rows = (data ?? []) as { coins: number | null }[];
+      const coinsPaidToday = rows.reduce((sum: number, r: { coins: number | null }) => sum + Number(r.coins ?? 0), 0);
+      return json({ watchedToday: rows.length, coinsPaidToday });
+    }
+
     if (type === 'blocked-users') {
       const { data, error } = await db
         .from('gm_users')

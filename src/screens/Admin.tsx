@@ -406,6 +406,7 @@ function AdsSection() {
   const [limit, setLimit] = useState('10');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<{ watchedToday: number; coinsPaidToday: number } | null>(null);
 
   useEffect(() => {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
@@ -415,6 +416,9 @@ function AdsSection() {
         setLimit(s['ad_daily_limit'] ?? '10');
       })
       .finally(() => setLoading(false));
+    api<{ watchedToday: number; coinsPaidToday: number }>('GET', '/admin/general?type=ads-stats')
+      .then(setStats)
+      .catch(() => undefined);
   }, []);
 
   const save = async () => {
@@ -468,6 +472,20 @@ function AdsSection() {
             className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
           />
         </label>
+      </div>
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-2.5 text-xs">
+        <span className="text-muted-foreground">مصدر الإعلان</span>
+        <span className="text-foreground font-bold">Monetag · Zone 11590639</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-secondary rounded-xl px-3 py-2.5 text-center">
+          <div className="text-[10px] text-muted-foreground">مشاهدات اليوم</div>
+          <div className="text-sm font-black text-foreground mt-0.5">{stats?.watchedToday ?? '—'}</div>
+        </div>
+        <div className="bg-secondary rounded-xl px-3 py-2.5 text-center">
+          <div className="text-[10px] text-muted-foreground">مكافآت اليوم (MNX)</div>
+          <div className="text-sm font-black text-foreground mt-0.5">{stats?.coinsPaidToday ?? '—'}</div>
+        </div>
       </div>
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full">
@@ -3034,7 +3052,7 @@ export default function Admin() {
         <Section title="التسجيل اليومي" icon={Sparkles}>
           <DailyCheckinSection />
         </Section>
-        <Section title="الإعلانات (AdsGram)" icon={Sparkles}>
+        <Section title="مهمة الإعلانات (Monetag)" icon={Sparkles}>
           <AdsSection />
         </Section>
         <Section title="قسم الهدايا (Gift)" icon={Sparkles}>
