@@ -105,6 +105,28 @@ async function send(chat_id: number, text: string, reply_markup?: Kb) {
   return api('sendMessage', { chat_id, text: stripCustomEmoji(text).replace(/<[^>]+>/g, '') });
 }
 
+async function sendVideo(chat_id: number, video: string, caption: string, reply_markup?: Kb) {
+  const res = await api('sendVideo', { chat_id, video, caption, parse_mode: 'HTML', reply_markup });
+  if (res.ok) return res;
+  const { kb, changed } = stripStyle(reply_markup);
+  if (changed) {
+    const retry = await api('sendVideo', { chat_id, video, caption, parse_mode: 'HTML', reply_markup: kb });
+    if (retry.ok) return retry;
+  }
+  const plain = stripCustomEmoji(caption);
+  if (plain !== caption) {
+    const retry = await api('sendVideo', {
+      chat_id,
+      video,
+      caption: plain,
+      parse_mode: 'HTML',
+      reply_markup: kb ?? reply_markup,
+    });
+    if (retry.ok) return retry;
+  }
+  return { ok: false as const, error: 'sendVideo failed' };
+}
+
 async function edit(chat_id: number, message_id: number, text: string, reply_markup?: Kb) {
   const res = await api('editMessageText', {
     chat_id,
@@ -193,15 +215,20 @@ async function sendWelcome(chatId: number, from: TgUser, lang: 'ar' | 'en', path
     { icon_custom_emoji_id: '5902441879785447561', url: 'https://t.me/GramMNXNews' },
     'primary',
   );
-  const res = await send(chatId, welcome, {
-    inline_keyboard: [[startBtn({ web_app: { url } })], [newsBtn]],
-  });
+  const webAppKb: Kb = { inline_keyboard: [[startBtn({ web_app: { url } })], [newsBtn]] };
+  const urlKb: Kb = { inline_keyboard: [[startBtn({ url })], [newsBtn]] };
+  const videoUrl = `${webAppUrl().replace(/\/$/, '')}/welcome-video.mp4`;
 
+  let res = await sendVideo(chatId, videoUrl, welcome, webAppKb);
+  if (!res.ok) res = await sendVideo(chatId, videoUrl, welcome, urlKb);
+  if (res.ok) return;
+
+  // The video couldn't be delivered at all (e.g. unreachable) — the welcome
+  // message must still arrive, so fall back to the original text-only send.
+  res = await send(chatId, welcome, webAppKb);
   if (!res.ok) {
     // Some clients reject web_app buttons — fall back to a plain URL button.
-    await send(chatId, welcome, {
-      inline_keyboard: [[startBtn({ url })], [newsBtn]],
-    });
+    await send(chatId, welcome, urlKb);
   }
 }
 

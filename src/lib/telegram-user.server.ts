@@ -142,7 +142,7 @@ export async function computeAccrued(telegramId: number): Promise<Accrued> {
 /** Welcome message: DB override (welcome_message_<lang> / welcome_message) or the English default. */
 export async function getWelcomeMessage(firstName: string, lang: 'ar' | 'en'): Promise<string> {
   // Always English with the premium (custom) emoji, regardless of client language.
-  const fallback = `<tg-emoji emoji-id="5339536521009571338">👋</tg-emoji> Welcome to GRAM MNX, {first_name}!\n\n<tg-emoji emoji-id="5918280894539372491">💵</tg-emoji> Start mining gram by tapping the coin!\n<tg-emoji emoji-id="5424767999515040992">🏆</tg-emoji> Compete with friends and earn rewards!\n\n<tg-emoji emoji-id="5852805286342957224">👇</tg-emoji> Press the button below to start:`;
+  const fallback = `<tg-emoji emoji-id="5920174652994362278">💎</tg-emoji> Welcome to GRAM MNX! <tg-emoji emoji-id="5456140674028019486">⚡️</tg-emoji>\n\n<tg-emoji emoji-id="5424950874927537581">🏎</tg-emoji> Mine GRAM & claim daily rewards.\n\n<tg-emoji emoji-id="5213306719215577669">🧩</tg-emoji> Solve daily combos & complete tasks.\n\n<tg-emoji emoji-id="5258513401784573443">👥</tg-emoji> Invite friends to earn bonuses.\n\n<tg-emoji emoji-id="5229212516415978792">⬇️</tg-emoji> Tap the button below to start:`;
   try {
     const db = await getDb();
     const { data } = await db
