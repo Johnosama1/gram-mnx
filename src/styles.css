@@ -97,6 +97,18 @@
     -webkit-user-select: text;
     user-select: text;
   }
+
+  /* No image in the app is a standalone tap target (taps land on the
+     surrounding button/card), so removing images from the touch hit-test
+     entirely is safe. This is what actually stops Android's native
+     long-press "open/download/copy link" menu on <img> elements — unlike
+     -webkit-touch-callout (iOS-only) or a JS contextmenu handler, which
+     don't reliably catch it. */
+  img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
 }
 
 .glow-text-success {
