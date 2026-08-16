@@ -34,7 +34,7 @@ export default class ScreenErrorBoundary extends React.Component<Props, State> {
         <p className="text-foreground font-bold text-sm">Something went wrong</p>
         <button
           onClick={() => this.setState({ error: null })}
-          className="px-4 py-2 rounded-xl bg-primary text-black font-bold text-xs"
+          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-xs"
         >
           Try again
         </button>

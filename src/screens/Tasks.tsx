@@ -390,7 +390,7 @@ function TwitterLinkCard({
           <button
             onClick={link}
             disabled={busy}
-            className="px-3 py-2 rounded-xl font-bold text-xs bg-primary text-black disabled:opacity-50 flex items-center gap-1"
+            className="px-3 py-2 rounded-xl font-bold text-xs bg-primary text-primary-foreground disabled:opacity-50 flex items-center gap-1"
           >
             {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : t('tasks_link_btn')}
           </button>
@@ -486,7 +486,7 @@ function TwitterTaskCard({
               <button
                 onClick={verify}
                 disabled={busy || (!!openLink && !opened)}
-                className="flex-1 py-2 rounded-xl font-bold text-xs text-black disabled:opacity-50 flex items-center justify-center gap-1"
+                className="flex-1 py-2 rounded-xl font-bold text-xs text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-1"
                 style={{ background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' }}
               >
                 {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : t('tasks_verify_now')}
@@ -607,7 +607,7 @@ function SubmissionTaskCard({
                 <button
                   onClick={submit}
                   disabled={busy}
-                  className="px-3 py-2 rounded-xl font-bold text-xs bg-primary text-black disabled:opacity-50 flex items-center gap-1"
+                  className="px-3 py-2 rounded-xl font-bold text-xs bg-primary text-primary-foreground disabled:opacity-50 flex items-center gap-1"
                 >
                   {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : t('tasks_send')}
                 </button>

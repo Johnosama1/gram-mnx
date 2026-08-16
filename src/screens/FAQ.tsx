@@ -91,7 +91,7 @@ export default function FAQ() {
       <div className="relative z-10 flex items-center gap-3 mb-6">
         <Link
           to="/profile"
-          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-white hover:bg-violet-500/30 transition-colors text-lg font-bold"
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >
           ‹
         </Link>

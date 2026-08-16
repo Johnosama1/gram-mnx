@@ -215,7 +215,7 @@ export default function GiftScreen() {
           </p>
           <button
             onClick={() => { void copyInvite(activeGift.id); }}
-            className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+            className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm flex items-center justify-center gap-2"
           >
             {copied === activeGift.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             نسخ رابط الدعوة
@@ -306,7 +306,7 @@ export default function GiftScreen() {
                 {g.joined ? (
                   <button
                     onClick={() => setActive(g.id)}
-                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm flex items-center justify-center gap-2"
+                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm flex items-center justify-center gap-2"
                   >
                     <Ticket className="w-4 h-4" /> فتح صفحة المسابقة
                   </button>
@@ -314,7 +314,7 @@ export default function GiftScreen() {
                   <button
                     disabled={busy === g.id || g.full || g.expired}
                     onClick={() => { void join(g); }}
-                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-black font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {busy === g.id && <Loader2 className="w-4 h-4 animate-spin" />}
                     {g.expired ? 'انتهت المسابقة' : g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}

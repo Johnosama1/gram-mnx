@@ -144,7 +144,7 @@ function Btn({ children, onClick, variant = 'primary', size = 'md', disabled, cl
   disabled?: boolean; className?: string;
 }) {
   const colors = {
-    primary: 'bg-primary text-black hover:opacity-90',
+    primary: 'bg-primary text-primary-foreground hover:opacity-90',
     danger:  'bg-destructive/20 text-destructive hover:bg-destructive/30',
     ghost:   'bg-secondary text-foreground hover:bg-secondary',
     success: 'bg-success/20 text-success hover:bg-success/30',
@@ -688,7 +688,7 @@ function GiftSection() {
 
         <button
           onClick={() => { void addGift(); }}
-          className="w-full bg-primary text-black font-bold rounded-xl py-2 text-sm flex items-center justify-center gap-1"
+          className="w-full bg-primary text-primary-foreground font-bold rounded-xl py-2 text-sm flex items-center justify-center gap-1"
         >
           <Plus className="w-4 h-4" /> إضافة
         </button>
@@ -1176,7 +1176,7 @@ function TaskSubmissionsSection() {
           <button
             key={v}
             onClick={() => setFilter(v)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold ${filter === v ? 'bg-primary text-black' : 'bg-secondary text-muted-foreground'}`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold ${filter === v ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}
           >{label}</button>
         ))}
       </div>
@@ -1517,7 +1517,7 @@ function UsersSection() {
         <Input value={query} onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && search()}
           placeholder={t('admin_user_search_ph')} dir="ltr" />
-        <button onClick={search} disabled={loading} className="flex-shrink-0 px-4 py-2 rounded-xl bg-primary text-black font-black text-sm flex items-center gap-1 disabled:opacity-60">
+        <button onClick={search} disabled={loading} className="flex-shrink-0 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm flex items-center gap-1 disabled:opacity-60">
           <Search className="w-4 h-4" />
         </button>
       </div>

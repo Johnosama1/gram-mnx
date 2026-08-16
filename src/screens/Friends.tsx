@@ -392,7 +392,7 @@ const PodiumSlot = memo(function PodiumSlot({
         </div>
         {/* rank chip on the ring */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 -bottom-2 rounded-full px-2 py-[1px] text-[10px] font-black text-black"
+          className="absolute left-1/2 -translate-x-1/2 -bottom-2 rounded-full px-2 py-[1px] text-[10px] font-black text-primary-foreground"
           style={{ backgroundColor: ring, boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}
         >
           #{u.rank}
@@ -721,7 +721,7 @@ export default function Friends() {
               alt="leaderboard"
               className="w-8 h-8 object-contain"
             />
-            <span className="text-[9px] text-black/70 font-bold leading-tight text-center px-1">
+            <span className="text-[9px] text-primary-foreground/70 font-bold leading-tight text-center px-1">
               {t('friends_leaderboard')}
             </span>
           </button>
@@ -731,7 +731,7 @@ export default function Friends() {
         <div className="flex gap-3">
           <button
             onClick={handleShare}
-            className="flex-1 py-3 rounded-xl bg-primary text-black font-black flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,166,35,0.3)]"
+            className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-black flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,166,35,0.3)]"
           >
             <Share2 className="w-4 h-4" /> {t('friends_share')}
           </button>
