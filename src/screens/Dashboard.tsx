@@ -172,34 +172,19 @@ export default function Dashboard() {
           <div
             className={`gem3d-stage relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            {/* volumetric crystal: facet layers spun together so it never flattens */}
+            {/* single crystal, spinning in place */}
             <div
               className="relative min-h-0 max-h-[68%] max-w-[78%] w-auto drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)]"
               style={{ aspectRatio: '1024 / 660', height: '68%', animation: 'gem-bob 4.5s ease-in-out infinite' }}
             >
               <div className="gem3d-solid absolute inset-0">
-                {Array.from({ length: 12 }).map((_, i) => {
-                  const angle = (i * 180) / 12;
-                  const depth = Math.cos((angle * Math.PI) / 180) * 6;
-                  return (
-                    <div
-                      key={i}
-                      className="gem3d-facet"
-                      style={{
-                        transform: `rotateY(${angle}deg) translateZ(${depth}px)`,
-                        opacity: i === 0 ? 1 : 0.3,
-                      }}
-                    >
-                      <img
-                        src={crystalGem}
-                        alt={i === 0 ? 'GRAM MNX mining crystal' : ''}
-                        aria-hidden={i !== 0}
-                        width={1024}
-                        height={660}
-                      />
-                    </div>
-                  );
-                })}
+                <img
+                  src={crystalGem}
+                  alt="GRAM MNX mining crystal"
+                  width={1024}
+                  height={660}
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
             <img

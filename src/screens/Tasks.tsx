@@ -1009,7 +1009,7 @@ export default function Tasks() {
               style={{
                 background: isDone
                   ? 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, #FFFFFF 100%)'
-                  : 'rgba(0,0,0,0.5)',
+                  : '#FFFFFF',
                 border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.15)'}`,
               }}
             >
