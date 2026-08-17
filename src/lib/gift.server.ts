@@ -207,6 +207,126 @@ async function isAdminUser(telegramId: number | null): Promise<boolean> {
   return (await getAllAdminIds()).includes(telegramId);
 }
 
+/**
+ * "Ads gifts" — a second, fully independent way to earn a raffle ticket:
+ * watch GIFT_AD_DAILY_TARGET ads in a day (tracked in gm_gift_ad_views, a
+ * table dedicated to this feature — never the Tasks screen's gm_ad_views)
+ * and get one ticket for that day (gm_gift_ad_tickets, unique per user per
+ * day, which is what makes it exactly one ticket/day no matter how many
+ * more ads are watched). Nothing here reads or writes the referral-link
+ * gift contests above, and no invite link is ever involved.
+ */
+const GIFT_AD_DAILY_TARGET = 10;
+
+function currentUtcMidnight(now = Date.now()): Date {
+  const d = new Date(now);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
+}
+
+async function getGiftAdStatus(telegramId: number) {
+  const db = (await getDb()) as any;
+  const dayStart = currentUtcMidnight();
+  const ticketDay = dayStart.toISOString().slice(0, 10);
+
+  const [{ count }, { data: ticketRow }] = await Promise.all([
+    db
+      .from('gm_gift_ad_views')
+      .select('id', { count: 'exact', head: true })
+      .eq('telegram_id', telegramId)
+      .gte('created_at', dayStart.toISOString()),
+    db
+      .from('gm_gift_ad_tickets')
+      .select('id')
+      .eq('telegram_id', telegramId)
+      .eq('ticket_day', ticketDay)
+      .maybeSingle(),
+  ]);
+
+  return {
+    watchedToday: Math.min(GIFT_AD_DAILY_TARGET, Number(count ?? 0)),
+    dailyTarget: GIFT_AD_DAILY_TARGET,
+    ticketToday: Boolean(ticketRow),
+  };
+}
+
+/** Records one completed ad view and awards the day's ticket once the target is hit. */
+async function recordGiftAdView(telegramId: number) {
+  const status = await getGiftAdStatus(telegramId);
+  if (status.ticketToday) {
+    return { ok: false as const, message: 'حصلت بالفعل على تذكرة إعلانات اليوم', ...status };
+  }
+
+  const db = (await getDb()) as any;
+  await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
+
+  const dayStart = currentUtcMidnight();
+  const { count } = await db
+    .from('gm_gift_ad_views')
+    .select('id', { count: 'exact', head: true })
+    .eq('telegram_id', telegramId)
+    .gte('created_at', dayStart.toISOString());
+  const watchedCount = Number(count ?? 0);
+
+  let ticketAwarded = false;
+  if (watchedCount >= GIFT_AD_DAILY_TARGET) {
+    const ticketDay = dayStart.toISOString().slice(0, 10);
+    const { error } = await db
+      .from('gm_gift_ad_tickets')
+      .insert({ telegram_id: telegramId, ticket_day: ticketDay });
+    if (!error) {
+      ticketAwarded = true;
+      try {
+        const { notifyUser } = await import('@/lib/admin.server');
+        await notifyUser(
+          telegramId,
+          '🎟️ مبروك! شاهدت 10 إعلانات اليوم وحصلت على تذكرة في هدايا الإعلانات.',
+        );
+      } catch {
+        /* notification is best-effort */
+      }
+    }
+  }
+
+  return {
+    ok: true as const,
+    watchedToday: Math.min(GIFT_AD_DAILY_TARGET, watchedCount),
+    dailyTarget: GIFT_AD_DAILY_TARGET,
+    ticketToday: ticketAwarded || status.ticketToday,
+  };
+}
+
+/** GET/POST → { watchedToday, dailyTarget, ticketToday } for the current user. */
+export async function handleGiftAdsStatus(request: Request): Promise<Response> {
+  const body =
+    request.method === 'GET'
+      ? {}
+      : ((await request.json().catch(() => ({}))) as Record<string, any>);
+  const initData =
+    request.headers.get('x-init-data') ??
+    (typeof body.initData === 'string' ? body.initData : null);
+  const auth = resolveTelegramUser(initData);
+  if (!auth) return json({ error: 'Unauthorized' }, 401);
+  return json(await getGiftAdStatus(auth.id));
+}
+
+/** POST → records one ad view (only call after the ad actually finished playing). */
+export async function handleGiftAdsWatch(request: Request): Promise<Response> {
+  const body = (await request.json().catch(() => ({}))) as Record<string, any>;
+  const initData =
+    request.headers.get('x-init-data') ??
+    (typeof body.initData === 'string' ? body.initData : null);
+  const auth = resolveTelegramUser(initData);
+  if (!auth) return json({ error: 'Unauthorized' }, 401);
+  await upsertUser(auth);
+
+  const { rateLimit } = await import('@/lib/rate-limit.server');
+  if (!(await rateLimit(`giftads:${auth.id}`, 20, 60)))
+    return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
+
+  const result = await recordGiftAdView(auth.id);
+  return json(result, result.ok ? 200 : 409);
+}
+
 
 export async function getGiftState(initData: string | null) {
   const cfg = await getGiftConfig();

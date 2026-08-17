@@ -30,6 +30,8 @@ import { Route as ApiAdminSecurityRouteImport } from './routes/api/admin/securit
 import { Route as ApiAdminTaskSubmissionsRouteImport } from './routes/api/admin/task-submissions'
 import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
+import { Route as ApiGiftAdsStatusRouteImport } from './routes/api/gift/ads-status'
+import { Route as ApiGiftAdsWatchRouteImport } from './routes/api/gift/ads-watch'
 import { Route as ApiGiftJoinRouteImport } from './routes/api/gift/join'
 import { Route as ApiGiftStatusRouteImport } from './routes/api/gift/status'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -175,6 +177,16 @@ const ApiAdminTasksRoute = ApiAdminTasksRouteImport.update({
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
   id: '/api/admin/users',
   path: '/api/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGiftAdsStatusRoute = ApiGiftAdsStatusRouteImport.update({
+  id: '/api/gift/ads-status',
+  path: '/api/gift/ads-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGiftAdsWatchRoute = ApiGiftAdsWatchRouteImport.update({
+  id: '/api/gift/ads-watch',
+  path: '/api/gift/ads-watch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGiftJoinRoute = ApiGiftJoinRouteImport.update({
@@ -407,6 +419,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/ads-status': typeof ApiGiftAdsStatusRoute
+  '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -470,6 +484,8 @@ export interface FileRoutesByTo {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/ads-status': typeof ApiGiftAdsStatusRoute
+  '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -534,6 +550,8 @@ export interface FileRoutesById {
   '/api/admin/task-submissions': typeof ApiAdminTaskSubmissionsRoute
   '/api/admin/tasks': typeof ApiAdminTasksRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/gift/ads-status': typeof ApiGiftAdsStatusRoute
+  '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -599,6 +617,8 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/ads-status'
+    | '/api/gift/ads-watch'
     | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
@@ -662,6 +682,8 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/ads-status'
+    | '/api/gift/ads-watch'
     | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
@@ -725,6 +747,8 @@ export interface FileRouteTypes {
     | '/api/admin/task-submissions'
     | '/api/admin/tasks'
     | '/api/admin/users'
+    | '/api/gift/ads-status'
+    | '/api/gift/ads-watch'
     | '/api/gift/join'
     | '/api/gift/status'
     | '/api/public/health'
@@ -789,6 +813,8 @@ export interface RootRouteChildren {
   ApiAdminTaskSubmissionsRoute: typeof ApiAdminTaskSubmissionsRoute
   ApiAdminTasksRoute: typeof ApiAdminTasksRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+  ApiGiftAdsStatusRoute: typeof ApiGiftAdsStatusRoute
+  ApiGiftAdsWatchRoute: typeof ApiGiftAdsWatchRoute
   ApiGiftJoinRoute: typeof ApiGiftJoinRoute
   ApiGiftStatusRoute: typeof ApiGiftStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -974,6 +1000,20 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/users'
       fullPath: '/api/admin/users'
       preLoaderRoute: typeof ApiAdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gift/ads-status': {
+      id: '/api/gift/ads-status'
+      path: '/api/gift/ads-status'
+      fullPath: '/api/gift/ads-status'
+      preLoaderRoute: typeof ApiGiftAdsStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gift/ads-watch': {
+      id: '/api/gift/ads-watch'
+      path: '/api/gift/ads-watch'
+      fullPath: '/api/gift/ads-watch'
+      preLoaderRoute: typeof ApiGiftAdsWatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gift/join': {
@@ -1320,6 +1360,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminTaskSubmissionsRoute: ApiAdminTaskSubmissionsRoute,
   ApiAdminTasksRoute: ApiAdminTasksRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
+  ApiGiftAdsStatusRoute: ApiGiftAdsStatusRoute,
+  ApiGiftAdsWatchRoute: ApiGiftAdsWatchRoute,
   ApiGiftJoinRoute: ApiGiftJoinRoute,
   ApiGiftStatusRoute: ApiGiftStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,

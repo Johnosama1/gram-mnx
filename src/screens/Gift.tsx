@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket, ArrowRight } from 'lucide-react';
+import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket, ArrowRight, Clapperboard, PlayCircle } from 'lucide-react';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
+import { showMonetagAd } from '@/lib/monetag';
 import StickerBadge from '@/components/StickerBadge';
 import { toast } from 'sonner';
 
@@ -31,6 +32,97 @@ const ENTRY_MODE_HINT: Record<GiftEntryMode, string | null> = {
   tasks: '🧩 لازم تكمل مهمة أو كومبو اليوم عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
   ads: '📺 لازم تشاهد إعلان عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
 };
+
+/**
+ * "Ads gifts" — a second, independent way to earn a raffle ticket: watch 10
+ * ads in a day, get 1 ticket for that day. Has nothing to do with the
+ * referral-link contests below: no invite link, no joining a contest.
+ */
+type GiftAdsStatus = {
+  watchedToday: number;
+  dailyTarget: number;
+  ticketToday: boolean;
+};
+
+function AdsGiftsCard() {
+  const [status, setStatus] = useState<GiftAdsStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/gift/ads-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: getInitData() }),
+      });
+      setStatus((await res.json()) as GiftAdsStatus);
+    } catch {
+      /* keep previous state; the card just stays as-is until the next load */
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const watch = async () => {
+    if (busy || !status || status.ticketToday) return;
+    setBusy(true);
+    try {
+      // Resolves only once the ad was watched to completion.
+      await showMonetagAd();
+      const res = await fetch(`${API_BASE}/api/gift/ads-watch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: getInitData() }),
+      });
+      const data = (await res.json()) as GiftAdsStatus & { ok?: boolean };
+      setStatus(data);
+      if (data.ok && data.ticketToday) {
+        toast.success('🎟️ مبروك! حصلت على تذكرة إعلانات اليوم');
+      }
+    } catch {
+      toast.error('تعذر عرض الإعلان، حاول مرة أخرى');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const watched = status?.watchedToday ?? 0;
+  const target = status?.dailyTarget ?? 10;
+  const ticketToday = status?.ticketToday ?? false;
+  const pct = target > 0 ? Math.min(100, (watched / target) * 100) : 0;
+
+  return (
+    <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Clapperboard className="w-5 h-5 text-[#8b5cf6]" />
+        <h2 className="font-extrabold text-muted-foreground">هدايا الإعلانات</h2>
+      </div>
+      <p className="text-xs text-violet-600/70 mb-3">
+        شاهد {target} إعلانات في نفس اليوم واحصل على تذكرة 🎟️ واحدة تلقائيًا.
+      </p>
+
+      <div className="flex items-center justify-between text-[11px] text-violet-600/70 mb-1">
+        <span>الإعلانات: {watched}/{target}</span>
+        {ticketToday && <span className="text-emerald-600 font-bold">تم الحصول على التذكرة ✅</span>}
+      </div>
+      <div className="h-2 rounded-full bg-secondary overflow-hidden mb-3">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
+      <button
+        disabled={busy || !status || ticketToday}
+        onClick={() => { void watch(); }}
+        className="w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+      >
+        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
+        {ticketToday ? 'تم الحصول على التذكرة ✅' : 'مشاهدة إعلان'}
+      </button>
+    </div>
+  );
+}
 
 type GiftStatus = {
   enabled: boolean;
@@ -241,6 +333,17 @@ export default function GiftScreen() {
         <GiftIcon className="w-6 h-6 text-muted-foreground" />
         <h1 className="text-xl font-extrabold text-muted-foreground">Gifts</h1>
       </header>
+
+      <div className="mb-5">
+        <div className="flex items-center gap-1.5 mb-2 text-xs font-bold text-violet-600/80">
+          <Clapperboard className="w-3.5 h-3.5" /> هدايا الإعلانات
+        </div>
+        <AdsGiftsCard />
+      </div>
+
+      <div className="flex items-center gap-1.5 mb-2 text-xs font-bold text-violet-600/80">
+        <Users className="w-3.5 h-3.5" /> هدايا الدعوات
+      </div>
 
       {!state && (
         <div className="flex justify-center py-16">
