@@ -104,6 +104,7 @@ function Pedestal({ speed }: { speed: number }) {
   });
   return (
     <group position={[0, -1.45, 0]}>
+      <mesh><boxGeometry args={[1,0.3,1]} /><meshBasicMaterial color="red" /></mesh>
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.8, 1.12, 64]} />
         <meshBasicMaterial color="#8b5cf6" transparent opacity={0.75} side={THREE.DoubleSide} />
