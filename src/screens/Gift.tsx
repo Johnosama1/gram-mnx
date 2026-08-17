@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 
 const BOT_USERNAME = 'GRAMMNX1_bot';
 
+type GiftEntryMode = 'referral' | 'tasks' | 'ads';
+
 type GiftItem = {
   id: number;
   title: string;
@@ -21,6 +23,13 @@ type GiftItem = {
   invitedCount: number;
   endsAt: string | null;
   expired: boolean;
+  entryMode: GiftEntryMode;
+};
+
+const ENTRY_MODE_HINT: Record<GiftEntryMode, string | null> = {
+  referral: null,
+  tasks: '🧩 لازم تكمل مهمة أو كومبو اليوم عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
+  ads: '📺 لازم تشاهد إعلان عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
 };
 
 type GiftStatus = {
@@ -293,6 +302,11 @@ export default function GiftScreen() {
                     {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
                   </div>
                   <p className="text-[11px] text-violet-600/70 mb-1">⏱ {formatDeadline(g.endsAt)}</p>
+                  {!g.joined && ENTRY_MODE_HINT[g.entryMode] && (
+                    <p className="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mb-1">
+                      {ENTRY_MODE_HINT[g.entryMode]}
+                    </p>
+                  )}
                   {g.capacity > 0 && (
                     <div className="h-2 rounded-full bg-secondary overflow-hidden">
                       <div

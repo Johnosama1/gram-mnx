@@ -1,6 +1,15 @@
 import { json, getSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 
+/**
+ * What a participant must do before they can join (and before a referral
+ * they bring in counts toward the referrer's chances):
+ * - 'referral': no extra requirement — just join (the original behaviour).
+ * - 'tasks': must have completed at least one task or played the daily combo.
+ * - 'ads': must have watched at least one rewarded ad.
+ */
+export type GiftEntryMode = 'referral' | 'tasks' | 'ads';
+
 export type GiftItem = {
   id: number;
   title: string;
@@ -13,6 +22,7 @@ export type GiftItem = {
   capacity: number;
   /** ISO date-time when the contest ends. null = no deadline. */
   endsAt: string | null;
+  entryMode: GiftEntryMode;
 };
 
 export type GiftConfig = {
@@ -32,6 +42,10 @@ export type GiftPublicItem = GiftItem & {
 
 const DEFAULT_MESSAGE = 'قريباً — الهدايا لسه مش متاحة';
 
+export function normalizeEntryMode(v: unknown): GiftEntryMode {
+  return v === 'tasks' || v === 'ads' ? v : 'referral';
+}
+
 export function parseGifts(raw: string | null): GiftItem[] {
   if (!raw) return [];
   try {
@@ -49,6 +63,7 @@ export function parseGifts(raw: string | null): GiftItem[] {
           imageUrl: item.imageUrl ? String(item.imageUrl).slice(0, 500) : null,
           capacity: Math.max(0, Number(item.capacity ?? 0) || 0),
           endsAt: item.endsAt ? String(item.endsAt).slice(0, 40) : null,
+          entryMode: normalizeEntryMode(item.entryMode),
         };
       })
       .filter((g) => g.id > 0 && g.title);
@@ -80,26 +95,15 @@ export function parseGiftRef(param: string | null | undefined): number | null {
   return Number.isFinite(id) && id > 0 ? id : null;
 }
 
-/** How many people joined through this user's gift link (server truth). */
-export async function countGiftInvites(db: any, telegramId: number): Promise<number> {
-  const { count } = await db
-    .from('gm_gift_invites')
-    .select('invitee_id', { count: 'exact', head: true })
-    .eq('referrer_id', telegramId);
-  return count ?? 0;
-}
-
-/** Keeps every entry of a user in sync with their real invite count. */
-async function syncChances(db: any, telegramId: number, invites: number) {
-  await db
-    .from('gm_gift_entries')
-    .update({ chances: invites + 1, invited_count: invites })
-    .eq('telegram_id', telegramId);
-}
-
 /**
- * Records that `inviteeId` arrived through `referrerId`'s gift link.
- * Counted once per invitee, at login time — not only when they join a contest.
+ * Records that `inviteeId` arrived through `referrerId`'s gift link and
+ * pings the referrer. This is a global, one-time-per-invitee ledger used
+ * only for the notification — it is NOT the source of a contest's chances
+ * (see loadEntryStats below): whether an invite actually counts toward a
+ * referrer's chances depends on the invitee joining that specific contest,
+ * which is what previously made "my referrals aren't counting" possible —
+ * someone could open the app via the link without ever joining, get
+ * recorded here, but never show up as an entrant in any contest.
  */
 export async function recordGiftInvite(
   inviteeId: number,
@@ -120,14 +124,11 @@ export async function recordGiftInvite(
     .insert({ invitee_id: inviteeId, referrer_id: referrerId });
   if (error) return false;
 
-  const invites = await countGiftInvites(db, referrerId);
-  await syncChances(db, referrerId, invites);
-
   try {
     const { notifyUser } = await import('@/lib/admin.server');
     await notifyUser(
       referrerId,
-      `🎉 تم دعوة شخص جديد للمسابقة!\n\n👤 ${inviteeName || 'صديق'} دخل عن طريق رابطك\n👥 عدد إحالاتك: ${invites}\n🎟 فرصك في الفوز الآن: ×${invites + 1}`,
+      `🎉 ${inviteeName || 'صديق'} فتح التطبيق عن طريق رابطك!\n\nلازم يشترك فعليًا في المسابقة عشان فرصتك تزيد.`,
     );
   } catch {
     /* notification is best-effort */
@@ -135,7 +136,14 @@ export async function recordGiftInvite(
   return true;
 }
 
-/** participants per contest, computed server-side (never trusted from the client). */
+/**
+ * participants + the caller's chances per contest, computed live and only
+ * from actual entrants (gm_gift_entries) — never from the global invite
+ * ledger. A referral only ever counts toward the referrer's chances once
+ * the referred person has themselves joined that same contest (which, for
+ * 'tasks'/'ads' contests, already proves they met the entry requirement —
+ * see meetsEntryRequirement, enforced at join time).
+ */
 async function loadEntryStats(giftIds: number[], telegramId: number | null) {
   const counts = new Map<number, number>();
   const mine = new Map<number, { chances: number; invited: number }>();
@@ -144,20 +152,54 @@ async function loadEntryStats(giftIds: number[], telegramId: number | null) {
   const db = (await getDb()) as any;
   const { data } = await db
     .from('gm_gift_entries')
-    .select('gift_id,telegram_id,chances,invited_count')
+    .select('gift_id,telegram_id,referred_by')
     .in('gift_id', giftIds);
+  const rows = (data ?? []) as { gift_id: number; telegram_id: number; referred_by: number | null }[];
 
-  const invites = telegramId ? await countGiftInvites(db, telegramId) : 0;
-
-  for (const row of (data ?? []) as any[]) {
+  for (const row of rows) {
     const gid = Number(row.gift_id);
     counts.set(gid, (counts.get(gid) ?? 0) + 1);
-    if (telegramId && Number(row.telegram_id) === telegramId) {
-      mine.set(gid, { chances: invites + 1, invited: invites });
+  }
+
+  if (telegramId) {
+    for (const gid of giftIds) {
+      const joinedThis = rows.some((r) => r.gift_id === gid && Number(r.telegram_id) === telegramId);
+      if (!joinedThis) continue;
+      const invited = rows.filter((r) => r.gift_id === gid && Number(r.referred_by) === telegramId).length;
+      mine.set(gid, { chances: invited + 1, invited });
     }
   }
   return { counts, mine };
 }
+
+/** Whether `telegramId` currently satisfies a contest's entry requirement. */
+async function meetsEntryRequirement(
+  db: any,
+  telegramId: number,
+  mode: GiftEntryMode,
+): Promise<boolean> {
+  if (mode === 'tasks') {
+    const [{ count: taskCount }, { count: comboCount }] = await Promise.all([
+      db.from('gm_task_completions').select('id', { count: 'exact', head: true }).eq('telegram_id', telegramId),
+      db.from('gm_combo_attempts').select('id', { count: 'exact', head: true }).eq('telegram_id', telegramId),
+    ]);
+    return (taskCount ?? 0) > 0 || (comboCount ?? 0) > 0;
+  }
+  if (mode === 'ads') {
+    const { count } = await db
+      .from('gm_ad_views')
+      .select('id', { count: 'exact', head: true })
+      .eq('telegram_id', telegramId);
+    return (count ?? 0) > 0;
+  }
+  return true;
+}
+
+const ENTRY_REQUIREMENT_MESSAGE: Record<GiftEntryMode, string> = {
+  referral: '',
+  tasks: 'لازم تكمل مهمة واحدة على الأقل أو تلعب الكومبو اليومي قبل الاشتراك في المسابقة دي',
+  ads: 'لازم تشاهد إعلان واحد على الأقل قبل الاشتراك في المسابقة دي',
+};
 
 async function isAdminUser(telegramId: number | null): Promise<boolean> {
   if (!telegramId) return false;
@@ -215,7 +257,10 @@ export async function handleGiftApi(request: Request): Promise<Response> {
 
 /**
  * Joins a contest. `ref` is the telegram id of the inviter taken from the
- * Mini App start param — the inviter gets +1 chance, credited server-side.
+ * Mini App start param — this entry is what gives the inviter +1 chance
+ * (computed live by loadEntryStats, not stored here). Blocked up front if
+ * the contest requires tasks/combo or an ad view and the joiner hasn't done
+ * that yet.
  */
 export async function handleGiftJoin(request: Request): Promise<Response> {
   const body = (await request.json().catch(() => ({}))) as Record<string, any>;
@@ -256,6 +301,10 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
       if ((count ?? 0) >= gift.capacity) return json({ error: 'اكتمل العدد' }, 409);
     }
 
+    if (!(await meetsEntryRequirement(db, auth.id, gift.entryMode))) {
+      return json({ error: ENTRY_REQUIREMENT_MESSAGE[gift.entryMode] }, 403);
+    }
+
     // The inviter may arrive from the client or straight from the Mini App start param.
     const startParam = initData ? new URLSearchParams(initData).get('start_param') : null;
     const referrer =
@@ -271,12 +320,9 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
       );
     }
 
-    const myInvites = await countGiftInvites(db, auth.id);
     const { error } = await db.from('gm_gift_entries').insert({
       gift_id: giftId,
       telegram_id: auth.id,
-      chances: myInvites + 1,
-      invited_count: myInvites,
       referred_by: referrer && referrer !== auth.id ? referrer : null,
     });
     if (error && !String(error.message).includes('duplicate'))

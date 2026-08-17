@@ -513,7 +513,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
 
     // ── Gifts ───────────────────────────────────────────────────────────────
     if (type === 'gift') {
-      const { getGiftConfig, parseGifts } = await import('@/lib/gift.server');
+      const { getGiftConfig, parseGifts, normalizeEntryMode } = await import('@/lib/gift.server');
       if (method === 'GET') {
         const cfg = await getGiftConfig();
         const { data: entries } = await db
@@ -569,6 +569,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           imageUrl: body.imageUrl ? String(body.imageUrl).slice(0, 500) : null,
           capacity: Math.max(0, Number(body.capacity ?? 0) || 0),
           endsAt: body.endsAt ? String(body.endsAt).slice(0, 40) : null,
+          entryMode: normalizeEntryMode(body.entryMode),
         });
         await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));
         return json({ ok: true });

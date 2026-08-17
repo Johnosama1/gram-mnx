@@ -496,9 +496,24 @@ function AdsSection() {
   );
 }
 
+type GiftEntryMode = 'referral' | 'tasks' | 'ads';
+
 type GiftItem = {
   id: number; title: string; description: string; reward: number; link: string | null;
   imageUrl: string | null; capacity: number; endsAt?: string | null; participants?: number;
+  entryMode?: GiftEntryMode;
+};
+
+const ENTRY_MODE_OPTIONS: { value: GiftEntryMode; label: string }[] = [
+  { value: 'referral', label: 'إحالات فقط' },
+  { value: 'tasks', label: 'مهام / كومبو' },
+  { value: 'ads', label: 'مشاهدة إعلانات' },
+];
+
+const ENTRY_MODE_LABEL: Record<GiftEntryMode, string> = {
+  referral: 'إحالات فقط',
+  tasks: 'مهام / كومبو',
+  ads: 'مشاهدة إعلانات',
 };
 
 function GiftSection() {
@@ -511,6 +526,7 @@ function GiftSection() {
   const [imageUrl, setImageUrl] = useState('');
   const [capacity, setCapacity] = useState('$&');
   const [endsAt, setEndsAt] = useState('');
+  const [entryMode, setEntryMode] = useState<GiftEntryMode>('referral');
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
@@ -585,8 +601,9 @@ function GiftSection() {
         imageUrl: imageUrl || null,
         capacity: cap,
         endsAt: endsAt ? new Date(endsAt).toISOString() : null,
+        entryMode,
       });
-      setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt('');
+      setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt(''); setEntryMode('referral');
 
       setStatus('✅ تم إضافة الهدية');
       await load();
@@ -671,8 +688,33 @@ function GiftSection() {
           />
         </label>
 
+        <div className="text-[11px] text-muted-foreground block">
+          5) طريقة الاشتراك في المسابقة
+          <div className="mt-1 grid grid-cols-3 gap-1.5">
+            {ENTRY_MODE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setEntryMode(opt.value)}
+                className={`rounded-xl py-2 text-[11px] font-bold border transition-colors ${
+                  entryMode === opt.value
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-secondary text-muted-foreground border-violet-500/20'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground/70 mt-1">
+            {entryMode === 'referral' && 'أي مستخدم يقدر يشترك، وكل إحالة تزود فرصته.'}
+            {entryMode === 'tasks' && 'المستخدم ومن يدعوهم لازم يكملوا مهمة أو كومبو قبل الاشتراك.'}
+            {entryMode === 'ads' && 'المستخدم ومن يدعوهم لازم يشاهدوا إعلان قبل الاشتراك.'}
+          </p>
+        </div>
+
         <label className="text-[11px] text-muted-foreground block">
-          5) ملف الهدية (يدعم .json لوتي و png/jpg/webp/gif)
+          6) ملف الهدية (يدعم .json لوتي و png/jpg/webp/gif)
           <input
             type="file"
             accept=".json,image/*"
@@ -725,6 +767,9 @@ function GiftSection() {
               </p>
               <p className="text-muted-foreground text-[11px]">
                 ⏱ {g.endsAt ? new Date(g.endsAt).toLocaleString() : 'بدون وقت محدد'}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                🔑 {ENTRY_MODE_LABEL[g.entryMode ?? 'referral']}
               </p>
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
