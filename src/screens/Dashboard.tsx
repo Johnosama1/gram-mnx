@@ -6,7 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
-import gemVideo from '@/assets/gem3d.mp4.asset.json';
+const Gem3D = lazy(() => import('@/components/Gem3D'));
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
