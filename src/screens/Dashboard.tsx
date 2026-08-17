@@ -5,8 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
-import crystalGem from '@/assets/crystal-gem.png';
-import crystalBase from '@/assets/crystal-base.png';
+import gemVideo from '@/assets/gem3d.mp4.asset.json';
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
