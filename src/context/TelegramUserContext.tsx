@@ -177,14 +177,20 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
     };
   }, [doAuth]);
 
-  // While the maintenance screen is up, keep polling so the app unlocks by
-  // itself (no restart / no cache clear) the moment the admin turns it off.
+  // Keep the user's balance/coins fresh on their own while the app stays
+  // open — a task reward, a deposit the background scanner just credited, an
+  // admin action, etc. all happen server-side with nothing on this client to
+  // trigger onDataChange, so without this the user would have to background
+  // and refocus (or hard-reload) the app to see it. Only polls while the tab
+  // is actually visible. During maintenance this also doubles as the
+  // "unlock the moment the admin turns it back on" check, so it runs faster.
   useEffect(() => {
-    if (!maintenance) return;
+    const intervalMs = maintenance ? 15_000 : 20_000;
     const id = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
       const initData = window.Telegram?.WebApp?.initData;
       if (initData) doAuth(initData).catch(() => undefined);
-    }, 15_000);
+    }, intervalMs);
     return () => clearInterval(id);
   }, [maintenance, doAuth]);
 

@@ -194,7 +194,11 @@ export default function Dashboard() {
             {claimError === 'MIN_CLAIM' ? t('dashboard_min_claim') : t('dashboard_claim_failed')}
           </div>
         )}
-        <div className="flex items-stretch gap-2 mb-2">
+        {/* min-h reserves this row's space up front so the Claim button below
+            never jumps once the mining-state fetch resolves (start-mining
+            button vs. time-left card have different natural heights, and the
+            row is empty for an instant before showMiningButton is known). */}
+        <div className="flex items-stretch gap-2 mb-2 min-h-[52px]">
           {showMiningButton && (isMiningActive ? (
             <div className={`${card} w-[36%] shrink-0 flex flex-col items-center justify-center px-1 py-2`}>
               <div className="text-[9px] tracking-widest text-muted-foreground uppercase leading-none">
