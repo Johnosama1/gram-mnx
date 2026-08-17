@@ -1,4 +1,4 @@
-import { Link, useRouterState } from '@tanstack/react-router';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Pickaxe, Gift, ClipboardList, Users, User, Shield, Puzzle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -6,6 +6,7 @@ const APP_VERSION = 'v1.0.4';
 
 export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }) {
   const location = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const navItems = [
@@ -29,9 +30,14 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
           const Icon = item.icon;
 
           return (
-            <Link
+            // A real <a href> here is exactly what makes Android show its
+            // native "open/download/copy link" menu on long-press — a
+            // button with no href never triggers it, and navigation still
+            // works identically via the router.
+            <button
               key={item.path}
-              to={item.path}
+              type="button"
+              onClick={() => navigate({ to: item.path })}
               className="flex-1 min-w-0 basis-0 flex flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 px-0.5 cursor-pointer touch-manipulation transition-colors"
               style={isActive ? { background: 'hsl(var(--secondary))' } : undefined}
             >
@@ -46,7 +52,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
               >
                 {item.label}
               </span>
-            </Link>
+            </button>
           );
         })}
 

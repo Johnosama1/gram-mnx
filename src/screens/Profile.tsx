@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
 import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
@@ -659,6 +659,7 @@ function openSupportChat() {
 
 function SupportPanel({ onClose }: { onClose: () => void }) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [view, setView] = useState<'menu' | 'pick' | 'form'>('menu');
   const [kind, setKind] = useState<'complaint' | 'suggestion'>('complaint');
   const [text, setText] = useState('');
@@ -709,8 +710,9 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            <Link
-              to="/faq"
+            <button
+              type="button"
+              onClick={() => navigate({ to: '/faq' })}
               className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
@@ -721,7 +723,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
                 <div className="text-xs text-muted-foreground">{t('faq_desc')}</div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </Link>
+            </button>
 
             <button
               onClick={openSupportChat}

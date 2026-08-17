@@ -1,6 +1,6 @@
 import { HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 interface FAQItem {
   q: string;
@@ -84,17 +84,19 @@ function FAQRow({ item, index }: { item: FAQItem; index: number }) {
 
 export default function FAQ() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
       <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }} />
 
       <div className="relative z-10 flex items-center gap-3 mb-6">
-        <Link
-          to="/profile"
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/profile' })}
           className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >
           ‹
-        </Link>
+        </button>
         <h1 className="text-lg font-black text-foreground flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-violet-300" />
           {t('faq_title')}
