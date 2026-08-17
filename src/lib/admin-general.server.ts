@@ -333,6 +333,41 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
       return json({ error: 'Invalid method or missing action/id' }, 400);
     }
 
+    if (type === 'deposits') {
+      if (method === 'GET') {
+        const { data } = await db
+          .from('gm_deposits')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100);
+        const rows = data ?? [];
+        const ids = [...new Set(rows.map((r: any) => r.telegram_id))];
+        let names: Record<string, any> = {};
+        if (ids.length) {
+          const { data: users } = await db
+            .from('gm_users')
+            .select('telegram_id,first_name,username')
+            .in('telegram_id', ids);
+          for (const u of users ?? []) names[String(u.telegram_id)] = u;
+        }
+        return json(
+          rows.map((r: any) => ({
+            ...r,
+            telegram_id: Number(r.telegram_id),
+            first_name: names[String(r.telegram_id)]?.first_name ?? null,
+            username: names[String(r.telegram_id)]?.username ?? null,
+          })),
+        );
+      }
+      if (method === 'POST' && action === 'credit' && id) {
+        const { manuallyCreditDeposit } = await import('@/lib/deposit-scan.server');
+        const result = await manuallyCreditDeposit(Number(id));
+        if (!result.ok) return json({ error: result.message }, 400);
+        return json({ ok: true, message: result.message });
+      }
+      return json({ error: 'Invalid method or missing action/id' }, 400);
+    }
+
     if (type === 'admins') {
       const raw = await getSetting('sub_admins');
       const admins: any[] = raw ? JSON.parse(raw) : [];

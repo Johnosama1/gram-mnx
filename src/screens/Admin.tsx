@@ -83,6 +83,7 @@ async function api<T>(method: string, path: string, body?: unknown): Promise<T> 
 interface Stats { totalUsers: number; blockedUsers: number; activeUsers: number }
 interface Task  { id: number; title: string; description: string; reward: number; isDaily: boolean; isHidden: boolean; channelUsername?: string | null; category?: string | null; botUsername?: string | null; twitterUrl?: string | null; slotLimit?: number | null; slotsFilled?: number; iconUrl?: string | null }
 interface Withdrawal { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
+interface Deposit { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string | null; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Channel { id: number; channelUsername: string; channelName: string }
 interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean; ips?: string[]; referralCount?: number; ipSiblingCount?: number; ipSiblings?: number[] }
 interface UserDetails extends User {
@@ -1941,6 +1942,75 @@ function WithdrawalsSection() {
   );
 }
 
+// ─── Deposits: view + manual-credit fallback for anything the automatic
+// on-chain matcher didn't catch (e.g. a scan-window/wallet-match miss) ──────
+function DepositsSection() {
+  const { lang } = useLanguage();
+  const [items, setItems] = useState<Deposit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+  const [creditingId, setCreditingId] = useState<number | null>(null);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    api<Deposit[]>('GET', '/admin/general?type=deposits').then(setItems).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  const credit = async (id: number) => {
+    setCreditingId(id);
+    setStatus('');
+    try {
+      const res = await api<{ ok: boolean; message: string }>('POST', `/admin/general?type=deposits&action=credit&id=${id}`, {});
+      setStatus(`✅ ${res.message}`);
+      load();
+    } catch (e: any) { setStatus(`❌ ${e.message}`); }
+    finally { setCreditingId(null); }
+    setTimeout(() => setStatus(''), 4000);
+  };
+
+  const statusColor = (s: string) =>
+    s === 'confirmed' ? 'text-green-400' : s === 'rejected' ? 'text-red-400' : 'text-yellow-400';
+
+  if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        لو إيداع فضل عالق على "قيد الانتظار" رغم إنه وصل فعليًا على البلوكتشين (اتأكد منه بنفسك أولاً)، تقدر تصرف مكافأته يدويًا من هنا.
+      </p>
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+      <Btn onClick={load} variant="ghost" size="sm" className="w-full">تحديث</Btn>
+      {items.length === 0 && <div className="text-center text-muted-foreground text-sm py-4">لا توجد طلبات</div>}
+      {items.map(d => (
+        <div key={d.id} className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="font-bold text-foreground text-sm">{d.first_name ?? d.username ?? d.telegram_id}</div>
+              <div className="text-xs text-muted-foreground font-mono">ID: {d.telegram_id}</div>
+              <div className="text-primary font-black text-sm mt-0.5">{Number(d.amount).toFixed(4)} GRAM</div>
+              {d.wallet_address && (
+                <div className="text-[10px] font-mono text-muted-foreground break-all mt-0.5">{d.wallet_address}</div>
+              )}
+              <div className="text-xs text-muted-foreground mt-0.5">{new Date(d.created_at).toLocaleString(lang)}</div>
+            </div>
+            <span className={`text-xs font-bold ${statusColor(d.status)}`}>{d.status}</span>
+          </div>
+          {d.status === 'pending' && (
+            <Btn size="sm" variant="success" onClick={() => credit(d.id)} disabled={creditingId === d.id} className="w-full">
+              <Check className="w-3 h-3" />{creditingId === d.id ? '...' : 'صرف يدويًا'}
+            </Btn>
+          )}
+          {d.tx_hash && !d.tx_hash.startsWith('pending:') && !d.tx_hash.startsWith('signed:') && (
+            <div className="text-[10px] font-mono text-green-400 break-all">TX: {d.tx_hash}</div>
+          )}
+          {d.rejection_reason && <div className="text-xs text-red-400">السبب: {d.rejection_reason}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── 9 & 10. Withdrawal & Deposit Limits ──────────────────────────────────
 function LimitsSection() {
   const { t } = useLanguage();
@@ -3039,6 +3109,9 @@ export default function Admin() {
         </Section>
         <Section title={t('admin_sec_withdrawals')} icon={ArrowUp}>
           <WithdrawalsSection />
+        </Section>
+        <Section title="الإيداعات" icon={Wallet}>
+          <DepositsSection />
         </Section>
         <Section title={t('admin_sec_subadmins')} icon={UserPlus}>
           <AdminsSection />

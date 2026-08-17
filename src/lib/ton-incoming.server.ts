@@ -16,8 +16,19 @@ export async function fetchIncomingTransfers(limit = 50): Promise<IncomingTx[]> 
   const to = getDepositWallet();
   if (!to) return [];
   const url = `${TONCENTER}/api/v3/transactions?account=${encodeURIComponent(to)}&limit=${limit}&sort=desc`;
-  const res = await fetch(url, { headers: { Accept: 'application/json', ...(await apiKeyHeaders()) } });
-  if (!res.ok) return [];
+  let res: Response;
+  try {
+    res = await fetch(url, { headers: { Accept: 'application/json', ...(await apiKeyHeaders()) } });
+  } catch (err) {
+    // A network failure here would otherwise look identical to "no new
+    // deposits", silently stalling every pending request until the next scan.
+    console.error('[ton-incoming] fetch failed:', err);
+    return [];
+  }
+  if (!res.ok) {
+    console.error(`[ton-incoming] toncenter returned ${res.status}: ${await res.text().catch(() => '')}`);
+    return [];
+  }
   const body = (await res.json().catch(() => null)) as {
     transactions?: {
       hash: string;

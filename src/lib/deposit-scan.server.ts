@@ -48,32 +48,37 @@ function amountMatches(requested: number, onchain: number) {
 }
 
 
-/** Credits exactly the requested amount of one pending deposit request. */
-async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate: number) {
+type SettleInput = {
+  walletAddress: string;
+  txHash: string;
+  amount: number;
+  coins: number;
+  /** Only set for a real on-chain match; omitted for a manual admin credit. */
+  tonviewerLink?: string;
+};
+
+/**
+ * Shared finalize step for a pending deposit request: atomically flips it to
+ * `confirmed`, credits the coins, and runs every downstream side effect
+ * (user notice, admin notice, referral bonus) exactly once. Used by both the
+ * automatic on-chain matcher and the manual admin-credit fallback so the two
+ * paths can never drift apart.
+ */
+async function finalizeDeposit(db: any, req: PendingRequest, input: SettleInput) {
   const { data: user } = await db
     .from('gm_users')
-    .select('balance, coins, referred_by, wallet_address, username, first_name')
+    .select('referred_by, username, first_name')
     .eq('telegram_id', req.telegram_id)
     .maybeSingle();
   if (!user) return null;
 
-  // التحقق النهائي: المُرسِل لازم يكون نفس المحفظة المربوطة بالحساب.
-  const linked = user.wallet_address ? await normalizeAddress(String(user.wallet_address)) : null;
-  const sender = await normalizeAddress(tx.from);
-  if (!linked || !sender || linked !== sender) return null;
-
-
-  // Credit what the user asked for, never more than what actually arrived.
-  const amount = round12(Math.min(Number(req.amount), tx.amountTon));
-  const coins = Math.floor(amount * rate);
   const nowIso = new Date().toISOString();
-
   const { data: claimed, error } = await db
     .from('gm_deposits')
     .update({
-      wallet_address: tx.from,
-      tx_hash: tx.txHash,
-      amount,
+      wallet_address: input.walletAddress,
+      tx_hash: input.txHash,
+      amount: input.amount,
       status: 'confirmed',
       confirmations: 1,
       credited_at: nowIso,
@@ -83,30 +88,30 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
     .eq('status', 'pending')
     .select('id')
     .maybeSingle();
-  // Another concurrent scanner may have claimed it first.
+  // Another concurrent scanner (or admin) may have claimed it first.
   if (error || !claimed?.id) return null;
 
   // Atomic credit: a plain read-modify-write could lose a concurrent update.
-  await db.rpc('gm_add_coins', { _telegram_id: req.telegram_id, _amount: coins });
+  await db.rpc('gm_add_coins', { _telegram_id: req.telegram_id, _amount: input.coins });
 
   await notifyUser(
     req.telegram_id,
-    `✅ Your deposit was received.\n💰 <b>${coins} Coin</b> was added to your balance.`,
+    `✅ Your deposit was received.\n💰 <b>${input.coins} Coin</b> was added to your balance.`,
   ).catch(() => undefined);
 
   // Notify every admin with the full deposit details.
   try {
     const name = String(user.first_name ?? '').trim() || 'User';
     const handle = user.username ? `@${user.username}` : '—';
-    const link = `https://tonviewer.com/transaction/${encodeURIComponent(tx.txHash)}`;
+    const link = input.tonviewerLink ?? `https://tonviewer.com/${encodeURIComponent(input.walletAddress)}`;
     const text =
-      `💎 <b>New deposit</b>\n` +
+      `💎 <b>Deposit credited${input.tonviewerLink ? '' : ' (manual)'}</b>\n` +
       `👤 User: ${name} (${handle})\n` +
       `🆔 <code>${req.telegram_id}</code>\n` +
-      `👛 Wallet: <code>${tx.from}</code>\n` +
-      `💰 Amount: <b>${amount} GRAM</b>\n` +
-      `🪙 Coins credited: <b>${coins} Coin</b>\n` +
-      `🔗 Transaction: <a href="${link}">${tx.txHash}</a>`;
+      `👛 Wallet: <code>${input.walletAddress}</code>\n` +
+      `💰 Amount: <b>${input.amount} GRAM</b>\n` +
+      `🪙 Coins credited: <b>${input.coins} Coin</b>\n` +
+      `🔗 <a href="${link}">${input.tonviewerLink ? 'Transaction' : 'Wallet'}</a>`;
     const admins = await getAllAdminIds();
     await Promise.all(admins.map((id) => notifyUser(id, text).catch(() => undefined)));
   } catch {
@@ -118,7 +123,7 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
 
   // Referral commission: the inviter earns 10% of the invited user's deposit (in coins).
   const referrerId = Number((user as { referred_by?: number | null }).referred_by ?? 0);
-  const bonus = round12(coins * 0.1);
+  const bonus = round12(input.coins * 0.1);
   if (Number.isFinite(referrerId) && referrerId > 0 && bonus > 0) {
     const { data: refRow } = await db
       .from('gm_users')
@@ -134,7 +139,65 @@ async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate:
     }
   }
 
-  return { amount, coins };
+  return { amount: input.amount, coins: input.coins };
+}
+
+/** Credits exactly the requested amount of one pending deposit request. */
+async function creditPending(db: any, req: PendingRequest, tx: IncomingTx, rate: number) {
+  const { data: user } = await db
+    .from('gm_users')
+    .select('wallet_address')
+    .eq('telegram_id', req.telegram_id)
+    .maybeSingle();
+  if (!user) return null;
+
+  // التحقق النهائي: المُرسِل لازم يكون نفس المحفظة المربوطة بالحساب.
+  const linked = user.wallet_address ? await normalizeAddress(String(user.wallet_address)) : null;
+  const sender = await normalizeAddress(tx.from);
+  if (!linked || !sender || linked !== sender) return null;
+
+  // Credit what the user asked for, never more than what actually arrived.
+  const amount = round12(Math.min(Number(req.amount), tx.amountTon));
+  const coins = Math.floor(amount * rate);
+
+  return finalizeDeposit(db, req, {
+    walletAddress: tx.from,
+    txHash: tx.txHash,
+    amount,
+    coins,
+    tonviewerLink: `https://tonviewer.com/transaction/${encodeURIComponent(tx.txHash)}`,
+  });
+}
+
+/**
+ * Admin fallback for a deposit the automatic on-chain matcher never settled
+ * (e.g. it was outside the scan window, or the sender wallet didn't match
+ * exactly). The admin is expected to have verified the transfer themselves
+ * before calling this — it credits the requested amount directly, with no
+ * further on-chain check.
+ */
+export async function manuallyCreditDeposit(id: number): Promise<{ ok: boolean; message: string }> {
+  const db = (await getDb()) as any;
+  const { data: req } = await db
+    .from('gm_deposits')
+    .select('id, telegram_id, wallet_address, amount, created_at')
+    .eq('id', id)
+    .eq('status', 'pending')
+    .maybeSingle();
+  if (!req) return { ok: false, message: 'Request not found or already processed' };
+
+  const rate = await getGramToCoins();
+  const amount = round12(Number(req.amount));
+  const coins = Math.floor(amount * rate);
+
+  const result = await finalizeDeposit(db, req as PendingRequest, {
+    walletAddress: req.wallet_address || 'manual',
+    txHash: `manual:${id}:${Date.now()}`,
+    amount,
+    coins,
+  });
+  if (!result) return { ok: false, message: 'Request is already processed' };
+  return { ok: true, message: `Credited ${result.coins} coins` };
 }
 
 /**
