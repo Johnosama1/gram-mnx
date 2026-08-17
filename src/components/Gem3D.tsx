@@ -104,17 +104,17 @@ function Pedestal({ speed }: { speed: number }) {
   });
   return (
     <group position={[0, -1.95, 0]}>
-      <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[1.05, 1.2, 0.22, 64]} />
-        <meshStandardMaterial color="#8b83b8" metalness={0.55} roughness={0.25} emissive="#5b4b9c" emissiveIntensity={0.25} />
+      <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.86, 1.02, 64]} />
+        <meshBasicMaterial color="#c4b5fd" transparent opacity={0.55} side={THREE.DoubleSide} />
       </mesh>
       <mesh ref={ring} position={[0, 0.06, 0]}>
         <torusGeometry args={[0.8, 0.04, 16, 64]} />
         <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={2.2} />
       </mesh>
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.62, 48]} />
-        <meshBasicMaterial color="#ede9fe" transparent opacity={0.7} />
+        <circleGeometry args={[0.78, 48]} />
+        <meshBasicMaterial color="#ede9fe" transparent opacity={0.6} />
       </mesh>
     </group>
   );
