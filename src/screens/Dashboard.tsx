@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
+import { ClientOnly } from '@tanstack/react-router';
 import { useWallet } from '@/context/WalletContext';
 import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
