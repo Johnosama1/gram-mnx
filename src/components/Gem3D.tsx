@@ -9,12 +9,12 @@ function Crystal({ speed }: { speed: number }) {
 
   const geometry = useMemo(() => {
     const profile = [
-      new THREE.Vector2(0.001, -1.55),
-      new THREE.Vector2(0.42, -0.95),
-      new THREE.Vector2(0.55, -0.55),
-      new THREE.Vector2(0.55, 0.72),
-      new THREE.Vector2(0.4, 1.05),
-      new THREE.Vector2(0.001, 1.6),
+      new THREE.Vector2(0.001, -1.85),
+      new THREE.Vector2(0.3, -1.15),
+      new THREE.Vector2(0.44, -0.55),
+      new THREE.Vector2(0.44, 0.78),
+      new THREE.Vector2(0.32, 1.2),
+      new THREE.Vector2(0.001, 1.95),
     ];
     const g = new THREE.LatheGeometry(profile, 6);
     g.computeVertexNormals();
@@ -115,6 +115,18 @@ function Pedestal({ speed }: { speed: number }) {
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.64, 48]} />
         <meshBasicMaterial color="#f5f3ff" transparent opacity={0.9} />
+      </mesh>
+      {/* Beam of light shooting up through the gem, like the original art. */}
+      <mesh position={[0, 1.75, 0]}>
+        <coneGeometry args={[0.22, 3.5, 24, 1, true]} />
+        <meshBasicMaterial
+          color="#e9d5ff"
+          transparent
+          opacity={0.22}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+        />
       </mesh>
     </group>
   );
