@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
+import { ClientOnly } from '@tanstack/react-router';
 import { useWallet } from '@/context/WalletContext';
 import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
-import crystalGem from '@/assets/crystal-gem.png';
-import crystalBase from '@/assets/crystal-base.png';
+const Gem3D = lazy(() => import('@/components/Gem3D'));
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
@@ -170,34 +170,18 @@ export default function Dashboard() {
             style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
           />
           <div
-            className={`gem3d-stage relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
+            className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            {/* single crystal, spinning in place */}
             <div
-              className="relative min-h-0 max-h-[68%] max-w-[78%] w-auto drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)]"
-              style={{ aspectRatio: '1024 / 660', height: '68%', animation: 'gem-bob 4.5s ease-in-out infinite' }}
+              className="h-full max-h-full w-full max-w-[92%] drop-shadow-[0_18px_30px_rgba(124,58,237,0.22)]"
+              aria-label="GRAM MNX mining crystal"
             >
-              <div className="gem3d-solid absolute inset-0">
-                <img
-                  src={crystalGem}
-                  alt="GRAM MNX mining crystal"
-                  width={1024}
-                  height={660}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              {/* A flat image is edge-on (zero width) twice per turn; this glint
-                  fills that instant with light instead of a blank gap. */}
-              <div className="gem3d-glint" aria-hidden />
+              <ClientOnly>
+                <Suspense fallback={null}>
+                  <Gem3D active={mining} />
+                </Suspense>
+              </ClientOnly>
             </div>
-            <img
-              src={crystalBase}
-              alt=""
-              aria-hidden
-              width={1024}
-              height={384}
-              className="min-h-0 max-h-[26%] w-auto object-contain -mt-[2%]"
-            />
           </div>
         </div>
       </div>
