@@ -51,9 +51,9 @@ function Crystal({ speed }: { speed: number }) {
     <group ref={group} position={[0, 0.55, 0]}>
       <mesh geometry={geometry} castShadow>
         <meshPhysicalMaterial
-          color="#b39bf5"
-          emissive="#7c3aed"
-          emissiveIntensity={0.28}
+          color="#7c3aed"
+          emissive="#a855f7"
+          emissiveIntensity={0.4}
           metalness={0}
           roughness={0.06}
           transmission={0.75}
@@ -77,9 +77,9 @@ function Crystal({ speed }: { speed: number }) {
           >
             <octahedronGeometry args={[1, 0]} />
             <meshPhysicalMaterial
-              color="#a78bfa"
-              emissive="#8b5cf6"
-              emissiveIntensity={0.35}
+              color="#8b5cf6"
+              emissive="#a855f7"
+              emissiveIntensity={0.4}
               roughness={0.08}
               metalness={0}
               transmission={0.6}
@@ -106,15 +106,15 @@ function Pedestal({ speed }: { speed: number }) {
     <group position={[0, -1.35, 0]}>
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.66, 0.92, 64]} />
-        <meshBasicMaterial color="#8b5cf6" transparent opacity={0.75} side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#1a1625" metalness={0.6} roughness={0.35} side={THREE.DoubleSide} />
       </mesh>
       <mesh ref={ring} position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.62, 0.035, 16, 64]} />
-        <meshStandardMaterial color="#a78bfa" emissive="#7c3aed" emissiveIntensity={1.4} />
+        <meshStandardMaterial color="#c4b5fd" emissive="#a855f7" emissiveIntensity={1.8} />
       </mesh>
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.64, 48]} />
-        <meshBasicMaterial color="#ddd6fe" transparent opacity={0.85} />
+        <meshBasicMaterial color="#f5f3ff" transparent opacity={0.9} />
       </mesh>
     </group>
   );
