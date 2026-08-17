@@ -255,6 +255,7 @@ function useHasTelegramInitData(): { has: boolean | null; retry: () => void } {
 
 
 function Shell() {
+  if (typeof window !== 'undefined' && window.location.pathname === '/gemtest') return <Outlet />; // TEMP-GEMTEST
   const { isAdmin, isVerified, isBanned, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
   const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
