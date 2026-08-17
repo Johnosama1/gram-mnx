@@ -106,7 +106,7 @@ function Pedestal({ speed }: { speed: number }) {
     <group position={[0, -1.95, 0]}>
       <mesh position={[0, -0.1, 0]}>
         <cylinderGeometry args={[1.05, 1.2, 0.22, 64]} />
-        <meshStandardMaterial color="#3b3557" metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color="#8b83b8" metalness={0.55} roughness={0.25} emissive="#5b4b9c" emissiveIntensity={0.25} />
       </mesh>
       <mesh ref={ring} position={[0, 0.06, 0]}>
         <torusGeometry args={[0.8, 0.04, 16, 64]} />
@@ -132,7 +132,7 @@ export default function Gem3D({ active = true }: { active?: boolean }) {
       <ambientLight intensity={1.1} />
       <directionalLight position={[3, 5, 4]} intensity={2.2} color="#ffffff" />
       <pointLight position={[-3, 1, 2]} intensity={18} color="#a855f7" />
-      <pointLight position={[0, -2, 1.5]} intensity={12} color="#c4b5fd" />
+      <pointLight position={[0, -1.2, 2.4]} intensity={22} color="#e9e4ff" />
       <Crystal speed={speed} />
       <Pedestal speed={speed} />
     </Canvas>
