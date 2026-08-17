@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
+import { ClientOnly } from '@tanstack/react-router';
 import { useWallet } from '@/context/WalletContext';
 import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
-import gemVideo from '@/assets/gem3d.mp4.asset.json';
+const Gem3D = lazy(() => import('@/components/Gem3D'));
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
@@ -171,17 +172,16 @@ export default function Dashboard() {
           <div
             className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            <video
-              src={gemVideo.url}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
+            <div
+              className="h-full max-h-full w-full max-w-[92%] drop-shadow-[0_18px_30px_rgba(124,58,237,0.22)]"
               aria-label="GRAM MNX mining crystal"
-              className="h-full max-h-full w-auto max-w-[86%] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)]"
-              style={{ mixBlendMode: 'multiply' }}
-            />
+            >
+              <ClientOnly>
+                <Suspense fallback={null}>
+                  <Gem3D active={mining} />
+                </Suspense>
+              </ClientOnly>
+            </div>
           </div>
         </div>
       </div>
