@@ -171,17 +171,16 @@ export default function Dashboard() {
           <div
             className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            <video
-              src={gemVideo.url}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
+            <div
+              className="h-full max-h-full w-full max-w-[92%] drop-shadow-[0_18px_30px_rgba(124,58,237,0.22)]"
               aria-label="GRAM MNX mining crystal"
-              className="h-full max-h-full w-auto max-w-[86%] object-contain drop-shadow-[0_18px_30px_rgba(124,58,237,0.25)]"
-              style={{ mixBlendMode: 'multiply' }}
-            />
+            >
+              <ClientOnly>
+                <Suspense fallback={null}>
+                  <Gem3D active={mining} />
+                </Suspense>
+              </ClientOnly>
+            </div>
           </div>
         </div>
       </div>
