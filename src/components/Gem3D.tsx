@@ -48,7 +48,7 @@ function Crystal({ speed }: { speed: number }) {
   });
 
   return (
-    <group ref={group} position={[0, 0.35, 0]}>
+    <group ref={group} position={[0, 0.55, 0]}>
       <mesh geometry={geometry} castShadow>
         <meshPhysicalMaterial
           color="#b39bf5"
@@ -103,7 +103,7 @@ function Pedestal({ speed }: { speed: number }) {
     if (ring.current) ring.current.rotation.y += Math.min(delta, 0.05) * speed * 0.4;
   });
   return (
-    <group position={[0, -1.95, 0]}>
+    <group position={[0, -1.45, 0]}>
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.86, 1.02, 64]} />
         <meshBasicMaterial color="#c4b5fd" transparent opacity={0.55} side={THREE.DoubleSide} />
@@ -124,7 +124,7 @@ export default function Gem3D({ active = true }: { active?: boolean }) {
   const speed = active ? 0.85 : 0.18;
   return (
     <Canvas
-      camera={{ position: [0, 0.5, 7.6], fov: 32 }}
+      camera={{ position: [0, 0.1, 8.2], fov: 34 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       style={{ width: '100%', height: '100%', background: 'transparent' }}
