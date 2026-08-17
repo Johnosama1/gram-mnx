@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ComboRouteImport } from './routes/combo'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as GemtestRouteImport } from './routes/gemtest'
 import { Route as GiftRouteImport } from './routes/gift'
 import { Route as MinersRouteImport } from './routes/miners'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -99,6 +100,11 @@ const FaqRoute = FaqRouteImport.update({
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GemtestRoute = GemtestRouteImport.update({
+  id: '/gemtest',
+  path: '/gemtest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GiftRoute = GiftRouteImport.update({
@@ -392,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/combo': typeof ComboRoute
   '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
+  '/gemtest': typeof GemtestRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
@@ -455,6 +462,7 @@ export interface FileRoutesByTo {
   '/combo': typeof ComboRoute
   '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
+  '/gemtest': typeof GemtestRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
@@ -519,6 +527,7 @@ export interface FileRoutesById {
   '/combo': typeof ComboRoute
   '/faq': typeof FaqRoute
   '/friends': typeof FriendsRoute
+  '/gemtest': typeof GemtestRoute
   '/gift': typeof GiftRoute
   '/miners': typeof MinersRoute
   '/profile': typeof ProfileRoute
@@ -584,6 +593,7 @@ export interface FileRouteTypes {
     | '/combo'
     | '/faq'
     | '/friends'
+    | '/gemtest'
     | '/gift'
     | '/miners'
     | '/profile'
@@ -647,6 +657,7 @@ export interface FileRouteTypes {
     | '/combo'
     | '/faq'
     | '/friends'
+    | '/gemtest'
     | '/gift'
     | '/miners'
     | '/profile'
@@ -710,6 +721,7 @@ export interface FileRouteTypes {
     | '/combo'
     | '/faq'
     | '/friends'
+    | '/gemtest'
     | '/gift'
     | '/miners'
     | '/profile'
@@ -774,6 +786,7 @@ export interface RootRouteChildren {
   ComboRoute: typeof ComboRoute
   FaqRoute: typeof FaqRoute
   FriendsRoute: typeof FriendsRoute
+  GemtestRoute: typeof GemtestRoute
   GiftRoute: typeof GiftRoute
   MinersRoute: typeof MinersRoute
   ProfileRoute: typeof ProfileRoute
@@ -869,6 +882,13 @@ declare module '@tanstack/react-router' {
       path: '/friends'
       fullPath: '/friends'
       preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gemtest': {
+      id: '/gemtest'
+      path: '/gemtest'
+      fullPath: '/gemtest'
+      preLoaderRoute: typeof GemtestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gift': {
@@ -1305,6 +1325,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComboRoute: ComboRoute,
   FaqRoute: FaqRoute,
   FriendsRoute: FriendsRoute,
+  GemtestRoute: GemtestRoute,
   GiftRoute: GiftRoute,
   MinersRoute: MinersRoute,
   ProfileRoute: ProfileRoute,
