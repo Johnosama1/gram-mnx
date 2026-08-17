@@ -96,7 +96,7 @@ async function finalizeDeposit(db: any, req: PendingRequest, input: SettleInput)
 
   await notifyUser(
     req.telegram_id,
-    `✅ Your deposit was received.\n💰 <b>${input.coins} Coin</b> was added to your balance.`,
+    `<tg-emoji emoji-id="5316653334688446735">✅</tg-emoji> Your deposit was received.\n<tg-emoji emoji-id="5258204546391351475">💰</tg-emoji> <b>${input.coins} MNX</b> was added to your balance.`,
   ).catch(() => undefined);
 
   // Notify every admin with the full deposit details.
