@@ -388,6 +388,7 @@ function Shell() {
 
 export default function AppShell() {
   useAppHeight();
+  if (typeof window !== 'undefined' && window.location.pathname === '/gemtest') return <Outlet />; // TEMP-GEMTEST
 
   return (
     <TonConnectUIProvider manifestUrl={manifestUrl}>
