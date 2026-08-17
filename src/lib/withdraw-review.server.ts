@@ -222,6 +222,8 @@ export async function reviewWithdrawal(
     })
     .eq('id', id);
 
+  // announceWithdrawal already notifies every admin (with the wallet/tx-hash
+  // card), so no separate announceReviewToAdmins summary here — one message.
   const { announceWithdrawal } = await import('@/lib/withdraw-notify.server');
   await announceWithdrawal({
     requestId: Number(id),
@@ -230,16 +232,6 @@ export async function reviewWithdrawal(
     wallet: String(w.wallet_address),
     txHash,
     channelMessageId: w.channel_message_id ? Number(w.channel_message_id) : null,
-  });
-  await announceReviewToAdmins({
-    requestId: Number(id),
-    action: 'approve',
-    ok: true,
-    message: txHash ? `Sent on-chain.` : 'Approved.',
-    actorId: actor?.id ?? null,
-    actorName: actor?.name ?? null,
-    amount: Number(w.amount),
-    telegramId: Number(w.telegram_id),
   });
   return { ok: true, message: 'Approved and sent' };
 }
@@ -298,6 +290,7 @@ export async function recoverStaleWithdrawals(staleMinutes = 5) {
             processed_at: new Date().toISOString(),
           })
           .eq('id', w.id);
+        // announceWithdrawal already notifies every admin — no separate summary.
         const { announceWithdrawal } = await import('@/lib/withdraw-notify.server');
         await announceWithdrawal({
           requestId: Number(w.id),
@@ -306,14 +299,6 @@ export async function recoverStaleWithdrawals(staleMinutes = 5) {
           wallet: String(w.wallet_address),
           txHash: found.txHash,
           channelMessageId: null,
-        });
-        await announceReviewToAdmins({
-          requestId: Number(w.id),
-          action: 'approve',
-          ok: true,
-          message: 'Recovered after an interrupted payout attempt: the transfer had already reached the network.',
-          amount: Number(w.amount),
-          telegramId: Number(w.telegram_id),
         });
         recovered += 1;
       } else {
