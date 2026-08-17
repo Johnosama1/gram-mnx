@@ -134,7 +134,7 @@ export default function Gem3D({ active = true }: { active?: boolean }) {
       <pointLight position={[-3, 1, 2]} intensity={18} color="#a855f7" />
       <pointLight position={[0, -1.2, 2.4]} intensity={22} color="#e9e4ff" />
       <Crystal speed={speed} />
-      {/*<Pedestal speed={speed} />*/}
+      <Pedestal speed={speed} />
     </Canvas>
   );
 }
