@@ -103,18 +103,18 @@ function Pedestal({ speed }: { speed: number }) {
     if (ring.current) ring.current.rotation.y += Math.min(delta, 0.05) * speed * 0.4;
   });
   return (
-    <group position={[0, -1.75, 0]}>
+    <group position={[0, -1.95, 0]}>
       <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[1.35, 1.5, 0.28, 64]} />
-        <meshStandardMaterial color="#2b2740" metalness={0.85} roughness={0.35} />
+        <cylinderGeometry args={[1.05, 1.2, 0.22, 64]} />
+        <meshStandardMaterial color="#3b3557" metalness={0.8} roughness={0.3} />
       </mesh>
       <mesh ref={ring} position={[0, 0.06, 0]}>
-        <torusGeometry args={[1.0, 0.05, 16, 64]} />
+        <torusGeometry args={[0.8, 0.04, 16, 64]} />
         <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={2.2} />
       </mesh>
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.8, 48]} />
-        <meshBasicMaterial color="#ede9fe" transparent opacity={0.85} />
+        <circleGeometry args={[0.62, 48]} />
+        <meshBasicMaterial color="#ede9fe" transparent opacity={0.7} />
       </mesh>
     </group>
   );
@@ -124,7 +124,7 @@ export default function Gem3D({ active = true }: { active?: boolean }) {
   const speed = active ? 0.85 : 0.18;
   return (
     <Canvas
-      camera={{ position: [0, 0.6, 6.2], fov: 34 }}
+      camera={{ position: [0, 0.5, 7.6], fov: 32 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       style={{ width: '100%', height: '100%', background: 'transparent' }}
