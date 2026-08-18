@@ -74,9 +74,11 @@ async function pickReward(): Promise<number> {
  */
 export async function ensureDailyCombo(): Promise<{ correctIds: number[]; reward: number }> {
   const date = today();
-  const storedDate = await getSetting('combo_date');
-  const ansRaw = await getSetting('combo_answer');
-  const rewardRaw = await getSetting('combo_reward');
+  const [storedDate, ansRaw, rewardRaw] = await Promise.all([
+    getSetting('combo_date'),
+    getSetting('combo_answer'),
+    getSetting('combo_reward'),
+  ]);
   let correctIds: number[] = [];
   try { correctIds = ansRaw ? JSON.parse(ansRaw) : []; } catch { correctIds = []; }
 
@@ -119,17 +121,17 @@ export async function handleComboRequest(request: Request): Promise<Response> {
   if (!auth) return json({ error: 'Unauthorized' }, 401);
 
   const db = (await getDb()) as any;
-  await upsertUser(auth);
   const date = today();
-  const daily = await ensureDailyCombo();
 
   if (request.method === 'GET') {
-    const { data } = await db
-      .from('gm_combo_attempts')
-      .select('success,reward')
-      .eq('telegram_id', auth.id)
-      .eq('combo_date', date)
-      .maybeSingle();
+    // Read-only lookups with no dependency on each other or on the user row
+    // existing yet, so they all go over the wire together.
+    const [daily, attemptRes] = await Promise.all([
+      ensureDailyCombo(),
+      db.from('gm_combo_attempts').select('success,reward').eq('telegram_id', auth.id).eq('combo_date', date).maybeSingle(),
+      upsertUser(auth),
+    ]);
+    const { data } = attemptRes;
     return json({
       attemptedToday: Boolean(data),
       success: data ? data.success : null,
@@ -146,6 +148,10 @@ export async function handleComboRequest(request: Request): Promise<Response> {
     const selected = Array.isArray(body.selectedIds) ? body.selectedIds.map(Number) : [];
     if (selected.length !== 3) return json({ error: 'select_three' }, 400);
 
+    // upsertUser must finish before the RPC writes gm_combo_attempts (FK on
+    // telegram_id), but ensureDailyCombo only touches gm_settings, so it can
+    // run alongside it instead of waiting its turn.
+    const [daily] = await Promise.all([ensureDailyCombo(), upsertUser(auth)]);
     const correctIds = daily.correctIds;
     const reward = daily.reward;
 

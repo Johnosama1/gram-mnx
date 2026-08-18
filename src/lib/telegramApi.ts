@@ -31,15 +31,19 @@ export class ApiError extends Error {
   }
 }
 
-export async function telegramApiFetch(path: string, init: RequestInit = {}): Promise<Response> {
+export async function telegramApiFetch(
+  path: string,
+  init: RequestInit = {},
+  opts: { timeout?: number; retries?: number } = {},
+): Promise<Response> {
   const initData = await requireTelegramInitData();
   const headers = new Headers(init.headers);
   headers.set('x-init-data', initData);
-  const response = await resilientFetch(`${API_BASE}/api${path}`, {
-    ...init,
-    headers,
-    credentials: 'include',
-  });
+  const response = await resilientFetch(
+    `${API_BASE}/api${path}`,
+    { ...init, headers, credentials: 'include' },
+    opts,
+  );
   if (response.ok) return response;
   const text = await response.text().catch(() => '');
   let code = `HTTP_${response.status}`;

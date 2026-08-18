@@ -104,13 +104,20 @@ export default function Combo() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await telegramApiFetch('/tasks?type=combo&action=submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // retries: 0 — this is a non-idempotent mutation (consumes today's one
+      // attempt), so a stalled request must fail fast instead of silently
+      // retrying and doubling how long "Checking..." sits on screen.
+      const res = await telegramApiFetch(
+        '/tasks?type=combo&action=submit',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ selectedIds: selected }),
         },
-        body: JSON.stringify({ selectedIds: selected }),
-      });
+        { retries: 0 },
+      );
       const data = await res.json();
       if (!res.ok) {
         if (data.error === 'already_attempted') {
