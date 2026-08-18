@@ -289,6 +289,13 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
   const { rateLimit } = await import('@/lib/rate-limit.server');
   if (!(await rateLimit(`giftads:${auth.id}`, 20, 60)))
     return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
+  // A real ad takes several seconds to play, so two genuine views can never
+  // land inside the same short window — this is what actually stops a
+  // double-tap or a resent request from recording (and rewarding) twice for
+  // the one ad the user watched, on top of the client's own disabled-button
+  // guard while a request is in flight.
+  if (!(await rateLimit(`giftads-once:${auth.id}`, 1, 8)))
+    return json({ error: 'تم تسجيل هذه المشاهدة بالفعل' }, 409);
 
   const result = await recordGiftAdView(auth.id);
   return json(result, result.ok ? 200 : 500);
