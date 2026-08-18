@@ -2,11 +2,15 @@ import { json, getSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 
 /**
- * What a participant must do before they can join (and before a referral
- * they bring in counts toward the referrer's chances):
- * - 'referral': no extra requirement — just join (the original behaviour).
- * - 'tasks': must have completed at least one task or played the daily combo.
- * - 'ads': must have watched at least one rewarded ad.
+ * What a participant must do before they can join, and how their chances
+ * grow after that:
+ * - 'referral': no extra requirement to join. Chances grow by inviting
+ *   friends who also join this contest (invite link shown after joining).
+ * - 'tasks': must have completed at least one task or played the daily
+ *   combo to join. Chances grow the same way as 'referral' (via referrals).
+ * - 'ads': must watch one ad (via the Gifts screen's own button) to join —
+ *   there is no invite link for this mode. Chances instead grow by watching
+ *   more ads: every GIFT_AD_CHANCE_STEP ads watched (all-time) is +1 chance.
  */
 export type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
@@ -139,12 +143,16 @@ export async function recordGiftInvite(
 /**
  * participants + the caller's chances per contest, computed live and only
  * from actual entrants (gm_gift_entries) — never from the global invite
- * ledger. A referral only ever counts toward the referrer's chances once
- * the referred person has themselves joined that same contest (which, for
- * 'tasks'/'ads' contests, already proves they met the entry requirement —
- * see meetsEntryRequirement, enforced at join time).
+ * ledger. How a joined contest's chances grow depends on its entry mode:
+ * - 'referral'/'tasks': a referral only ever counts once the referred person
+ *   has themselves joined that same contest (which, for 'tasks' contests,
+ *   already proves they met the entry requirement too).
+ * - 'ads': there is no referral link for this mode at all — chances instead
+ *   grow with how many ads the user has watched via the Gifts ads button
+ *   (see getGiftAdsWatched), GIFT_AD_CHANCE_STEP ads = +1 chance.
  */
-async function loadEntryStats(giftIds: number[], telegramId: number | null) {
+async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
+  const giftIds = gifts.map((g) => g.id);
   const counts = new Map<number, number>();
   const mine = new Map<number, { chances: number; invited: number }>();
   if (giftIds.length === 0) return { counts, mine };
@@ -162,11 +170,19 @@ async function loadEntryStats(giftIds: number[], telegramId: number | null) {
   }
 
   if (telegramId) {
-    for (const gid of giftIds) {
+    const hasAdsGift = gifts.some((g) => g.entryMode === 'ads');
+    const adsWatched = hasAdsGift ? await getGiftAdsWatched(telegramId) : 0;
+
+    for (const gift of gifts) {
+      const gid = gift.id;
       const joinedThis = rows.some((r) => r.gift_id === gid && Number(r.telegram_id) === telegramId);
       if (!joinedThis) continue;
-      const invited = rows.filter((r) => r.gift_id === gid && Number(r.referred_by) === telegramId).length;
-      mine.set(gid, { chances: invited + 1, invited });
+      if (gift.entryMode === 'ads') {
+        mine.set(gid, { chances: 1 + Math.floor(adsWatched / GIFT_AD_CHANCE_STEP), invited: 0 });
+      } else {
+        const invited = rows.filter((r) => r.gift_id === gid && Number(r.referred_by) === telegramId).length;
+        mine.set(gid, { chances: invited + 1, invited });
+      }
     }
   }
   return { counts, mine };
@@ -186,11 +202,8 @@ async function meetsEntryRequirement(
     return (taskCount ?? 0) > 0 || (comboCount ?? 0) > 0;
   }
   if (mode === 'ads') {
-    const { count } = await db
-      .from('gm_ad_views')
-      .select('id', { count: 'exact', head: true })
-      .eq('telegram_id', telegramId);
-    return (count ?? 0) > 0;
+    const watched = await getGiftAdsWatched(telegramId, db);
+    return watched > 0;
   }
   return true;
 }
@@ -198,7 +211,7 @@ async function meetsEntryRequirement(
 const ENTRY_REQUIREMENT_MESSAGE: Record<GiftEntryMode, string> = {
   referral: '',
   tasks: 'لازم تكمل مهمة واحدة على الأقل أو تلعب الكومبو اليومي قبل الاشتراك في المسابقة دي',
-  ads: 'لازم تشاهد إعلان واحد على الأقل قبل الاشتراك في المسابقة دي',
+  ads: 'اضغط على زر مشاهدة الإعلان أولاً',
 };
 
 async function isAdminUser(telegramId: number | null): Promise<boolean> {
@@ -208,105 +221,36 @@ async function isAdminUser(telegramId: number | null): Promise<boolean> {
 }
 
 /**
- * "Ads gifts" — a second, fully independent way to earn a raffle ticket:
- * watch GIFT_AD_DAILY_TARGET ads in a day (tracked in gm_gift_ad_views, a
- * table dedicated to this feature — never the Tasks screen's gm_ad_views)
- * and get one ticket for that day (gm_gift_ad_tickets, unique per user per
- * day, which is what makes it exactly one ticket/day no matter how many
- * more ads are watched). Nothing here reads or writes the referral-link
- * gift contests above, and no invite link is ever involved.
+ * "Ads" entry mode — the alternative to a referral link for a contest: watch
+ * ads (via the Gifts screen's own button, tracked in gm_gift_ad_views — a
+ * table dedicated to this feature, never the Tasks screen's gm_ad_views) to
+ * unlock joining, then keep watching to earn more chances — every
+ * GIFT_AD_CHANCE_STEP ads watched (all-time) is +1 chance, computed live by
+ * loadEntryStats. No invite link is ever involved for this mode.
  */
-const GIFT_AD_DAILY_TARGET = 10;
+const GIFT_AD_CHANCE_STEP = 10;
 
-function currentUtcMidnight(now = Date.now()): Date {
-  const d = new Date(now);
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
-}
-
-async function getGiftAdStatus(telegramId: number) {
-  const db = (await getDb()) as any;
-  const dayStart = currentUtcMidnight();
-  const ticketDay = dayStart.toISOString().slice(0, 10);
-
-  const [{ count }, { data: ticketRow }] = await Promise.all([
-    db
-      .from('gm_gift_ad_views')
-      .select('id', { count: 'exact', head: true })
-      .eq('telegram_id', telegramId)
-      .gte('created_at', dayStart.toISOString()),
-    db
-      .from('gm_gift_ad_tickets')
-      .select('id')
-      .eq('telegram_id', telegramId)
-      .eq('ticket_day', ticketDay)
-      .maybeSingle(),
-  ]);
-
-  return {
-    watchedToday: Math.min(GIFT_AD_DAILY_TARGET, Number(count ?? 0)),
-    dailyTarget: GIFT_AD_DAILY_TARGET,
-    ticketToday: Boolean(ticketRow),
-  };
-}
-
-/** Records one completed ad view and awards the day's ticket once the target is hit. */
-async function recordGiftAdView(telegramId: number) {
-  const status = await getGiftAdStatus(telegramId);
-  if (status.ticketToday) {
-    return { ok: false as const, message: 'حصلت بالفعل على تذكرة إعلانات اليوم', ...status };
-  }
-
-  const db = (await getDb()) as any;
-  await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
-
-  const dayStart = currentUtcMidnight();
-  const { count } = await db
+/** Total ads the user has watched via the Gifts ads button (all-time). */
+async function getGiftAdsWatched(telegramId: number, db?: any): Promise<number> {
+  const client = db ?? ((await getDb()) as any);
+  const { count } = await client
     .from('gm_gift_ad_views')
     .select('id', { count: 'exact', head: true })
-    .eq('telegram_id', telegramId)
-    .gte('created_at', dayStart.toISOString());
-  const watchedCount = Number(count ?? 0);
-
-  let ticketAwarded = false;
-  if (watchedCount >= GIFT_AD_DAILY_TARGET) {
-    const ticketDay = dayStart.toISOString().slice(0, 10);
-    const { error } = await db
-      .from('gm_gift_ad_tickets')
-      .insert({ telegram_id: telegramId, ticket_day: ticketDay });
-    if (!error) {
-      ticketAwarded = true;
-      try {
-        const { notifyUser } = await import('@/lib/admin.server');
-        await notifyUser(
-          telegramId,
-          '🎟️ مبروك! شاهدت 10 إعلانات اليوم وحصلت على تذكرة في هدايا الإعلانات.',
-        );
-      } catch {
-        /* notification is best-effort */
-      }
-    }
-  }
-
-  return {
-    ok: true as const,
-    watchedToday: Math.min(GIFT_AD_DAILY_TARGET, watchedCount),
-    dailyTarget: GIFT_AD_DAILY_TARGET,
-    ticketToday: ticketAwarded || status.ticketToday,
-  };
+    .eq('telegram_id', telegramId);
+  return Number(count ?? 0);
 }
 
-/** GET/POST → { watchedToday, dailyTarget, ticketToday } for the current user. */
-export async function handleGiftAdsStatus(request: Request): Promise<Response> {
-  const body =
-    request.method === 'GET'
-      ? {}
-      : ((await request.json().catch(() => ({}))) as Record<string, any>);
-  const initData =
-    request.headers.get('x-init-data') ??
-    (typeof body.initData === 'string' ? body.initData : null);
-  const auth = resolveTelegramUser(initData);
-  if (!auth) return json({ error: 'Unauthorized' }, 401);
-  return json(await getGiftAdStatus(auth.id));
+/** Records one completed ad view. */
+async function recordGiftAdView(telegramId: number) {
+  const db = (await getDb()) as any;
+  await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
+  const watched = await getGiftAdsWatched(telegramId, db);
+  return {
+    ok: true as const,
+    watched,
+    chanceStep: GIFT_AD_CHANCE_STEP,
+    justUnlockedChance: watched > 0 && watched % GIFT_AD_CHANCE_STEP === 0,
+  };
 }
 
 /** POST → records one ad view (only call after the ad actually finished playing). */
@@ -323,8 +267,7 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
   if (!(await rateLimit(`giftads:${auth.id}`, 20, 60)))
     return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
 
-  const result = await recordGiftAdView(auth.id);
-  return json(result, result.ok ? 200 : 409);
+  return json(await recordGiftAdView(auth.id));
 }
 
 
@@ -337,8 +280,7 @@ export async function getGiftState(initData: string | null) {
     return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false };
   }
 
-  const ids = cfg.gifts.map((g) => g.id);
-  const { counts, mine } = await loadEntryStats(ids, auth?.id ?? null);
+  const { counts, mine } = await loadEntryStats(cfg.gifts, auth?.id ?? null);
 
   const gifts: GiftPublicItem[] = cfg.gifts.map((g) => {
     const participants = counts.get(g.id) ?? 0;
