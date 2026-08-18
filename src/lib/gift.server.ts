@@ -254,6 +254,17 @@ async function recordGiftAdView(telegramId: number) {
   const { error } = await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
   if (error) {
     console.error('[gift] failed to record ad view', error);
+    // Surface the raw DB error to admins over Telegram too — Worker logs
+    // aren't reachable from the admin panel, and this is the fastest way
+    // to see *why* (e.g. "relation does not exist" = migration not applied).
+    try {
+      const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
+      const admins = await getAllAdminIds();
+      const text = `⚠️ فشل تسجيل مشاهدة إعلان (gift ads)\n${error.message ?? String(error)}`;
+      await Promise.all(admins.map((id) => notifyUser(id, text)));
+    } catch {
+      /* best-effort */
+    }
     return { ok: false as const, error: 'تعذر تسجيل المشاهدة، حاول مرة أخرى' };
   }
   const watched = await getGiftAdsWatched(telegramId, db);

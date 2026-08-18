@@ -6,6 +6,8 @@ import StickerBadge from '@/components/StickerBadge';
 import { toast } from 'sonner';
 
 const BOT_USERNAME = 'GRAMMNX1_bot';
+/** Must match GIFT_AD_CHANCE_STEP in src/lib/gift.server.ts. */
+const AD_CHANCE_STEP = 10;
 
 type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
@@ -237,14 +239,20 @@ export default function GiftScreen() {
 
         {activeGift.entryMode === 'ads' ? (
           <>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
-                <p className="text-[11px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
-                <p className="text-xl font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+                <p className="text-[10px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
+                <p className="text-lg font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
               </div>
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
-                <p className="text-[11px] text-violet-600/70">فرصك في الفوز</p>
-                <p className="text-xl font-extrabold text-muted-foreground">×{activeGift.chances}</p>
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+                <p className="text-[10px] text-violet-600/70">للفرصة الجاية</p>
+                <p className="text-lg font-extrabold text-muted-foreground">
+                  {activeGift.adsWatched % AD_CHANCE_STEP}/{AD_CHANCE_STEP}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+                <p className="text-[10px] text-violet-600/70">فرصك في الفوز</p>
+                <p className="text-lg font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
             </div>
 
