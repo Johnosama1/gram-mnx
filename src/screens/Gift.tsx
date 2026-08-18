@@ -22,6 +22,7 @@ type GiftItem = {
   joined: boolean;
   chances: number;
   invitedCount: number;
+  adsWatched: number;
   endsAt: string | null;
   expired: boolean;
   entryMode: GiftEntryMode;
@@ -30,7 +31,7 @@ type GiftItem = {
 const ENTRY_MODE_HINT: Record<GiftEntryMode, string | null> = {
   referral: null,
   tasks: '🧩 لازم تكمل مهمة أو كومبو اليوم عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
-  ads: '📺 اضغط "مشاهدة إعلان" للاشتراك — بعد كده كل 10 إعلانات تشاهدها = فرصة إضافية',
+  ads: null,
 };
 
 async function postAdsWatch(): Promise<{ justUnlockedChance: boolean }> {
@@ -157,17 +158,6 @@ export default function GiftScreen() {
   const join = async (gift: GiftItem) => {
     setBusy(gift.id);
     try {
-      // Ads-mode contests: watch an ad right here first — this both unlocks
-      // the join below and counts toward this gift's "10 ads = +1 chance".
-      if (gift.entryMode === 'ads' && !gift.joined) {
-        try {
-          await showMonetagAd();
-        } catch {
-          throw new Error('تعذر عرض الإعلان، حاول مرة أخرى');
-        }
-        await postAdsWatch();
-      }
-
       const res = await fetch(`${API_BASE}/api/gift/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -179,7 +169,7 @@ export default function GiftScreen() {
       setActive(gift.id);
       toast.success(
         gift.entryMode === 'ads'
-          ? 'تم اشتراكك 🎉 شاهد المزيد من الإعلانات لزيادة فرصتك'
+          ? 'تم اشتراكك 🎉 شاهد إعلانات لزيادة فرصتك'
           : 'تم اشتراكك 🎉 ادعُ أصدقاءك لمضاعفة فرصتك في الفوز',
       );
     } catch (e) {
@@ -247,9 +237,15 @@ export default function GiftScreen() {
 
         {activeGift.entryMode === 'ads' ? (
           <>
-            <div className="mt-4 rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
-              <p className="text-[11px] text-violet-600/70">فرصك في الفوز</p>
-              <p className="text-xl font-extrabold text-muted-foreground">×{activeGift.chances}</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
+                <p className="text-[11px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
+                <p className="text-xl font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
+              </div>
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
+                <p className="text-[11px] text-violet-600/70">فرصك في الفوز</p>
+                <p className="text-xl font-extrabold text-muted-foreground">×{activeGift.chances}</p>
+              </div>
             </div>
 
             <div className="mt-4 rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
@@ -400,13 +396,7 @@ export default function GiftScreen() {
                     className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {busy === g.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {g.expired
-                      ? 'انتهت المسابقة'
-                      : g.full
-                        ? 'اكتمل العدد'
-                        : g.entryMode === 'ads'
-                          ? 'مشاهدة إعلان والاشتراك'
-                          : 'اشترك في المسابقة'}
+                    {g.expired ? 'انتهت المسابقة' : g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}
                   </button>
                 )}
               </div>

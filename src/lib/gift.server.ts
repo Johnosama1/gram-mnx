@@ -8,9 +8,10 @@ import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.serv
  *   friends who also join this contest (invite link shown after joining).
  * - 'tasks': must have completed at least one task or played the daily
  *   combo to join. Chances grow the same way as 'referral' (via referrals).
- * - 'ads': must watch one ad (via the Gifts screen's own button) to join —
- *   there is no invite link for this mode. Chances instead grow by watching
- *   more ads: every GIFT_AD_CHANCE_STEP ads watched (all-time) is +1 chance.
+ * - 'ads': joining is just as open as 'referral' — there is no invite link
+ *   for this mode though; instead, the joined-contest page has its own
+ *   "watch ad" button and every GIFT_AD_CHANCE_STEP ads watched (all-time)
+ *   is +1 chance.
  */
 export type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
@@ -41,6 +42,8 @@ export type GiftPublicItem = GiftItem & {
   joined: boolean;
   chances: number;
   invitedCount: number;
+  /** Total ads watched (all-time) toward this contest's chances — 'ads' mode only. */
+  adsWatched: number;
   expired: boolean;
 };
 
@@ -154,7 +157,7 @@ export async function recordGiftInvite(
 async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
   const giftIds = gifts.map((g) => g.id);
   const counts = new Map<number, number>();
-  const mine = new Map<number, { chances: number; invited: number }>();
+  const mine = new Map<number, { chances: number; invited: number; adsWatched: number }>();
   if (giftIds.length === 0) return { counts, mine };
 
   const db = (await getDb()) as any;
@@ -178,17 +181,26 @@ async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
       const joinedThis = rows.some((r) => r.gift_id === gid && Number(r.telegram_id) === telegramId);
       if (!joinedThis) continue;
       if (gift.entryMode === 'ads') {
-        mine.set(gid, { chances: 1 + Math.floor(adsWatched / GIFT_AD_CHANCE_STEP), invited: 0 });
+        mine.set(gid, {
+          chances: 1 + Math.floor(adsWatched / GIFT_AD_CHANCE_STEP),
+          invited: 0,
+          adsWatched,
+        });
       } else {
         const invited = rows.filter((r) => r.gift_id === gid && Number(r.referred_by) === telegramId).length;
-        mine.set(gid, { chances: invited + 1, invited });
+        mine.set(gid, { chances: invited + 1, invited, adsWatched: 0 });
       }
     }
   }
   return { counts, mine };
 }
 
-/** Whether `telegramId` currently satisfies a contest's entry requirement. */
+/**
+ * Whether `telegramId` currently satisfies a contest's entry requirement.
+ * 'ads' contests have no join-time gate — anyone can join immediately, same
+ * as 'referral'; watching ads is purely how they grow their chances after
+ * joining (see loadEntryStats).
+ */
 async function meetsEntryRequirement(
   db: any,
   telegramId: number,
@@ -201,17 +213,13 @@ async function meetsEntryRequirement(
     ]);
     return (taskCount ?? 0) > 0 || (comboCount ?? 0) > 0;
   }
-  if (mode === 'ads') {
-    const watched = await getGiftAdsWatched(telegramId, db);
-    return watched > 0;
-  }
   return true;
 }
 
 const ENTRY_REQUIREMENT_MESSAGE: Record<GiftEntryMode, string> = {
   referral: '',
   tasks: 'لازم تكمل مهمة واحدة على الأقل أو تلعب الكومبو اليومي قبل الاشتراك في المسابقة دي',
-  ads: 'اضغط على زر مشاهدة الإعلان أولاً',
+  ads: '',
 };
 
 async function isAdminUser(telegramId: number | null): Promise<boolean> {
@@ -292,6 +300,7 @@ export async function getGiftState(initData: string | null) {
       joined: Boolean(my),
       chances: my?.chances ?? 0,
       invitedCount: my?.invited ?? 0,
+      adsWatched: my?.adsWatched ?? 0,
       expired: Boolean(g.endsAt && Date.parse(g.endsAt) < Date.now()),
     };
   });
@@ -321,8 +330,8 @@ export async function handleGiftApi(request: Request): Promise<Response> {
  * Joins a contest. `ref` is the telegram id of the inviter taken from the
  * Mini App start param — this entry is what gives the inviter +1 chance
  * (computed live by loadEntryStats, not stored here). Blocked up front if
- * the contest requires tasks/combo or an ad view and the joiner hasn't done
- * that yet.
+ * the contest requires tasks/combo and the joiner hasn't done that yet
+ * ('ads' contests have no join-time gate — see meetsEntryRequirement).
  */
 export async function handleGiftJoin(request: Request): Promise<Response> {
   const body = (await request.json().catch(() => ({}))) as Record<string, any>;
