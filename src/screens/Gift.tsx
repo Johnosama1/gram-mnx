@@ -40,8 +40,8 @@ async function postAdsWatch(): Promise<{ justUnlockedChance: boolean }> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ initData: getInitData() }),
   });
-  if (!res.ok) throw new Error('تعذر تسجيل مشاهدة الإعلان، حاول مرة أخرى');
-  const data = (await res.json()) as { justUnlockedChance?: boolean };
+  const data = (await res.json().catch(() => ({}))) as { error?: string; justUnlockedChance?: boolean };
+  if (!res.ok) throw new Error(data.error || 'تعذر تسجيل مشاهدة الإعلان، حاول مرة أخرى');
   return { justUnlockedChance: Boolean(data.justUnlockedChance) };
 }
 

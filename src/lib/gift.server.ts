@@ -251,7 +251,11 @@ async function getGiftAdsWatched(telegramId: number, db?: any): Promise<number> 
 /** Records one completed ad view. */
 async function recordGiftAdView(telegramId: number) {
   const db = (await getDb()) as any;
-  await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
+  const { error } = await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
+  if (error) {
+    console.error('[gift] failed to record ad view', error);
+    return { ok: false as const, error: 'تعذر تسجيل المشاهدة، حاول مرة أخرى' };
+  }
   const watched = await getGiftAdsWatched(telegramId, db);
   return {
     ok: true as const,
@@ -275,7 +279,8 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
   if (!(await rateLimit(`giftads:${auth.id}`, 20, 60)))
     return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
 
-  return json(await recordGiftAdView(auth.id));
+  const result = await recordGiftAdView(auth.id);
+  return json(result, result.ok ? 200 : 500);
 }
 
 
