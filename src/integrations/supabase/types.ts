@@ -176,6 +176,24 @@ export type Database = {
         }
         Relationships: []
       }
+      gm_gift_ad_views: {
+        Row: {
+          created_at: string
+          id: number
+          telegram_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          telegram_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          telegram_id?: number
+        }
+        Relationships: []
+      }
       gm_gift_entries: {
         Row: {
           chances: number
