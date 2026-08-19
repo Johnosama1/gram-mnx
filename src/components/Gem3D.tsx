@@ -2,6 +2,26 @@ import { useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
+/** Soft white-to-transparent radial gradient, tinted by the sprite's own color. */
+function useGlowTexture(): THREE.CanvasTexture {
+  return useMemo(() => {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.35, 'rgba(255,255,255,0.5)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+}
+
 /** Faceted hexagonal crystal — real geometry, spins forever. */
 function Crystal({ speed }: { speed: number }) {
   const group = useRef<THREE.Group>(null);
@@ -99,21 +119,35 @@ function Crystal({ speed }: { speed: number }) {
 /** Glowing tech pedestal under the crystal. */
 function Pedestal({ speed }: { speed: number }) {
   const ring = useRef<THREE.Mesh>(null);
+  const glowTexture = useGlowTexture();
   useFrame((_, delta) => {
     if (ring.current) ring.current.rotation.y += Math.min(delta, 0.05) * speed * 0.4;
   });
   return (
     <group position={[0, -1.35, 0]}>
+      {/* Soft purple aura haloing the base — a radial-gradient sprite (true
+          falloff to transparent at the edge), additive + no depth write, so
+          it glows behind the crystal/pedestal without ever occluding them. */}
+      <sprite position={[0, 0.35, -0.3]} scale={[3.4, 1.9, 1]}>
+        <spriteMaterial
+          map={glowTexture}
+          color="#c026d3"
+          transparent
+          opacity={0.55}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </sprite>
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.66, 0.92, 64]} />
         <meshStandardMaterial color="#1a1625" metalness={0.6} roughness={0.35} side={THREE.DoubleSide} />
       </mesh>
       <mesh ref={ring} position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.62, 0.035, 16, 64]} />
-        <meshStandardMaterial color="#c4b5fd" emissive="#a855f7" emissiveIntensity={1.8} />
+        <torusGeometry args={[0.62, 0.045, 16, 64]} />
+        <meshStandardMaterial color="#d946ef" emissive="#c026d3" emissiveIntensity={2.6} />
       </mesh>
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.64, 48]} />
+        <circleGeometry args={[0.5, 48]} />
         <meshBasicMaterial color="#f5f3ff" transparent opacity={0.9} />
       </mesh>
       {/* Beam of light shooting up through the gem, like the original art. */}
