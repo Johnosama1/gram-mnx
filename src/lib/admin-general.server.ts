@@ -51,6 +51,25 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
     }
 
 
+    // One-off diagnostic: proves — from inside the app's own live connection,
+    // not a guess — which Supabase project it's actually talking to at
+    // runtime, and whether that connection can see gm_gift_ad_views right
+    // now. Safe to leave in; it never mutates anything.
+    if (type === 'gift-ads-diag') {
+      const supabaseUrl = process.env['SUPABASE_URL'] ?? null;
+      const projectRef = supabaseUrl ? new URL(supabaseUrl).hostname.split('.')[0] : null;
+      const probe = await db.from('gm_gift_ad_views').select('id', { count: 'exact', head: true });
+      return json({
+        runtimeSupabaseUrl: supabaseUrl,
+        runtimeProjectRef: projectRef,
+        expectedProjectRef: 'hgldaqpbsusfinqlywgc',
+        projectMatches: projectRef === 'hgldaqpbsusfinqlywgc',
+        tableVisibleToApp: !probe.error,
+        rowCount: probe.error ? null : (probe.count ?? 0),
+        rawError: probe.error ? { message: probe.error.message, code: (probe.error as any).code ?? null } : null,
+      });
+    }
+
     if (type === 'ads-stats') {
       const dayStart = new Date();
       dayStart.setUTCHours(0, 0, 0, 0);

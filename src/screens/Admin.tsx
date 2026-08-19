@@ -530,6 +530,8 @@ function GiftSection() {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [diag, setDiag] = useState<Record<string, unknown> | null>(null);
+  const [diagBusy, setDiagBusy] = useState(false);
 
 
   const load = useCallback(async () => {
@@ -616,6 +618,19 @@ function GiftSection() {
   const removeGift = async (id: number) => {
     await api('DELETE', `/admin/general?type=gift&id=${id}`).catch(() => undefined);
     await load();
+  };
+
+  const runDiag = async () => {
+    setDiagBusy(true);
+    setDiag(null);
+    try {
+      const data = await api<Record<string, unknown>>('GET', '/admin/general?type=gift-ads-diag');
+      setDiag(data);
+    } catch (e) {
+      setDiag({ error: (e as Error).message });
+    } finally {
+      setDiagBusy(false);
+    }
   };
 
   if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
@@ -780,6 +795,21 @@ function GiftSection() {
         {gifts.length === 0 && <p className="text-muted-foreground text-xs">لا توجد مسابقات مضافة</p>}
       </div>
 
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+        <p className="text-foreground font-bold text-sm">تشخيص Gift Ads (gm_gift_ad_views)</p>
+        <button
+          onClick={() => { void runDiag(); }}
+          disabled={diagBusy}
+          className="w-full bg-primary text-primary-foreground font-bold rounded-xl py-2 text-sm disabled:opacity-50"
+        >
+          {diagBusy ? 'جاري الفحص…' : 'فحص الاتصال بالجدول'}
+        </button>
+        {diag && (
+          <pre dir="ltr" className="text-[10px] bg-black/80 text-emerald-300 rounded-lg p-2 overflow-x-auto whitespace-pre-wrap break-all">
+            {JSON.stringify(diag, null, 2)}
+          </pre>
+        )}
+      </div>
 
       {status && <p className="text-xs text-foreground">{status}</p>}
     </div>
