@@ -27,22 +27,53 @@ function waitForMonetagFn(timeoutMs = 8000): Promise<() => Promise<unknown>> {
 }
 
 /**
- * Shows a Monetag rewarded ad and resolves only once it was watched to
- * completion. Throws (never resolves silently) when the ad SDK isn't ready,
- * when the ad was skipped/failed, or when it never fills/settles within
- * AD_TIMEOUT_MS — the SDK's own promise has no built-in timeout, and without
- * one a no-fill can leave the caller awaiting forever with no way to show
- * an error or re-enable its button. Callers must not credit a reward unless
- * this resolves.
+ * Shows a Monetag rewarded ad and resolves only once the SDK's own promise
+ * resolves (that is the official completion signal — a skipped/failed ad
+ * rejects it). We deliberately do NOT race it against a short app-side
+ * timeout: the ad itself can legitimately run for minutes, and the previous
+ * 20s race reported `monetag_timeout` even though the user finished watching.
+ * The only guard left is a very long safety net that also pauses while the
+ * tab is hidden (the ad usually opens in another tab/window), so a genuinely
+ * stuck SDK still can't hang the button forever.
  */
-const AD_TIMEOUT_MS = 20_000;
+const SAFETY_TIMEOUT_MS = 10 * 60_000;
 
 export async function showMonetagAd(): Promise<void> {
   const show = await waitForMonetagFn();
-  await Promise.race([
-    show(),
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('monetag_timeout')), AD_TIMEOUT_MS),
-    ),
-  ]);
+
+  let settled = false;
+  const adPromise = Promise.resolve(show()).then(() => {
+    settled = true;
+  });
+
+  const safety = new Promise<never>((_, reject) => {
+    const startedAt = Date.now();
+    let hiddenMs = 0;
+    let hiddenAt = document.visibilityState === 'hidden' ? Date.now() : 0;
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') hiddenAt = Date.now();
+      else if (hiddenAt) {
+        hiddenMs += Date.now() - hiddenAt;
+        hiddenAt = 0;
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    const tick = () => {
+      if (settled) {
+        document.removeEventListener('visibilitychange', onVis);
+        return;
+      }
+      const pausedNow = hiddenAt ? Date.now() - hiddenAt : 0;
+      if (Date.now() - startedAt - hiddenMs - pausedNow >= SAFETY_TIMEOUT_MS) {
+        document.removeEventListener('visibilitychange', onVis);
+        reject(new Error('monetag_timeout'));
+        return;
+      }
+      setTimeout(tick, 1000);
+    };
+    setTimeout(tick, 1000);
+  });
+
+  await Promise.race([adPromise, safety]);
 }
+
