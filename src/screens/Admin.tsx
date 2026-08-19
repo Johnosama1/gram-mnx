@@ -110,7 +110,7 @@ const ALL_PERMISSIONS = [
 
 // ─── Shared UI ─────────────────────────────────────────────────────────────
 function Section({ title, icon: Icon, children, defaultOpen = false }: {
-  title: string; icon: React.ElementType; children: React.ReactNode; defaultOpen?: boolean;
+  title: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
