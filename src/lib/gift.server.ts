@@ -44,6 +44,9 @@ export type GiftPublicItem = GiftItem & {
   invitedCount: number;
   /** Total ads watched (all-time) toward this contest's chances — 'ads' mode only. */
   adsWatched: number;
+  /** Ads watched in the last 24h, and the daily cap. */
+  adsToday: number;
+  adsDailyLimit: number;
   expired: boolean;
 };
 
@@ -157,7 +160,7 @@ export async function recordGiftInvite(
 async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
   const giftIds = gifts.map((g) => g.id);
   const counts = new Map<number, number>();
-  const mine = new Map<number, { chances: number; invited: number; adsWatched: number }>();
+  const mine = new Map<number, { chances: number; invited: number; adsWatched: number; adsToday: number }>();
   if (giftIds.length === 0) return { counts, mine };
 
   const db = (await getDb()) as any;
@@ -174,7 +177,9 @@ async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
 
   if (telegramId) {
     const hasAdsGift = gifts.some((g) => g.entryMode === 'ads');
-    const adsWatched = hasAdsGift ? await getGiftAdsWatched(telegramId) : 0;
+    const [adsWatched, adsToday] = hasAdsGift
+      ? await Promise.all([getGiftAdsWatched(telegramId), getGiftAdsToday(telegramId)])
+      : [0, 0];
 
     for (const gift of gifts) {
       const gid = gift.id;
@@ -185,10 +190,11 @@ async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
           chances: 1 + Math.floor(adsWatched / GIFT_AD_CHANCE_STEP),
           invited: 0,
           adsWatched,
+          adsToday,
         });
       } else {
         const invited = rows.filter((r) => r.gift_id === gid && Number(r.referred_by) === telegramId).length;
-        mine.set(gid, { chances: invited + 1, invited, adsWatched: 0 });
+        mine.set(gid, { chances: invited + 1, invited, adsWatched: 0, adsToday: 0 });
       }
     }
   }
@@ -238,6 +244,21 @@ async function isAdminUser(telegramId: number | null): Promise<boolean> {
  */
 const GIFT_AD_CHANCE_STEP = 10;
 
+/** Max ads a user may watch per rolling 24 hours (per user, all contests). */
+const GIFT_AD_DAILY_LIMIT = 10;
+
+/** Ads watched by the user during the last 24 hours. */
+async function getGiftAdsToday(telegramId: number, db?: any): Promise<number> {
+  const client = db ?? ((await getDb()) as any);
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await client
+    .from('gm_gift_ad_views')
+    .select('id', { count: 'exact', head: true })
+    .eq('telegram_id', telegramId)
+    .gte('created_at', since);
+  return Number(count ?? 0);
+}
+
 /** Total ads the user has watched via the Gifts ads button (all-time). */
 async function getGiftAdsWatched(telegramId: number, db?: any): Promise<number> {
   const client = db ?? ((await getDb()) as any);
@@ -251,6 +272,14 @@ async function getGiftAdsWatched(telegramId: number, db?: any): Promise<number> 
 /** Records one completed ad view. */
 async function recordGiftAdView(telegramId: number) {
   const db = (await getDb()) as any;
+  const today = await getGiftAdsToday(telegramId, db);
+  if (today >= GIFT_AD_DAILY_LIMIT) {
+    return {
+      ok: false as const,
+      error: `وصلت للحد اليومي (${GIFT_AD_DAILY_LIMIT} إعلانات كل 24 ساعة) — تعالى بكرة`,
+      limitReached: true as const,
+    };
+  }
   const { error } = await db.from('gm_gift_ad_views').insert({ telegram_id: telegramId });
   if (error) {
     console.error('[gift] failed to record ad view', error);
@@ -268,9 +297,12 @@ async function recordGiftAdView(telegramId: number) {
     return { ok: false as const, error: 'تعذر تسجيل المشاهدة، حاول مرة أخرى' };
   }
   const watched = await getGiftAdsWatched(telegramId, db);
+  const adsToday = await getGiftAdsToday(telegramId, db);
   return {
     ok: true as const,
     watched,
+    adsToday,
+    adsDailyLimit: GIFT_AD_DAILY_LIMIT,
     chanceStep: GIFT_AD_CHANCE_STEP,
     justUnlockedChance: watched > 0 && watched % GIFT_AD_CHANCE_STEP === 0,
   };
@@ -298,7 +330,7 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
     return json({ error: 'تم تسجيل هذه المشاهدة بالفعل' }, 409);
 
   const result = await recordGiftAdView(auth.id);
-  return json(result, result.ok ? 200 : 500);
+  return json(result, result.ok ? 200 : (result as any).limitReached ? 429 : 500);
 }
 
 
@@ -324,6 +356,8 @@ export async function getGiftState(initData: string | null) {
       chances: my?.chances ?? 0,
       invitedCount: my?.invited ?? 0,
       adsWatched: my?.adsWatched ?? 0,
+      adsToday: my?.adsToday ?? 0,
+      adsDailyLimit: GIFT_AD_DAILY_LIMIT,
       expired: Boolean(g.endsAt && Date.parse(g.endsAt) < Date.now()),
     };
   });
