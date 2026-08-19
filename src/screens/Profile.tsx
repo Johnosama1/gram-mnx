@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
-import { ArrowLeftRight, ChevronRight, Check, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Check, Copy, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { shortFriendlyAddress, toFriendlyAddress } from '@/lib/tonAddress';
@@ -815,6 +815,7 @@ export default function Profile() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [idCopied, setIdCopied] = useState(false);
 
   // Auto-open deposit panel if navigated from store (sessionStorage set by Miners.tsx)
   useEffect(() => {
@@ -842,6 +843,17 @@ export default function Profile() {
     ? shortFriendlyAddress(walletAddress)
     : null;
 
+  const copyId = async () => {
+    if (!tgUser?.id) return;
+    try {
+      await navigator.clipboard.writeText(String(tgUser.id));
+    } catch {
+      /* clipboard may be blocked inside Telegram */
+    }
+    setIdCopied(true);
+    setTimeout(() => setIdCopied(false), 2000);
+  };
+
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
       <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
@@ -864,7 +876,14 @@ export default function Profile() {
         {tgUser?.username && (
           <div className="text-sm text-primary font-bold mt-1">@{tgUser.username}</div>
         )}
-        <div className="text-xs text-muted-foreground font-mono mt-1">ID: {tgUser?.id ?? '—'}</div>
+        <button
+          type="button"
+          onClick={() => { void copyId(); }}
+          className="flex items-center gap-1 text-xs text-muted-foreground font-mono mt-1"
+        >
+          ID: {tgUser?.id ?? '—'}
+          {idCopied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
+        </button>
         <div className="px-4 py-1.5 rounded-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
           {walletAddress ? (
             <>
