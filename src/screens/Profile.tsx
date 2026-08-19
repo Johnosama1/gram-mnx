@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
-import { ArrowLeftRight, ChevronRight, Check, Copy, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Check, Copy, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle, Send } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { shortFriendlyAddress, toFriendlyAddress } from '@/lib/tonAddress';
@@ -175,6 +175,152 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
               </div>
             ))}
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// ─── Sending currencies (MNX → the "gram" bot's coin) ─────────────────────────
+// Preview UI only for now: there is no live link to the other bot yet, so
+// nothing here touches the user's real MNX balance. Once that API exists,
+// step 1 becomes a real debit and step 2 posts the transfer request.
+function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
+  const { coins } = useCoins();
+  const [step, setStep] = useState<'swap' | 'send'>('swap');
+  const [swapAmount, setSwapAmount] = useState('');
+  const [recipientId, setRecipientId] = useState('');
+  const [sendAmount, setSendAmount] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const swapNum = parseFloat(swapAmount) || 0;
+  const coinPreview = swapNum; // 1:1 placeholder rate until the two bots are linked
+  const canSwap = swapNum > 0 && swapNum <= coins;
+  const sendNum = parseFloat(sendAmount) || 0;
+  const canSend = recipientId.trim().length > 0 && sendNum > 0;
+
+  const proceedToSend = () => {
+    if (!canSwap) return;
+    setSendAmount(String(coinPreview));
+    setStep('send');
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+      <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
+        <button
+          onClick={step === 'send' && !sent ? () => setStep('swap') : onClose}
+          className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
+        >‹</button>
+        <h2 className="text-lg font-black text-foreground">
+          {step === 'swap' ? 'Swap' : 'إرسال العملات'}
+        </h2>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
+        {step === 'swap' ? (
+          <>
+            <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 text-center">
+              <div className="text-primary font-black text-lg">1 MNX = 1 Coin</div>
+              <div className="text-xs text-muted-foreground mt-1">سعر مبدئي — هيتحدد بالظبط لما يتم الربط بين البوتين</div>
+            </div>
+
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-muted-foreground font-bold uppercase">من</span>
+                <span className="text-xs text-muted-foreground">رصيدك: {coins.toLocaleString()} MNX</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  value={swapAmount}
+                  onChange={(e) => setSwapAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="flex-1 bg-transparent text-2xl font-black text-foreground outline-none"
+                  dir="ltr"
+                />
+                <div className="bg-primary/20 border border-primary/40 rounded-xl px-3 py-1.5">
+                  <span className="text-primary font-black text-sm">MNX</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+                <ArrowDown className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+              <div className="text-xs text-muted-foreground font-bold uppercase">إلى</div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 text-2xl font-black text-muted-foreground">
+                  {swapNum > 0 ? coinPreview.toLocaleString() : '0'}
+                </div>
+                <div className="bg-secondary border border-violet-500/20 rounded-xl px-3 py-1.5">
+                  <span className="text-foreground font-black text-sm">Coin</span>
+                </div>
+              </div>
+            </div>
+
+            {swapNum > coins && <p className="text-xs text-destructive text-center">رصيدك مش كافي</p>}
+
+            <button
+              onClick={proceedToSend}
+              disabled={!canSwap}
+              className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
+            >
+              🔄 تحويل ومتابعة
+            </button>
+          </>
+        ) : sent ? (
+          <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-8 text-center space-y-3">
+            <div className="text-4xl">⏳</div>
+            <p className="font-bold text-foreground">لسه البوتين مش متربطين ببعض</p>
+            <p className="text-sm text-muted-foreground">
+              لما يتم الربط، هتقدر ترسل {sendAmount} Coin فعليًا لصاحب الـ ID: <span dir="ltr">{recipientId}</span>
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full py-3 rounded-2xl bg-secondary text-foreground font-bold"
+            >
+              تمام
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+              <span className="text-xs text-muted-foreground font-bold uppercase">ID المستخدم في البوت التاني</span>
+              <input
+                type="text"
+                value={recipientId}
+                onChange={(e) => setRecipientId(e.target.value)}
+                placeholder="مثال: 123456789"
+                className="w-full bg-transparent text-lg font-bold text-foreground outline-none"
+                dir="ltr"
+              />
+            </div>
+
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+              <span className="text-xs text-muted-foreground font-bold uppercase">عدد العملات (Coin)</span>
+              <input
+                type="number"
+                value={sendAmount}
+                onChange={(e) => setSendAmount(e.target.value)}
+                className="w-full bg-transparent text-2xl font-black text-foreground outline-none"
+                dir="ltr"
+              />
+            </div>
+
+            <button
+              onClick={() => setSent(true)}
+              disabled={!canSend}
+              className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Send className="w-4 h-4" /> إرسال
+            </button>
+          </>
         )}
       </div>
     </div>
@@ -815,6 +961,7 @@ export default function Profile() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [showSendCurrencies, setShowSendCurrencies] = useState(false);
   const [idCopied, setIdCopied] = useState(false);
 
   // Auto-open deposit panel if navigated from store (sessionStorage set by Miners.tsx)
@@ -915,6 +1062,20 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
+        {/* Sending currencies (MNX → the linked "gram" bot's coin) */}
+        <div
+          onClick={() => setShowSendCurrencies(true)}
+          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+        >
+          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
+            <Send className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <div className="font-bold text-foreground mb-0.5">Sending currencies</div>
+            <div className="text-xs text-muted-foreground">حوّل MNX وابعتها لمستخدم في بوت تاني</div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </div>
 
         {/* Swap */}
         <div
@@ -1016,6 +1177,7 @@ export default function Profile() {
         </div>
       )}
       {showSwap     && <SwapPanel onClose={() => setShowSwap(false)} />}
+      {showSendCurrencies && <SendCurrenciesPanel onClose={() => setShowSendCurrencies(false)} />}
       {showWithdraw && <WithdrawPanel onClose={() => setShowWithdraw(false)} />}
       {showDeposit  && <DepositPanel onClose={() => setShowDeposit(false)} />}
       {showSupport  && <SupportPanel onClose={() => setShowSupport(false)} />}
