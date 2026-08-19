@@ -25,6 +25,8 @@ type GiftItem = {
   chances: number;
   invitedCount: number;
   adsWatched: number;
+  adsToday: number;
+  adsDailyLimit: number;
   endsAt: string | null;
   expired: boolean;
   entryMode: GiftEntryMode;
@@ -239,7 +241,7 @@ export default function GiftScreen() {
 
         {activeGift.entryMode === 'ads' ? (
           <>
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
                 <p className="text-lg font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
@@ -251,6 +253,12 @@ export default function GiftScreen() {
                 </p>
               </div>
               <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+                <p className="text-[10px] text-violet-600/70">اليوم</p>
+                <p className="text-lg font-extrabold text-muted-foreground">
+                  {activeGift.adsToday}/{activeGift.adsDailyLimit}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">فرصك في الفوز</p>
                 <p className="text-lg font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
@@ -258,15 +266,18 @@ export default function GiftScreen() {
 
             <div className="mt-4 rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
               <p className="text-xs text-violet-600/80 mb-3">
-                شاهد إعلان لزيادة فرصتك — كل 10 إعلانات = فرصة إضافية
+                شاهد إعلان لزيادة فرصتك — كل 10 إعلانات = فرصة إضافية (بحد أقصى{' '}
+                {activeGift.adsDailyLimit} إعلانات كل 24 ساعة)
               </p>
               <button
-                disabled={adWatching}
+                disabled={adWatching || activeGift.adsToday >= activeGift.adsDailyLimit}
                 onClick={() => { void watchMoreAds(activeGift); }}
                 className="w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {adWatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-                مشاهدة إعلان
+                {activeGift.adsToday >= activeGift.adsDailyLimit
+                  ? 'وصلت للحد اليومي — تعالى بكرة'
+                  : 'مشاهدة إعلان'}
               </button>
             </div>
           </>
