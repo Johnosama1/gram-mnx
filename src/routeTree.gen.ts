@@ -59,6 +59,7 @@ import { Route as ApiAdminReferralMilestonesIdRouteImport } from './routes/api/a
 import { Route as ApiGiftMediaNameRouteImport } from './routes/api/gift/media/$name'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicTonDepositScanRouteImport } from './routes/api/public/ton/deposit-scan'
+import { Route as ApiPublicWalletCreditRouteImport } from './routes/api/public/wallet/credit'
 import { Route as ApiTelegramAvatarIdRouteImport } from './routes/api/telegram/avatar/$id'
 import { Route as ApiTelegramCoinsSpendRouteImport } from './routes/api/telegram/coins/spend'
 import { Route as ApiTelegramDepositConfigRouteImport } from './routes/api/telegram/deposit/config'
@@ -71,6 +72,7 @@ import { Route as ApiTelegramMiningStartRouteImport } from './routes/api/telegra
 import { Route as ApiTelegramSwapHistoryRouteImport } from './routes/api/telegram/swap/history'
 import { Route as ApiTelegramSwapRateRouteImport } from './routes/api/telegram/swap/rate'
 import { Route as ApiTelegramWithdrawStatusRouteImport } from './routes/api/telegram/withdraw/status'
+import { Route as ApiPublicWalletUserUserIdRouteImport } from './routes/api/public/wallet/user/$userId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -325,6 +327,11 @@ const ApiPublicTonDepositScanRoute = ApiPublicTonDepositScanRouteImport.update({
   path: '/api/public/ton/deposit-scan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWalletCreditRoute = ApiPublicWalletCreditRouteImport.update({
+  id: '/api/public/wallet/credit',
+  path: '/api/public/wallet/credit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTelegramAvatarIdRoute = ApiTelegramAvatarIdRouteImport.update({
   id: '/api/telegram/avatar/$id',
   path: '/api/telegram/avatar/$id',
@@ -390,6 +397,12 @@ const ApiTelegramWithdrawStatusRoute =
     path: '/status',
     getParentRoute: () => ApiTelegramWithdrawRoute,
   } as any)
+const ApiPublicWalletUserUserIdRoute =
+  ApiPublicWalletUserUserIdRouteImport.update({
+    id: '/api/public/wallet/user/$userId',
+    path: '/api/public/wallet/user/$userId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -442,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/public/wallet/credit': typeof ApiPublicWalletCreditRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
   '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
   '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
@@ -454,6 +468,7 @@ export interface FileRoutesByFullPath {
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
+  '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -506,6 +521,7 @@ export interface FileRoutesByTo {
   '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/public/wallet/credit': typeof ApiPublicWalletCreditRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
   '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
   '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
@@ -518,6 +534,7 @@ export interface FileRoutesByTo {
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
+  '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -571,6 +588,7 @@ export interface FileRoutesById {
   '/api/gift/media/$name': typeof ApiGiftMediaNameRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/ton/deposit-scan': typeof ApiPublicTonDepositScanRoute
+  '/api/public/wallet/credit': typeof ApiPublicWalletCreditRoute
   '/api/telegram/avatar/$id': typeof ApiTelegramAvatarIdRoute
   '/api/telegram/coins/spend': typeof ApiTelegramCoinsSpendRoute
   '/api/telegram/deposit/config': typeof ApiTelegramDepositConfigRoute
@@ -583,6 +601,7 @@ export interface FileRoutesById {
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
+  '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -637,6 +656,7 @@ export interface FileRouteTypes {
     | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
+    | '/api/public/wallet/credit'
     | '/api/telegram/avatar/$id'
     | '/api/telegram/coins/spend'
     | '/api/telegram/deposit/config'
@@ -649,6 +669,7 @@ export interface FileRouteTypes {
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
     | '/api/telegram/withdraw/status'
+    | '/api/public/wallet/user/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -701,6 +722,7 @@ export interface FileRouteTypes {
     | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
+    | '/api/public/wallet/credit'
     | '/api/telegram/avatar/$id'
     | '/api/telegram/coins/spend'
     | '/api/telegram/deposit/config'
@@ -713,6 +735,7 @@ export interface FileRouteTypes {
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
     | '/api/telegram/withdraw/status'
+    | '/api/public/wallet/user/$userId'
   id:
     | '__root__'
     | '/'
@@ -765,6 +788,7 @@ export interface FileRouteTypes {
     | '/api/gift/media/$name'
     | '/api/public/telegram/webhook'
     | '/api/public/ton/deposit-scan'
+    | '/api/public/wallet/credit'
     | '/api/telegram/avatar/$id'
     | '/api/telegram/coins/spend'
     | '/api/telegram/deposit/config'
@@ -777,6 +801,7 @@ export interface FileRouteTypes {
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
     | '/api/telegram/withdraw/status'
+    | '/api/public/wallet/user/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -829,6 +854,7 @@ export interface RootRouteChildren {
   ApiGiftMediaNameRoute: typeof ApiGiftMediaNameRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicTonDepositScanRoute: typeof ApiPublicTonDepositScanRoute
+  ApiPublicWalletCreditRoute: typeof ApiPublicWalletCreditRoute
   ApiTelegramAvatarIdRoute: typeof ApiTelegramAvatarIdRoute
   ApiTelegramCoinsSpendRoute: typeof ApiTelegramCoinsSpendRoute
   ApiTelegramDepositConfigRoute: typeof ApiTelegramDepositConfigRoute
@@ -838,6 +864,7 @@ export interface RootRouteChildren {
   ApiTelegramMinersSaveRoute: typeof ApiTelegramMinersSaveRoute
   ApiTelegramMiningAccruedRoute: typeof ApiTelegramMiningAccruedRoute
   ApiTelegramMiningStartRoute: typeof ApiTelegramMiningStartRoute
+  ApiPublicWalletUserUserIdRoute: typeof ApiPublicWalletUserUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1192,6 +1219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTonDepositScanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/wallet/credit': {
+      id: '/api/public/wallet/credit'
+      path: '/api/public/wallet/credit'
+      fullPath: '/api/public/wallet/credit'
+      preLoaderRoute: typeof ApiPublicWalletCreditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/telegram/avatar/$id': {
       id: '/api/telegram/avatar/$id'
       path: '/api/telegram/avatar/$id'
@@ -1275,6 +1309,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/telegram/withdraw/status'
       preLoaderRoute: typeof ApiTelegramWithdrawStatusRouteImport
       parentRoute: typeof ApiTelegramWithdrawRoute
+    }
+    '/api/public/wallet/user/$userId': {
+      id: '/api/public/wallet/user/$userId'
+      path: '/api/public/wallet/user/$userId'
+      fullPath: '/api/public/wallet/user/$userId'
+      preLoaderRoute: typeof ApiPublicWalletUserUserIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -1368,6 +1409,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGiftMediaNameRoute: ApiGiftMediaNameRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicTonDepositScanRoute: ApiPublicTonDepositScanRoute,
+  ApiPublicWalletCreditRoute: ApiPublicWalletCreditRoute,
   ApiTelegramAvatarIdRoute: ApiTelegramAvatarIdRoute,
   ApiTelegramCoinsSpendRoute: ApiTelegramCoinsSpendRoute,
   ApiTelegramDepositConfigRoute: ApiTelegramDepositConfigRoute,
@@ -1377,6 +1419,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTelegramMinersSaveRoute: ApiTelegramMinersSaveRoute,
   ApiTelegramMiningAccruedRoute: ApiTelegramMiningAccruedRoute,
   ApiTelegramMiningStartRoute: ApiTelegramMiningStartRoute,
+  ApiPublicWalletUserUserIdRoute: ApiPublicWalletUserUserIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
