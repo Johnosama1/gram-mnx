@@ -221,6 +221,14 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
         {step === 'swap' ? (
           <>
+            {/* Link status */}
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground font-bold">حالة الربط ببوت gram</span>
+              <span className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">
+                قريبًا
+              </span>
+            </div>
+
             <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 text-center">
               <div className="text-primary font-black text-lg">1 MNX = 1 Coin</div>
               <div className="text-xs text-muted-foreground mt-1">سعر مبدئي — هيتحدد بالظبط لما يتم الربط بين البوتين</div>
@@ -273,6 +281,23 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             >
               🔄 تحويل ومتابعة
             </button>
+
+            {/* How it works */}
+            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-3">
+              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">خطوات الإرسال</div>
+              {[
+                'حوّل MNX لعملة Coin بتاعة بوت gram',
+                'اكتب الـ ID بتاع المستلم في بوت gram',
+                'اكتب عدد العملات واضغط إرسال',
+              ].map((line, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/15 text-primary font-black text-xs flex items-center justify-center shrink-0">
+                    {i + 1}
+                  </div>
+                  <span className="text-sm text-muted-foreground">{line}</span>
+                </div>
+              ))}
+            </div>
           </>
         ) : sent ? (
           <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-8 text-center space-y-3">
@@ -320,6 +345,14 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             >
               <Send className="w-4 h-4" /> إرسال
             </button>
+
+            {/* Sending history — empty until the two bots are linked */}
+            <div className="space-y-2 pb-4">
+              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">سجل الإرسال</div>
+              <div className="bg-secondary border border-violet-500/15 rounded-xl p-6 text-center">
+                <p className="text-muted-foreground text-sm">لا توجد عمليات إرسال بعد</p>
+              </div>
+            </div>
           </>
         )}
       </div>
