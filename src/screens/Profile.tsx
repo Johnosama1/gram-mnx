@@ -861,9 +861,10 @@ export default function Profile() {
           <StickerBadge src={capWingsSticker.url} size={30} />
         </div>
 
-        <div className="text-sm text-primary font-bold mt-1">
-          {tgUser?.username ? `@${tgUser.username}` : `ID: ${tgUser?.id ?? '—'}`}
-        </div>
+        {tgUser?.username && (
+          <div className="text-sm text-primary font-bold mt-1">@{tgUser.username}</div>
+        )}
+        <div className="text-xs text-muted-foreground font-mono mt-1">ID: {tgUser?.id ?? '—'}</div>
         <div className="px-4 py-1.5 rounded-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
           {walletAddress ? (
             <>
