@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { cachedFetch, invalidateApi, notifyDataChange } from '@/lib/apiCache';
-import { ArrowLeftRight, ChevronRight, Check, Copy, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle, Send } from 'lucide-react';
+import { ArrowLeftRight, ChevronRight, Check, Copy, ArrowUp, ArrowDown, Wallet, LifeBuoy, MessageSquare, Lightbulb, Headphones, HelpCircle, Send, Loader2 } from 'lucide-react';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { shortFriendlyAddress, toFriendlyAddress } from '@/lib/tonAddress';
@@ -183,22 +183,44 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
 
 
 // ─── Sending currencies (MNX → the "gram" bot's coin) ─────────────────────────
-// Preview UI only for now: there is no live link to the other bot yet, so
-// nothing here touches the user's real MNX balance. Once that API exists,
-// step 1 becomes a real debit and step 2 posts the transfer request.
+// Real transfer once GRAM_OUTBOUND_API_KEY is configured server-side: the
+// send step debits MNX atomically, calls the gram bot's credit API, and
+// refunds automatically if that call doesn't confirm — the server reports
+// error: 'not_linked' until the key exists, which is what still shows
+// today's "not linked yet" message with zero code changes needed later.
+type SendHistoryItem = {
+  transactionId: string;
+  recipientId: string;
+  amount: number;
+  status: 'pending' | 'sent' | 'refunded';
+  createdAt: string;
+};
+
 function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
-  const { coins } = useCoins();
+  const { coins, refreshBalance } = useCoins();
   const [step, setStep] = useState<'swap' | 'send'>('swap');
   const [swapAmount, setSwapAmount] = useState('');
   const [recipientId, setRecipientId] = useState('');
   const [sendAmount, setSendAmount] = useState('');
-  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [history, setHistory] = useState<SendHistoryItem[]>([]);
+
+  const loadHistory = () => {
+    const initData = getInitData();
+    if (!initData) return;
+    cachedFetch(`${API_BASE}/api/telegram/wallet/send/history`, { headers: { 'x-init-data': initData } })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d: SendHistoryItem[]) => { if (Array.isArray(d)) setHistory(d); })
+      .catch(() => {});
+  };
+  useEffect(() => { loadHistory(); }, []);
 
   const swapNum = parseFloat(swapAmount) || 0;
-  const coinPreview = swapNum; // 1:1 placeholder rate until the two bots are linked
+  const coinPreview = swapNum; // 1:1 placeholder rate until the real rate is set
   const canSwap = swapNum > 0 && swapNum <= coins;
   const sendNum = parseFloat(sendAmount) || 0;
-  const canSend = recipientId.trim().length > 0 && sendNum > 0;
+  const canSend = recipientId.trim().length > 0 && sendNum > 0 && !sending;
 
   const proceedToSend = () => {
     if (!canSwap) return;
@@ -206,11 +228,36 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
     setStep('send');
   };
 
+  const handleSend = async () => {
+    if (!canSend) return;
+    setSending(true);
+    setResult(null);
+    try {
+      const data = await telegramApiPost<{ ok: boolean; message?: string; newBalance?: number }>(
+        '/telegram/wallet/send',
+        { recipientId: recipientId.trim(), amount: sendNum },
+      );
+      setResult({ ok: true, message: data.message ?? 'تم الإرسال بنجاح ✅' });
+      if (typeof data.newBalance === 'number') refreshBalance().catch(() => undefined);
+      loadHistory();
+    } catch (e) {
+      setResult({ ok: false, message: (e as Error).message || 'تعذر الإرسال، حاول مرة أخرى' });
+      refreshBalance().catch(() => undefined);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const statusLabel = (s: SendHistoryItem['status']) =>
+    s === 'sent' ? 'اتبعتت ✅' : s === 'refunded' ? 'فشلت — تم الاسترجاع' : 'قيد التنفيذ…';
+  const statusColor = (s: SendHistoryItem['status']) =>
+    s === 'sent' ? 'text-emerald-600' : s === 'refunded' ? 'text-destructive' : 'text-amber-600';
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
-          onClick={step === 'send' && !sent ? () => setStep('swap') : onClose}
+          onClick={step === 'send' && !result?.ok ? () => setStep('swap') : onClose}
           className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-foreground">
@@ -299,17 +346,11 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               ))}
             </div>
           </>
-        ) : sent ? (
+        ) : result?.ok ? (
           <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-8 text-center space-y-3">
-            <div className="text-4xl">⏳</div>
-            <p className="font-bold text-foreground">لسه البوتين مش متربطين ببعض</p>
-            <p className="text-sm text-muted-foreground">
-              لما يتم الربط، هتقدر ترسل {sendAmount} Coin فعليًا لصاحب الـ ID: <span dir="ltr">{recipientId}</span>
-            </p>
-            <button
-              onClick={onClose}
-              className="w-full py-3 rounded-2xl bg-secondary text-foreground font-bold"
-            >
+            <div className="text-4xl">✅</div>
+            <p className="font-bold text-foreground">{result.message}</p>
+            <button onClick={onClose} className="w-full py-3 rounded-2xl bg-secondary text-foreground font-bold">
               تمام
             </button>
           </div>
@@ -338,20 +379,46 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               />
             </div>
 
+            {result && !result.ok && (
+              <p className="text-sm font-medium text-center p-3 rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
+                {result.message}
+              </p>
+            )}
+
             <button
-              onClick={() => setSent(true)}
+              onClick={() => { void handleSend(); }}
               disabled={!canSend}
               className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all flex items-center justify-center gap-2"
             >
-              <Send className="w-4 h-4" /> إرسال
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              إرسال
             </button>
 
-            {/* Sending history — empty until the two bots are linked */}
+            {/* Sending history */}
             <div className="space-y-2 pb-4">
               <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">سجل الإرسال</div>
-              <div className="bg-secondary border border-violet-500/15 rounded-xl p-6 text-center">
-                <p className="text-muted-foreground text-sm">لا توجد عمليات إرسال بعد</p>
-              </div>
+              {history.length === 0 ? (
+                <div className="bg-secondary border border-violet-500/15 rounded-xl p-6 text-center">
+                  <p className="text-muted-foreground text-sm">لا توجد عمليات إرسال بعد</p>
+                </div>
+              ) : (
+                history.map((h) => (
+                  <div
+                    key={h.transactionId}
+                    className="bg-secondary border border-violet-500/15 rounded-xl p-3 flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-bold text-foreground text-sm">
+                        {h.amount.toLocaleString()} Coin → <span dir="ltr">{h.recipientId}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(h.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className={`text-xs font-bold ${statusColor(h.status)}`}>{statusLabel(h.status)}</div>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}

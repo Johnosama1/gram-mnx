@@ -71,8 +71,10 @@ import { Route as ApiTelegramMiningAccruedRouteImport } from './routes/api/teleg
 import { Route as ApiTelegramMiningStartRouteImport } from './routes/api/telegram/mining/start'
 import { Route as ApiTelegramSwapHistoryRouteImport } from './routes/api/telegram/swap/history'
 import { Route as ApiTelegramSwapRateRouteImport } from './routes/api/telegram/swap/rate'
+import { Route as ApiTelegramWalletSendRouteImport } from './routes/api/telegram/wallet/send'
 import { Route as ApiTelegramWithdrawStatusRouteImport } from './routes/api/telegram/withdraw/status'
 import { Route as ApiPublicWalletUserUserIdRouteImport } from './routes/api/public/wallet/user/$userId'
+import { Route as ApiTelegramWalletSendHistoryRouteImport } from './routes/api/telegram/wallet/send/history'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -391,6 +393,11 @@ const ApiTelegramSwapRateRoute = ApiTelegramSwapRateRouteImport.update({
   path: '/rate',
   getParentRoute: () => ApiTelegramSwapRoute,
 } as any)
+const ApiTelegramWalletSendRoute = ApiTelegramWalletSendRouteImport.update({
+  id: '/send',
+  path: '/send',
+  getParentRoute: () => ApiTelegramWalletRoute,
+} as any)
 const ApiTelegramWithdrawStatusRoute =
   ApiTelegramWithdrawStatusRouteImport.update({
     id: '/status',
@@ -402,6 +409,12 @@ const ApiPublicWalletUserUserIdRoute =
     id: '/api/public/wallet/user/$userId',
     path: '/api/public/wallet/user/$userId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiTelegramWalletSendHistoryRoute =
+  ApiTelegramWalletSendHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => ApiTelegramWalletSendRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -446,7 +459,7 @@ export interface FileRoutesByFullPath {
   '/api/telegram/claim': typeof ApiTelegramClaimRoute
   '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
   '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
-  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/wallet': typeof ApiTelegramWalletRouteWithChildren
   '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
   '/api/tournament/active': typeof ApiTournamentActiveRoute
   '/api/user/language': typeof ApiUserLanguageRoute
@@ -467,8 +480,10 @@ export interface FileRoutesByFullPath {
   '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/wallet/send': typeof ApiTelegramWalletSendRouteWithChildren
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
   '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
+  '/api/telegram/wallet/send/history': typeof ApiTelegramWalletSendHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -512,7 +527,7 @@ export interface FileRoutesByTo {
   '/api/telegram/claim': typeof ApiTelegramClaimRoute
   '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
   '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
-  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/wallet': typeof ApiTelegramWalletRouteWithChildren
   '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
   '/api/tournament/active': typeof ApiTournamentActiveRoute
   '/api/user/language': typeof ApiUserLanguageRoute
@@ -533,8 +548,10 @@ export interface FileRoutesByTo {
   '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/wallet/send': typeof ApiTelegramWalletSendRouteWithChildren
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
   '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
+  '/api/telegram/wallet/send/history': typeof ApiTelegramWalletSendHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -579,7 +596,7 @@ export interface FileRoutesById {
   '/api/telegram/claim': typeof ApiTelegramClaimRoute
   '/api/telegram/referrals': typeof ApiTelegramReferralsRoute
   '/api/telegram/swap': typeof ApiTelegramSwapRouteWithChildren
-  '/api/telegram/wallet': typeof ApiTelegramWalletRoute
+  '/api/telegram/wallet': typeof ApiTelegramWalletRouteWithChildren
   '/api/telegram/withdraw': typeof ApiTelegramWithdrawRouteWithChildren
   '/api/tournament/active': typeof ApiTournamentActiveRoute
   '/api/user/language': typeof ApiUserLanguageRoute
@@ -600,8 +617,10 @@ export interface FileRoutesById {
   '/api/telegram/mining/start': typeof ApiTelegramMiningStartRoute
   '/api/telegram/swap/history': typeof ApiTelegramSwapHistoryRoute
   '/api/telegram/swap/rate': typeof ApiTelegramSwapRateRoute
+  '/api/telegram/wallet/send': typeof ApiTelegramWalletSendRouteWithChildren
   '/api/telegram/withdraw/status': typeof ApiTelegramWithdrawStatusRoute
   '/api/public/wallet/user/$userId': typeof ApiPublicWalletUserUserIdRoute
+  '/api/telegram/wallet/send/history': typeof ApiTelegramWalletSendHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -668,8 +687,10 @@ export interface FileRouteTypes {
     | '/api/telegram/mining/start'
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
+    | '/api/telegram/wallet/send'
     | '/api/telegram/withdraw/status'
     | '/api/public/wallet/user/$userId'
+    | '/api/telegram/wallet/send/history'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -734,8 +755,10 @@ export interface FileRouteTypes {
     | '/api/telegram/mining/start'
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
+    | '/api/telegram/wallet/send'
     | '/api/telegram/withdraw/status'
     | '/api/public/wallet/user/$userId'
+    | '/api/telegram/wallet/send/history'
   id:
     | '__root__'
     | '/'
@@ -800,8 +823,10 @@ export interface FileRouteTypes {
     | '/api/telegram/mining/start'
     | '/api/telegram/swap/history'
     | '/api/telegram/swap/rate'
+    | '/api/telegram/wallet/send'
     | '/api/telegram/withdraw/status'
     | '/api/public/wallet/user/$userId'
+    | '/api/telegram/wallet/send/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -846,7 +871,7 @@ export interface RootRouteChildren {
   ApiTelegramClaimRoute: typeof ApiTelegramClaimRoute
   ApiTelegramReferralsRoute: typeof ApiTelegramReferralsRoute
   ApiTelegramSwapRoute: typeof ApiTelegramSwapRouteWithChildren
-  ApiTelegramWalletRoute: typeof ApiTelegramWalletRoute
+  ApiTelegramWalletRoute: typeof ApiTelegramWalletRouteWithChildren
   ApiTelegramWithdrawRoute: typeof ApiTelegramWithdrawRouteWithChildren
   ApiTournamentActiveRoute: typeof ApiTournamentActiveRoute
   ApiUserLanguageRoute: typeof ApiUserLanguageRoute
@@ -1303,6 +1328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTelegramSwapRateRouteImport
       parentRoute: typeof ApiTelegramSwapRoute
     }
+    '/api/telegram/wallet/send': {
+      id: '/api/telegram/wallet/send'
+      path: '/send'
+      fullPath: '/api/telegram/wallet/send'
+      preLoaderRoute: typeof ApiTelegramWalletSendRouteImport
+      parentRoute: typeof ApiTelegramWalletRoute
+    }
     '/api/telegram/withdraw/status': {
       id: '/api/telegram/withdraw/status'
       path: '/status'
@@ -1316,6 +1348,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/wallet/user/$userId'
       preLoaderRoute: typeof ApiPublicWalletUserUserIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram/wallet/send/history': {
+      id: '/api/telegram/wallet/send/history'
+      path: '/history'
+      fullPath: '/api/telegram/wallet/send/history'
+      preLoaderRoute: typeof ApiTelegramWalletSendHistoryRouteImport
+      parentRoute: typeof ApiTelegramWalletSendRoute
     }
   }
 }
@@ -1347,6 +1386,30 @@ const ApiTelegramSwapRouteChildren: ApiTelegramSwapRouteChildren = {
 const ApiTelegramSwapRouteWithChildren = ApiTelegramSwapRoute._addFileChildren(
   ApiTelegramSwapRouteChildren,
 )
+
+interface ApiTelegramWalletSendRouteChildren {
+  ApiTelegramWalletSendHistoryRoute: typeof ApiTelegramWalletSendHistoryRoute
+}
+
+const ApiTelegramWalletSendRouteChildren: ApiTelegramWalletSendRouteChildren = {
+  ApiTelegramWalletSendHistoryRoute: ApiTelegramWalletSendHistoryRoute,
+}
+
+const ApiTelegramWalletSendRouteWithChildren =
+  ApiTelegramWalletSendRoute._addFileChildren(
+    ApiTelegramWalletSendRouteChildren,
+  )
+
+interface ApiTelegramWalletRouteChildren {
+  ApiTelegramWalletSendRoute: typeof ApiTelegramWalletSendRouteWithChildren
+}
+
+const ApiTelegramWalletRouteChildren: ApiTelegramWalletRouteChildren = {
+  ApiTelegramWalletSendRoute: ApiTelegramWalletSendRouteWithChildren,
+}
+
+const ApiTelegramWalletRouteWithChildren =
+  ApiTelegramWalletRoute._addFileChildren(ApiTelegramWalletRouteChildren)
 
 interface ApiTelegramWithdrawRouteChildren {
   ApiTelegramWithdrawStatusRoute: typeof ApiTelegramWithdrawStatusRoute
@@ -1401,7 +1464,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTelegramClaimRoute: ApiTelegramClaimRoute,
   ApiTelegramReferralsRoute: ApiTelegramReferralsRoute,
   ApiTelegramSwapRoute: ApiTelegramSwapRouteWithChildren,
-  ApiTelegramWalletRoute: ApiTelegramWalletRoute,
+  ApiTelegramWalletRoute: ApiTelegramWalletRouteWithChildren,
   ApiTelegramWithdrawRoute: ApiTelegramWithdrawRouteWithChildren,
   ApiTournamentActiveRoute: ApiTournamentActiveRoute,
   ApiUserLanguageRoute: ApiUserLanguageRoute,
