@@ -532,19 +532,22 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
 
     // ── Gifts ───────────────────────────────────────────────────────────────
     if (type === 'gift') {
-      const { getGiftConfig, parseGifts, normalizeEntryMode } = await import('@/lib/gift.server');
+      const { getGiftConfig, parseGifts, normalizeEntryMode, settleExpiredGifts } = await import(
+        '@/lib/gift.server'
+      );
       if (method === 'GET') {
         const cfg = await getGiftConfig();
+        const settledGifts = await settleExpiredGifts(cfg.gifts);
         const { data: entries } = await db
           .from('gm_gift_entries')
           .select('gift_id')
-          .in('gift_id', cfg.gifts.map((g) => g.id).concat([0]));
+          .in('gift_id', settledGifts.map((g) => g.id).concat([0]));
         const counts = new Map<number, number>();
         for (const r of (entries ?? []) as any[])
           counts.set(Number(r.gift_id), (counts.get(Number(r.gift_id)) ?? 0) + 1);
         return json({
           ...cfg,
-          gifts: cfg.gifts.map((g) => ({ ...g, participants: counts.get(g.id) ?? 0 })),
+          gifts: settledGifts.map((g) => ({ ...g, participants: counts.get(g.id) ?? 0 })),
         });
       }
 
@@ -589,6 +592,10 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           capacity: Math.max(0, Number(body.capacity ?? 0) || 0),
           endsAt: body.endsAt ? String(body.endsAt).slice(0, 40) : null,
           entryMode: normalizeEntryMode(body.entryMode),
+          winnerId: null,
+          winnerName: null,
+          winnerChances: null,
+          settledAt: null,
         });
         await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));
         return json({ ok: true });

@@ -1,4 +1,4 @@
-import { json, getSetting } from '@/lib/admin.server';
+import { json, getSetting, setSetting } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 
 /**
@@ -28,6 +28,15 @@ export type GiftItem = {
   /** ISO date-time when the contest ends. null = no deadline. */
   endsAt: string | null;
   entryMode: GiftEntryMode;
+  /**
+   * Winner drawn once the deadline passes — weighted by each entrant's
+   * chances (see drawWeightedWinner). Set once by settleExpiredGifts and
+   * never redrawn afterwards.
+   */
+  winnerId: number | null;
+  winnerName: string | null;
+  winnerChances: number | null;
+  settledAt: string | null;
 };
 
 export type GiftConfig = {
@@ -74,6 +83,11 @@ export function parseGifts(raw: string | null): GiftItem[] {
           capacity: Math.max(0, Number(item.capacity ?? 0) || 0),
           endsAt: item.endsAt ? String(item.endsAt).slice(0, 40) : null,
           entryMode: normalizeEntryMode(item.entryMode),
+          winnerId: item.winnerId != null && Number(item.winnerId) > 0 ? Number(item.winnerId) : null,
+          winnerName: item.winnerName ? String(item.winnerName).slice(0, 120) : null,
+          winnerChances:
+            item.winnerChances != null && Number(item.winnerChances) > 0 ? Number(item.winnerChances) : null,
+          settledAt: item.settledAt ? String(item.settledAt).slice(0, 40) : null,
         };
       })
       .filter((g) => g.id > 0 && g.title);
@@ -199,6 +213,111 @@ async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
     }
   }
   return { counts, mine };
+}
+
+/** Every entrant's chances for one contest — same weighting rules as loadEntryStats, but for all participants, not just one caller. Used only to draw a weighted winner. */
+async function computeAllChances(db: any, gift: GiftItem): Promise<Map<number, number>> {
+  const { data } = await db
+    .from('gm_gift_entries')
+    .select('telegram_id,referred_by')
+    .eq('gift_id', gift.id);
+  const rows = (data ?? []) as { telegram_id: number; referred_by: number | null }[];
+  const chances = new Map<number, number>();
+
+  if (gift.entryMode === 'ads') {
+    await Promise.all(
+      rows.map(async (r) => {
+        const tid = Number(r.telegram_id);
+        const watched = await getGiftAdsWatched(tid, db);
+        chances.set(tid, 1 + Math.floor(watched / GIFT_AD_CHANCE_STEP));
+      }),
+    );
+  } else {
+    for (const r of rows) {
+      const tid = Number(r.telegram_id);
+      if (chances.has(tid)) continue;
+      const invited = rows.filter((x) => Number(x.referred_by) === tid).length;
+      chances.set(tid, invited + 1);
+    }
+  }
+  return chances;
+}
+
+/** Picks one telegram id at random, weighted by chances — more chances = proportionally higher odds. */
+function drawWeightedWinner(chances: Map<number, number>): number | null {
+  const entries = [...chances.entries()].filter(([, w]) => w > 0);
+  const total = entries.reduce((sum, [, w]) => sum + w, 0);
+  if (total <= 0) return null;
+  let r = Math.random() * total;
+  for (const [tid, w] of entries) {
+    r -= w;
+    if (r <= 0) return tid;
+  }
+  return entries[entries.length - 1][0];
+}
+
+/** Draws and persists the winner for one expired, not-yet-settled contest. */
+async function settleOneGift(db: any, gift: GiftItem): Promise<GiftItem> {
+  const chances = await computeAllChances(db, gift);
+  const winnerId = drawWeightedWinner(chances);
+
+  let winnerName: string | null = null;
+  if (winnerId) {
+    const { data: u } = await db
+      .from('gm_users')
+      .select('username,first_name')
+      .eq('telegram_id', winnerId)
+      .maybeSingle();
+    winnerName = u?.username ? `@${u.username}` : (u?.first_name ?? `مستخدم #${winnerId}`);
+  }
+
+  // Re-read the freshest stored list right before writing so two requests
+  // landing at almost the same moment right after expiry can't both draw.
+  const all = parseGifts(await getSetting('gifts'));
+  const idx = all.findIndex((g) => g.id === gift.id);
+  if (idx === -1) return gift; // deleted meanwhile
+  if (all[idx].winnerId || all[idx].settledAt) return all[idx]; // already settled
+
+  const settled: GiftItem = {
+    ...all[idx],
+    winnerId,
+    winnerName,
+    winnerChances: winnerId ? (chances.get(winnerId) ?? null) : null,
+    settledAt: new Date().toISOString(),
+  };
+  all[idx] = settled;
+  await setSetting('gifts', JSON.stringify(all));
+
+  if (winnerId) {
+    try {
+      const { notifyUser } = await import('@/lib/admin.server');
+      await notifyUser(winnerId, `🎉 مبروك! أنت الفائز في مسابقة "${gift.title}" 🎁`);
+    } catch {
+      /* best-effort */
+    }
+  }
+  return settled;
+}
+
+/**
+ * Runs the weighted draw for any contest whose deadline has passed and
+ * hasn't been settled yet. There is no background cron in this
+ * environment, so this runs lazily on every read (both the public Gifts
+ * screen and the admin panel poll this) — the first read after expiry is
+ * what settles it, which for an actively-used contest is within seconds.
+ */
+export async function settleExpiredGifts(gifts: GiftItem[]): Promise<GiftItem[]> {
+  const pending = gifts.filter(
+    (g) => g.endsAt && Date.parse(g.endsAt) < Date.now() && !g.winnerId && !g.settledAt,
+  );
+  if (pending.length === 0) return gifts;
+
+  const db = (await getDb()) as any;
+  const settled = new Map<number, GiftItem>();
+  for (const gift of pending) {
+    settled.set(gift.id, await settleOneGift(db, gift));
+  }
+  return gifts.map((g) => settled.get(g.id) ?? g);
 }
 
 /**
@@ -343,9 +462,10 @@ export async function getGiftState(initData: string | null) {
     return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false };
   }
 
-  const { counts, mine } = await loadEntryStats(cfg.gifts, auth?.id ?? null);
+  const settledGiftList = await settleExpiredGifts(cfg.gifts);
+  const { counts, mine } = await loadEntryStats(settledGiftList, auth?.id ?? null);
 
-  const gifts: GiftPublicItem[] = cfg.gifts.map((g) => {
+  const gifts: GiftPublicItem[] = settledGiftList.map((g) => {
     const participants = counts.get(g.id) ?? 0;
     const my = mine.get(g.id);
     return {

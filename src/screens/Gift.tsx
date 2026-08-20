@@ -30,6 +30,10 @@ type GiftItem = {
   endsAt: string | null;
   expired: boolean;
   entryMode: GiftEntryMode;
+  winnerId: number | null;
+  winnerName: string | null;
+  winnerChances: number | null;
+  settledAt: string | null;
 };
 
 const ENTRY_MODE_HINT: Record<GiftEntryMode, string | null> = {
@@ -57,14 +61,43 @@ type GiftStatus = {
   adminPreview?: boolean;
 };
 
-function formatDeadline(endsAt: string | null) {
-  if (!endsAt) return 'بدون وقت محدد';
-  const ms = Date.parse(endsAt) - Date.now();
-  if (ms <= 0) return 'انتهت المسابقة';
-  const days = Math.floor(ms / 86400000);
-  const hours = Math.floor((ms % 86400000) / 3600000);
-  const mins = Math.floor((ms % 3600000) / 60000);
-  return days > 0 ? `يتبقى ${days} يوم و${hours} ساعة` : hours > 0 ? `يتبقى ${hours} ساعة و${mins} دقيقة` : `يتبقى ${mins} دقيقة`;
+/** Live remaining ms until endsAt — ticks every second while there's a deadline. */
+function useCountdown(endsAt: string | null): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!endsAt) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [endsAt]);
+  return endsAt ? Math.max(0, Date.parse(endsAt) - now) : Infinity;
+}
+
+function formatCountdown(ms: number): string {
+  const total = Math.floor(ms / 1000);
+  const days = Math.floor(total / 86400);
+  const h = String(Math.floor((total % 86400) / 3600)).padStart(2, '0');
+  const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+  const s = String(total % 60).padStart(2, '0');
+  return days > 0 ? `${days}ي ${h}:${m}:${s}` : `${h}:${m}:${s}`;
+}
+
+/** Small ticking countdown shown on a contest card. */
+function GiftCountdown({ endsAt }: { endsAt: string | null }) {
+  const ms = useCountdown(endsAt);
+  if (!endsAt) return <>بدون وقت محدد</>;
+  if (ms <= 0) return <>انتهت المسابقة</>;
+  return <span className="font-mono tabular-nums" dir="ltr">{formatCountdown(ms)}</span>;
+}
+
+/** Highlighted banner shown once a contest has been settled and has a winner. */
+function GiftWinnerBanner({ gift }: { gift: GiftItem }) {
+  if (!gift.winnerId) return null;
+  return (
+    <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] font-bold text-amber-700 flex items-center gap-1.5">
+      🏆 الفائز: {gift.winnerName ?? `#${gift.winnerId}`}
+      {gift.winnerChances ? ` (×${gift.winnerChances} فرصة)` : ''}
+    </div>
+  );
 }
 
 /** Prize artwork — supports Lottie .json files as well as regular images. */
@@ -236,10 +269,16 @@ export default function GiftScreen() {
           {activeGift.description && (
             <p className="text-xs text-violet-600/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
           )}
-          <p className="text-[11px] text-violet-600/70 mt-2">⏱ {formatDeadline(activeGift.endsAt)}</p>
+          {activeGift.winnerId ? (
+            <div className="mt-3">
+              <GiftWinnerBanner gift={activeGift} />
+            </div>
+          ) : (
+            <p className="text-[11px] text-violet-600/70 mt-2">⏱ <GiftCountdown endsAt={activeGift.endsAt} /></p>
+          )}
         </div>
 
-        {activeGift.entryMode === 'ads' ? (
+        {activeGift.winnerId ? null : activeGift.entryMode === 'ads' ? (
           <>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
@@ -385,7 +424,11 @@ export default function GiftScreen() {
                     </span>
                     {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
                   </div>
-                  <p className="text-[11px] text-violet-600/70 mb-1">⏱ {formatDeadline(g.endsAt)}</p>
+                  {g.winnerId ? (
+                    <div className="mb-1"><GiftWinnerBanner gift={g} /></div>
+                  ) : (
+                    <p className="text-[11px] text-violet-600/70 mb-1">⏱ <GiftCountdown endsAt={g.endsAt} /></p>
+                  )}
                   {!g.joined && ENTRY_MODE_HINT[g.entryMode] && (
                     <p className="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mb-1">
                       {ENTRY_MODE_HINT[g.entryMode]}

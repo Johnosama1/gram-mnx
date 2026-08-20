@@ -502,6 +502,8 @@ type GiftItem = {
   id: number; title: string; description: string; reward: number; link: string | null;
   imageUrl: string | null; capacity: number; endsAt?: string | null; participants?: number;
   entryMode?: GiftEntryMode;
+  winnerId?: number | null; winnerName?: string | null; winnerChances?: number | null;
+  settledAt?: string | null;
 };
 
 const ENTRY_MODE_OPTIONS: { value: GiftEntryMode; label: string }[] = [
@@ -525,7 +527,8 @@ function GiftSection() {
   const [link, setLink] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [capacity, setCapacity] = useState('$&');
-  const [endsAt, setEndsAt] = useState('');
+  const [durationDays, setDurationDays] = useState<number | null>(null);
+  const [endHour, setEndHour] = useState(6);
   const [entryMode, setEntryMode] = useState<GiftEntryMode>('referral');
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
@@ -595,6 +598,14 @@ function GiftSection() {
     try {
       // "$&" (or empty) means unlimited participants → stored as 0.
       const cap = capacity.trim() === '$&' || capacity.trim() === '' ? 0 : Math.max(0, Number(capacity) || 0);
+      // Duration in whole days + the exact hour it ends, e.g. 20 days from
+      // now at 06:00 sharp — not a raw date/time picker.
+      let endsAtIso: string | null = null;
+      if (durationDays) {
+        const end = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+        end.setHours(endHour, 0, 0, 0);
+        endsAtIso = end.toISOString();
+      }
       await api('POST', '/admin/general?type=gift', {
         title,
         description,
@@ -602,10 +613,11 @@ function GiftSection() {
         link: link || null,
         imageUrl: imageUrl || null,
         capacity: cap,
-        endsAt: endsAt ? new Date(endsAt).toISOString() : null,
+        endsAt: endsAtIso,
         entryMode,
       });
-      setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&'); setEndsAt(''); setEntryMode('referral');
+      setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&');
+      setDurationDays(null); setEndHour(6); setEntryMode('referral');
 
       setStatus('✅ تم إضافة الهدية');
       await load();
@@ -692,16 +704,39 @@ function GiftSection() {
           />
         </label>
 
-        <label className="text-[11px] text-muted-foreground block">
-          4) وقت انتهاء المسابقة (اتركه فاضي = بدون وقت محدد)
-          <input
-            type="datetime-local"
-            value={endsAt}
-            onChange={(e) => setEndsAt(e.target.value)}
-            dir="ltr"
-            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
-          />
-        </label>
+        <div className="text-[11px] text-muted-foreground block">
+          4) مدة المسابقة وميعاد انتهائها
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <select
+              value={durationDays ?? ''}
+              onChange={(e) => setDurationDays(e.target.value ? Number(e.target.value) : null)}
+              className="w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
+            >
+              <option value="">بدون وقت محدد</option>
+              {Array.from({ length: 20 }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>{d} يوم</option>
+              ))}
+            </select>
+            <select
+              value={endHour}
+              disabled={!durationDays}
+              onChange={(e) => setEndHour(Number(e.target.value))}
+              className="w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm disabled:opacity-50"
+            >
+              {Array.from({ length: 24 }, (_, h) => h).map((h) => (
+                <option key={h} value={h}>الساعة {String(h).padStart(2, '0')}:00</option>
+              ))}
+            </select>
+          </div>
+          {durationDays && (
+            <p className="text-[10px] text-muted-foreground/70 mt-1">
+              هتنتهي بعد {durationDays} يوم الساعة {String(endHour).padStart(2, '0')}:00 —{' '}
+              {new Date(
+                new Date(Date.now() + durationDays * 86400000).setHours(endHour, 0, 0, 0),
+              ).toLocaleString('ar-EG')}
+            </p>
+          )}
+        </div>
 
         <div className="text-[11px] text-muted-foreground block">
           5) طريقة الاشتراك في المسابقة
@@ -786,6 +821,11 @@ function GiftSection() {
               <p className="text-muted-foreground text-[11px]">
                 🔑 {ENTRY_MODE_LABEL[g.entryMode ?? 'referral']}
               </p>
+              {g.winnerId && (
+                <p className="text-[11px] font-bold text-primary">
+                  🏆 الفائز: {g.winnerName ?? `#${g.winnerId}`} (×{g.winnerChances ?? '?'} فرصة)
+                </p>
+              )}
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">
               <Trash2 className="w-4 h-4" />
