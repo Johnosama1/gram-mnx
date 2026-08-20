@@ -103,7 +103,7 @@ export default function FAQ() {
         </h1>
       </div>
 
-      <div className="relative z-10 flex-1 space-y-3 pb-8">
+      <div className="relative z-10 flex-1 space-y-3 pb-28">
         {FAQS.map((item, idx) => (
           <FAQRow key={idx} item={item} index={idx} />
         ))}

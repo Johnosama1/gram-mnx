@@ -1,7 +1,7 @@
 import { getAllAdminIds, getBotToken, getSetting, notifyUser } from '@/lib/admin.server';
 import { getDb } from '@/lib/telegram-user.server';
 
-const DEFAULT_CHANNEL = '@Gram_Miner1';
+const DEFAULT_CHANNEL = '@GramMNX1';
 
 const E = {
   check: '<tg-emoji emoji-id="5929471698117070260">☑️</tg-emoji>',
