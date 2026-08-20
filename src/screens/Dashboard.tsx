@@ -1,12 +1,11 @@
-import { useState, Suspense, lazy } from 'react';
-import { ClientOnly } from '@tanstack/react-router';
+import { useState } from 'react';
 import { useWallet } from '@/context/WalletContext';
 import { useTelegramUser } from '@/context/TelegramUserContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import WalletModal from '@/components/WalletModal';
 import StickerBadge from '@/components/StickerBadge';
-const Gem3D = lazy(() => import('@/components/Gem3D'));
+import MineHeroSticker from '@/components/MineHeroSticker';
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import mnxCoin from '@/assets/mnx-coin.png.asset.json';
 
@@ -162,7 +161,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* crystal hero */}
+        {/* sticker hero */}
         <div className="flex-1 min-h-0 flex items-center justify-center relative mt-2">
           <div
             aria-hidden
@@ -172,15 +171,8 @@ export default function Dashboard() {
           <div
             className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
           >
-            <div
-              className="h-full max-h-full w-full max-w-[92%] drop-shadow-[0_18px_30px_rgba(124,58,237,0.22)]"
-              aria-label="GRAM MNX mining crystal"
-            >
-              <ClientOnly>
-                <Suspense fallback={null}>
-                  <Gem3D active={mining} />
-                </Suspense>
-              </ClientOnly>
+            <div className="h-full max-h-full w-full max-w-[92%] drop-shadow-[0_18px_30px_rgba(124,58,237,0.22)]">
+              <MineHeroSticker active={mining} />
             </div>
           </div>
         </div>
