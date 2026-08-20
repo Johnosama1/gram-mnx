@@ -498,11 +498,13 @@ function AdsSection() {
 
 type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
+type GiftWinner = { id: number; name: string | null; chances: number | null };
+
 type GiftItem = {
   id: number; title: string; description: string; reward: number; link: string | null;
   imageUrl: string | null; capacity: number; endsAt?: string | null; participants?: number;
   entryMode?: GiftEntryMode;
-  winnerId?: number | null; winnerName?: string | null; winnerChances?: number | null;
+  winnerCount?: number; winners?: GiftWinner[];
   settledAt?: string | null;
 };
 
@@ -527,6 +529,7 @@ function GiftSection() {
   const [link, setLink] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [capacity, setCapacity] = useState('$&');
+  const [winnerCount, setWinnerCount] = useState('1');
   const [durationDays, setDurationDays] = useState<number | null>(null);
   const [endHour, setEndHour] = useState(6);
   const [entryMode, setEntryMode] = useState<GiftEntryMode>('referral');
@@ -615,8 +618,10 @@ function GiftSection() {
         capacity: cap,
         endsAt: endsAtIso,
         entryMode,
+        winnerCount: Math.max(1, Number(winnerCount) || 1),
       });
       setTitle(''); setDescription(''); setLink(''); setImageUrl(''); setCapacity('$&');
+      setWinnerCount('1');
       setDurationDays(null); setEndHour(6); setEntryMode('referral');
 
       setStatus('✅ تم إضافة الهدية');
@@ -704,8 +709,23 @@ function GiftSection() {
           />
         </label>
 
+        <label className="text-[11px] text-muted-foreground block">
+          4) عدد الفائزين بالجائزة
+          <input
+            type="number"
+            min={1}
+            value={winnerCount}
+            onChange={(e) => setWinnerCount(e.target.value)}
+            placeholder="1"
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
+          />
+          <p className="text-[10px] text-muted-foreground/70 mt-1">
+            لما المسابقة تخلص، هيتسحب العدد ده من الفائزين عشوائيًا — واللي عنده فرص أكتر (إحالات/إعلانات) بتبقى نسبته أعلى في السحب.
+          </p>
+        </label>
+
         <div className="text-[11px] text-muted-foreground block">
-          4) مدة المسابقة وميعاد انتهائها
+          5) مدة المسابقة وميعاد انتهائها
           <div className="mt-1 grid grid-cols-2 gap-2">
             <select
               value={durationDays ?? ''}
@@ -739,7 +759,7 @@ function GiftSection() {
         </div>
 
         <div className="text-[11px] text-muted-foreground block">
-          5) طريقة الاشتراك في المسابقة
+          6) طريقة الاشتراك في المسابقة
           <div className="mt-1 grid grid-cols-3 gap-1.5">
             {ENTRY_MODE_OPTIONS.map((opt) => (
               <button
@@ -764,7 +784,7 @@ function GiftSection() {
         </div>
 
         <label className="text-[11px] text-muted-foreground block">
-          6) ملف الهدية (يدعم .json لوتي و png/jpg/webp/gif)
+          7) ملف الهدية (يدعم .json لوتي و png/jpg/webp/gif)
           <input
             type="file"
             accept=".json,image/*"
@@ -821,10 +841,17 @@ function GiftSection() {
               <p className="text-muted-foreground text-[11px]">
                 🔑 {ENTRY_MODE_LABEL[g.entryMode ?? 'referral']}
               </p>
-              {g.winnerId && (
-                <p className="text-[11px] font-bold text-primary">
-                  🏆 الفائز: {g.winnerName ?? `#${g.winnerId}`} (×{g.winnerChances ?? '?'} فرصة)
-                </p>
+              <p className="text-muted-foreground text-[11px]">
+                🏆 عدد الفائزين: {g.winnerCount ?? 1}
+              </p>
+              {g.winners && g.winners.length > 0 && (
+                <div className="text-[11px] font-bold text-primary space-y-0.5">
+                  {g.winners.map((w) => (
+                    <p key={w.id}>
+                      🏆 {w.name ?? `#${w.id}`} (×{w.chances ?? '?'} فرصة)
+                    </p>
+                  ))}
+                </div>
               )}
             </div>
             <button onClick={() => { void removeGift(g.id); }} className="text-destructive p-2">

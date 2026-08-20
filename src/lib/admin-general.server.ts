@@ -592,9 +592,8 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           capacity: Math.max(0, Number(body.capacity ?? 0) || 0),
           endsAt: body.endsAt ? String(body.endsAt).slice(0, 40) : null,
           entryMode: normalizeEntryMode(body.entryMode),
-          winnerId: null,
-          winnerName: null,
-          winnerChances: null,
+          winnerCount: Math.max(1, Number(body.winnerCount ?? 1) || 1),
+          winners: [],
           settledAt: null,
         });
         await setSetting('gifts', JSON.stringify(gifts.slice(0, 100)));

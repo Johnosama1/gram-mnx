@@ -11,6 +11,8 @@ const AD_CHANCE_STEP = 10;
 
 type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
+type GiftWinner = { id: number; name: string | null; chances: number | null };
+
 type GiftItem = {
   id: number;
   title: string;
@@ -30,9 +32,8 @@ type GiftItem = {
   endsAt: string | null;
   expired: boolean;
   entryMode: GiftEntryMode;
-  winnerId: number | null;
-  winnerName: string | null;
-  winnerChances: number | null;
+  winnerCount: number;
+  winners: GiftWinner[];
   settledAt: string | null;
 };
 
@@ -89,13 +90,17 @@ function GiftCountdown({ endsAt }: { endsAt: string | null }) {
   return <span className="font-mono tabular-nums" dir="ltr">{formatCountdown(ms)}</span>;
 }
 
-/** Highlighted banner shown once a contest has been settled and has a winner. */
+/** Highlighted banner shown once a contest has been settled and has winners. */
 function GiftWinnerBanner({ gift }: { gift: GiftItem }) {
-  if (!gift.winnerId) return null;
+  if (!gift.winners || gift.winners.length === 0) return null;
   return (
-    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] font-bold text-amber-400 flex items-center gap-1.5">
-      🏆 الفائز: {gift.winnerName ?? `#${gift.winnerId}`}
-      {gift.winnerChances ? ` (×${gift.winnerChances} فرصة)` : ''}
+    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] font-bold text-amber-400 space-y-0.5">
+      {gift.winners.map((w) => (
+        <div key={w.id} className="flex items-center gap-1.5">
+          🏆 {gift.winners.length > 1 ? '' : 'الفائز: '}{w.name ?? `#${w.id}`}
+          {w.chances ? ` (×${w.chances} فرصة)` : ''}
+        </div>
+      ))}
     </div>
   );
 }
@@ -269,7 +274,7 @@ export default function GiftScreen() {
           {activeGift.description && (
             <p className="text-xs text-violet-600/70 mt-1 whitespace-pre-wrap">{activeGift.description}</p>
           )}
-          {activeGift.winnerId ? (
+          {activeGift.winners.length > 0 ? (
             <div className="mt-3">
               <GiftWinnerBanner gift={activeGift} />
             </div>
@@ -278,7 +283,7 @@ export default function GiftScreen() {
           )}
         </div>
 
-        {activeGift.winnerId ? null : activeGift.entryMode === 'ads' ? (
+        {activeGift.winners.length > 0 ? null : activeGift.entryMode === 'ads' ? (
           <>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
@@ -424,7 +429,7 @@ export default function GiftScreen() {
                     </span>
                     {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
                   </div>
-                  {g.winnerId ? (
+                  {g.winners.length > 0 ? (
                     <div className="mb-1"><GiftWinnerBanner gift={g} /></div>
                   ) : (
                     <p className="text-[11px] text-violet-600/70 mb-1">⏱ <GiftCountdown endsAt={g.endsAt} /></p>

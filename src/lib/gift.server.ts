@@ -15,6 +15,13 @@ import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.serv
  */
 export type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
+export type GiftWinner = {
+  id: number;
+  name: string | null;
+  /** Entrant's chances at draw time — more chances meant proportionally higher odds. */
+  chances: number | null;
+};
+
 export type GiftItem = {
   id: number;
   title: string;
@@ -28,14 +35,14 @@ export type GiftItem = {
   /** ISO date-time when the contest ends. null = no deadline. */
   endsAt: string | null;
   entryMode: GiftEntryMode;
+  /** How many winners to draw once the contest settles. Defaults to 1. */
+  winnerCount: number;
   /**
-   * Winner drawn once the deadline passes — weighted by each entrant's
-   * chances (see drawWeightedWinner). Set once by settleExpiredGifts and
-   * never redrawn afterwards.
+   * Winners drawn once the deadline passes — weighted by each entrant's
+   * chances (see drawWeightedWinners). Set once by settleExpiredGifts and
+   * never redrawn afterwards. Empty until settled.
    */
-  winnerId: number | null;
-  winnerName: string | null;
-  winnerChances: number | null;
+  winners: GiftWinner[];
   settledAt: string | null;
 };
 
@@ -73,6 +80,33 @@ export function parseGifts(raw: string | null): GiftItem[] {
     return list
       .map((g) => {
         const item = g as Record<string, unknown>;
+        // Back-compat: contests created before multi-winner support stored a
+        // single winnerId/winnerName/winnerChances instead of a winners array.
+        const winners: GiftWinner[] = Array.isArray(item.winners)
+          ? (item.winners as unknown[])
+              .map((w) => {
+                const rec = w as Record<string, unknown>;
+                const wid = Number(rec.id ?? 0);
+                if (wid <= 0) return null;
+                return {
+                  id: wid,
+                  name: rec.name ? String(rec.name).slice(0, 120) : null,
+                  chances: rec.chances != null && Number(rec.chances) > 0 ? Number(rec.chances) : null,
+                };
+              })
+              .filter((w): w is GiftWinner => w !== null)
+          : item.winnerId != null && Number(item.winnerId) > 0
+            ? [
+                {
+                  id: Number(item.winnerId),
+                  name: item.winnerName ? String(item.winnerName).slice(0, 120) : null,
+                  chances:
+                    item.winnerChances != null && Number(item.winnerChances) > 0
+                      ? Number(item.winnerChances)
+                      : null,
+                },
+              ]
+            : [];
         return {
           id: Number(item.id ?? 0),
           title: String(item.title ?? '').slice(0, 120),
@@ -83,10 +117,8 @@ export function parseGifts(raw: string | null): GiftItem[] {
           capacity: Math.max(0, Number(item.capacity ?? 0) || 0),
           endsAt: item.endsAt ? String(item.endsAt).slice(0, 40) : null,
           entryMode: normalizeEntryMode(item.entryMode),
-          winnerId: item.winnerId != null && Number(item.winnerId) > 0 ? Number(item.winnerId) : null,
-          winnerName: item.winnerName ? String(item.winnerName).slice(0, 120) : null,
-          winnerChances:
-            item.winnerChances != null && Number(item.winnerChances) > 0 ? Number(item.winnerChances) : null,
+          winnerCount: Math.max(1, Number(item.winnerCount ?? 1) || 1),
+          winners,
           settledAt: item.settledAt ? String(item.settledAt).slice(0, 40) : null,
         };
       })
@@ -243,32 +275,50 @@ async function computeAllChances(db: any, gift: GiftItem): Promise<Map<number, n
   return chances;
 }
 
-/** Picks one telegram id at random, weighted by chances — more chances = proportionally higher odds. */
-function drawWeightedWinner(chances: Map<number, number>): number | null {
-  const entries = [...chances.entries()].filter(([, w]) => w > 0);
-  const total = entries.reduce((sum, [, w]) => sum + w, 0);
-  if (total <= 0) return null;
-  let r = Math.random() * total;
-  for (const [tid, w] of entries) {
-    r -= w;
-    if (r <= 0) return tid;
+/**
+ * Picks up to `count` unique telegram ids, weighted by chances — more
+ * chances = proportionally higher odds. Each pick removes that entrant from
+ * the pool before the next draw, so nobody wins twice in the same contest.
+ */
+function drawWeightedWinners(chances: Map<number, number>, count: number): number[] {
+  const pool = new Map(chances);
+  const winners: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const entries = [...pool.entries()].filter(([, w]) => w > 0);
+    const total = entries.reduce((sum, [, w]) => sum + w, 0);
+    if (total <= 0) break;
+    let r = Math.random() * total;
+    let picked = entries[entries.length - 1][0];
+    for (const [tid, w] of entries) {
+      r -= w;
+      if (r <= 0) {
+        picked = tid;
+        break;
+      }
+    }
+    winners.push(picked);
+    pool.delete(picked);
   }
-  return entries[entries.length - 1][0];
+  return winners;
 }
 
-/** Draws and persists the winner for one expired, not-yet-settled contest. */
+/** Draws and persists the winners for one expired, not-yet-settled contest. */
 async function settleOneGift(db: any, gift: GiftItem): Promise<GiftItem> {
   const chances = await computeAllChances(db, gift);
-  const winnerId = drawWeightedWinner(chances);
+  const winnerIds = drawWeightedWinners(chances, Math.max(1, gift.winnerCount || 1));
 
-  let winnerName: string | null = null;
-  if (winnerId) {
+  const winners: GiftWinner[] = [];
+  for (const winnerId of winnerIds) {
     const { data: u } = await db
       .from('gm_users')
       .select('username,first_name')
       .eq('telegram_id', winnerId)
       .maybeSingle();
-    winnerName = u?.username ? `@${u.username}` : (u?.first_name ?? `مستخدم #${winnerId}`);
+    winners.push({
+      id: winnerId,
+      name: u?.username ? `@${u.username}` : (u?.first_name ?? `مستخدم #${winnerId}`),
+      chances: chances.get(winnerId) ?? null,
+    });
   }
 
   // Re-read the freshest stored list right before writing so two requests
@@ -276,22 +326,24 @@ async function settleOneGift(db: any, gift: GiftItem): Promise<GiftItem> {
   const all = parseGifts(await getSetting('gifts'));
   const idx = all.findIndex((g) => g.id === gift.id);
   if (idx === -1) return gift; // deleted meanwhile
-  if (all[idx].winnerId || all[idx].settledAt) return all[idx]; // already settled
+  if (all[idx].winners.length > 0 || all[idx].settledAt) return all[idx]; // already settled
 
   const settled: GiftItem = {
     ...all[idx],
-    winnerId,
-    winnerName,
-    winnerChances: winnerId ? (chances.get(winnerId) ?? null) : null,
+    winners,
     settledAt: new Date().toISOString(),
   };
   all[idx] = settled;
   await setSetting('gifts', JSON.stringify(all));
 
-  if (winnerId) {
+  if (winners.length > 0) {
     try {
       const { notifyUser } = await import('@/lib/admin.server');
-      await notifyUser(winnerId, `🎉 مبروك! أنت الفائز في مسابقة "${gift.title}" 🎁`);
+      const text =
+        winners.length > 1
+          ? `🎉 مبروك! أنت من الفائزين في مسابقة "${gift.title}" 🎁`
+          : `🎉 مبروك! أنت الفائز في مسابقة "${gift.title}" 🎁`;
+      await Promise.all(winners.map((w) => notifyUser(w.id, text).catch(() => undefined)));
     } catch {
       /* best-effort */
     }
@@ -308,7 +360,7 @@ async function settleOneGift(db: any, gift: GiftItem): Promise<GiftItem> {
  */
 export async function settleExpiredGifts(gifts: GiftItem[]): Promise<GiftItem[]> {
   const pending = gifts.filter(
-    (g) => g.endsAt && Date.parse(g.endsAt) < Date.now() && !g.winnerId && !g.settledAt,
+    (g) => g.endsAt && Date.parse(g.endsAt) < Date.now() && g.winners.length === 0 && !g.settledAt,
   );
   if (pending.length === 0) return gifts;
 
