@@ -1043,7 +1043,7 @@ export default function Tasks() {
         </div>
       </div>
 
-      <div className="relative z-10 flex-1 overflow-y-auto space-y-3 pb-8">
+      <div className="relative z-10 flex-1 space-y-3 pb-24">
         {(tab === 'all' || tab === 'daily') && (
           <>
             <DailyCheckInCard onCoinsEarned={(n) => addCoins(n)} />
