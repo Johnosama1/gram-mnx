@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Outlet, useRouter, useRouterState } from '@tanstack/react-router';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import BottomNav from './BottomNav';
@@ -260,6 +260,7 @@ function Shell() {
   const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
   const router = useRouter();
   const routeKey = useRouterState({ select: (st) => st.location.pathname });
+  const scrollRef = useRef<HTMLDivElement>(null);
 
 
   // Opened from a gift invite link → land straight on the Gift page.
@@ -284,6 +285,18 @@ function Shell() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The scrollable container below (scrollRef) wraps <Outlet> but is never
+  // itself remounted on navigation — only its child is (see `key={routeKey}`
+  // on the inner div) — so its scrollTop carries over from whatever screen
+  // was open before. Scrolling a long list (e.g. Tasks) then switching tabs
+  // to a short, fixed-height screen (e.g. Mine) leaves it scrolled past that
+  // screen's actual content, which is what pushes the Claim button down /
+  // out of view until the user scrolls back up manually. Reset scroll
+  // position on every route change, like a normal multi-page app would.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [routeKey]);
 
 
   // Warm up tab chunks + their read-only data once the first screen is idle so
@@ -366,6 +379,7 @@ function Shell() {
       ) : (
         <>
           <div
+            ref={scrollRef}
             className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain relative z-10 [-webkit-overflow-scrolling:touch]"
             style={{
               paddingTop: 'env(safe-area-inset-top, 0px)',
