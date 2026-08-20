@@ -518,5 +518,6 @@
   "promo_already_used": "You have already used this code!",
   "promo_full": "Code fully claimed!",
   "promo_watch_full_ad": "Watch the full ad to redeem your reward",
-  "promo_success": "Code Redeemed! You received {amount} MNX!"
+  "promo_success": "Code Redeemed! You received {amount} MNX!",
+  "promo_busy": "Server is busy right now, please try again in a moment"
 }

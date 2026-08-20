@@ -41,7 +41,11 @@ export default function PromoCodeCard() {
   const errorText = (message: string): string => {
     if (message.includes('already')) return t('promo_already_used');
     if (message.includes('full')) return t('promo_full');
-    return t('promo_invalid');
+    if (message.includes('invalid')) return t('promo_invalid');
+    // Anything else — rate limiting, a server error, a network timeout — is
+    // NOT the same as a genuinely bad code. Defaulting those to "invalid"
+    // was exactly what made a valid code look broken under heavy load.
+    return t('promo_busy');
   };
 
   const handleRedeem = async () => {

@@ -27,14 +27,6 @@ export async function isPromoSectionEnabled(): Promise<boolean> {
   return (await getSetting('promo_section_enabled')) !== 'false';
 }
 
-async function addCoins(telegramId: number, amount: number) {
-  if (!amount) return;
-  const db = (await getDb()) as any;
-  // Atomic increment (row-locked in SQL) — a read-modify-write here could be
-  // raced by parallel requests and credit the reward twice.
-  await db.rpc('gm_add_coins', { _telegram_id: telegramId, _amount: amount });
-}
-
 /**
  * User-facing promo API.
  *  GET  → { enabled }
@@ -62,54 +54,68 @@ export async function handlePromoApi(request: Request): Promise<Response> {
     .trim()
     .slice(0, 64);
   if (!code) return json({ ok: false, message: 'promo_invalid' }, 400);
-  // Brute-force guard on code guessing.
+  // Brute-force guard on code guessing — distinct from "invalid code" so the
+  // client never shows a genuinely valid code as broken just because this
+  // one user is retrying too fast.
   if (!(await rateLimit(`promo:${auth.id}`, 15, 60)))
-    return json({ ok: false, message: 'promo_invalid' }, 429);
+    return json({ ok: false, message: 'promo_busy' }, 429);
 
   const db = (await getDb()) as any;
-  const { data: row } = await db
-    .from('gm_promo_codes')
-    .select('*')
-    .ilike('code', code)
-    .maybeSingle();
 
-  if (!row || row.is_active === false) return json({ ok: false, message: 'promo_invalid' }, 400);
+  // Validation-only pass (client shows this before crediting): a plain read,
+  // never writes, so it's never part of the redemption race.
+  if (body.check === true) {
+    const { data: row } = await db
+      .from('gm_promo_codes')
+      .select('*')
+      .ilike('code', code)
+      .maybeSingle();
+    if (!row) return json({ ok: false, message: 'promo_invalid' }, 400);
 
-  const { data: used } = await db
-    .from('gm_promo_redemptions')
-    .select('id')
-    .eq('telegram_id', auth.id)
-    .eq('code_id', row.id)
-    .maybeSingle();
-  if (used) return json({ ok: false, message: 'promo_already_used' }, 400);
+    const { data: used } = await db
+      .from('gm_promo_redemptions')
+      .select('id')
+      .eq('telegram_id', auth.id)
+      .eq('code_id', row.id)
+      .maybeSingle();
+    if (used) return json({ ok: false, message: 'promo_already_used' }, 400);
 
-  const maxUses = Number(row.max_uses ?? 0);
-  const currentUses = Number(row.current_uses ?? 0);
-  if (maxUses > 0 && currentUses >= maxUses)
-    return json({ ok: false, message: 'promo_full' }, 400);
+    // Checked before is_active: a code that hit max_uses auto-deactivates,
+    // so an inactive row can mean "full" as much as "genuinely disabled" —
+    // those get different messages.
+    const maxUses = Number(row.max_uses ?? 0);
+    const currentUses = Number(row.current_uses ?? 0);
+    if (maxUses > 0 && currentUses >= maxUses)
+      return json({ ok: false, message: 'promo_full' }, 400);
+    if (row.is_active === false) return json({ ok: false, message: 'promo_invalid' }, 400);
 
-  const reward = Number(row.reward_coins ?? 0);
+    return json({ ok: true, valid: true, rewardCoins: Number(row.reward_coins ?? 0) });
+  }
 
-  // Validation-only pass: the client shows the rewarded ad next and calls
-  // again with { code } to actually credit the reward.
-  if (body.check === true) return json({ ok: true, valid: true, rewardCoins: reward });
+  // Real redemption: one atomic, row-locked DB call (gm_redeem_promo_code)
+  // instead of a read-check-then-write sequence. That sequence is exactly
+  // what raced under many users redeeming the same code at once — every
+  // concurrent request read the same current_uses before any of them wrote
+  // it back, so uses could be lost/over-counted, and the request just held
+  // its DB connection open longer than necessary under the contention that
+  // caused. Same outcomes (invalid/already used/full/success), same reward
+  // amount, just computed atomically.
+  const { data: result, error } = await db.rpc('gm_redeem_promo_code', {
+    _telegram_id: auth.id,
+    _code: code,
+  });
+  if (error) {
+    console.error('[promo] redeem failed', error);
+    return json({ ok: false, message: 'promo_busy' }, 500);
+  }
+  const settled = Array.isArray(result) ? result[0] : result;
+  if (settled?.status === 'invalid') return json({ ok: false, message: 'promo_invalid' }, 400);
+  if (settled?.status === 'already_used') return json({ ok: false, message: 'promo_already_used' }, 400);
+  if (settled?.status === 'full') return json({ ok: false, message: 'promo_full' }, 400);
 
-  // The unique (telegram_id, code_id) index makes a double-tap safe.
-  const { error } = await db
-    .from('gm_promo_redemptions')
-    .insert({ telegram_id: auth.id, code_id: row.id, reward_coins: reward });
-  if (error) return json({ ok: false, message: 'promo_already_used' }, 400);
-
-  const nextUses = currentUses + 1;
-  await db
-    .from('gm_promo_codes')
-    .update({
-      current_uses: nextUses,
-      is_active: maxUses > 0 && nextUses >= maxUses ? false : row.is_active,
-    })
-    .eq('id', row.id);
-
-  await addCoins(auth.id, reward);
-
-  return json({ ok: true, coinsEarned: reward, code: row.code });
+  return json({
+    ok: true,
+    coinsEarned: Number(settled?.reward_coins ?? 0),
+    code: settled?.code ?? code,
+  });
 }
