@@ -2086,6 +2086,64 @@ function DepositsSection() {
   );
 }
 
+// ─── Sending currencies visibility ────────────────────────────────────────
+function SendCurrenciesSection() {
+  const [enabled, setEnabled] = useState(true);
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api<Record<string, string>>('GET', '/admin/general?type=settings')
+      .then((s) => setEnabled(s['send_currencies_visible'] !== 'false'))
+      .catch((e: any) => setStatus(`❌ ${e.message}`))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const toggle = async () => {
+    const next = !enabled;
+    setEnabled(next);
+    setSaving(true);
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'send_currencies_visible',
+        value: next ? 'true' : 'false',
+      });
+      notifyDataChange('admin', 'user');
+    } catch (e: any) {
+      setEnabled(!next);
+      setStatus(`❌ ${e.message}`);
+      setTimeout(() => setStatus(''), 2000);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+        <span className="text-foreground font-bold text-sm">إظهار زر "Sending currencies" للمستخدمين</span>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => { void toggle(); }}
+          aria-pressed={enabled}
+          aria-label="إظهار زر Sending currencies للمستخدمين"
+          className={`w-12 h-6 rounded-full relative transition-colors ${enabled ? 'bg-primary' : 'bg-secondary'} disabled:opacity-50`}
+        >
+          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${enabled ? 'right-1' : 'left-1'}`} />
+        </button>
+      </div>
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        لما يكون مقفول، زرار "Sending currencies" هيختفي من صفحة البروفايل لكل المستخدمين، ويفضل ظاهر للأدمن بس.
+      </p>
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+    </div>
+  );
+}
+
 // ─── 9 & 10. Withdrawal & Deposit Limits ──────────────────────────────────
 function LimitsSection() {
   const { t } = useLanguage();
@@ -3187,6 +3245,9 @@ export default function Admin() {
         </Section>
         <Section title="الإيداعات" icon={Wallet}>
           <DepositsSection />
+        </Section>
+        <Section title="إرسال العملات (Sending currencies)" icon={Send}>
+          <SendCurrenciesSection />
         </Section>
         <Section title={t('admin_sec_subadmins')} icon={UserPlus}>
           <AdminsSection />

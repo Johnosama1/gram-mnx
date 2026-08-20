@@ -1048,7 +1048,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
 export default function Profile() {
   const { minerLevel, walletAddress } = useWallet();
-  const { user: tgUser, avatarUrl } = useTelegramUser();
+  const { user: tgUser, avatarUrl, sendCurrenciesVisible } = useTelegramUser();
   const { lang, setLang, t } = useLanguage();
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
@@ -1162,20 +1162,23 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
 
-        {/* Sending currencies (MNX → the linked "gram" bot's coin) */}
-        <div
-          onClick={() => setShowSendCurrencies(true)}
-          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
-        >
-          <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
-            <Send className="w-6 h-6" />
+        {/* Sending currencies (MNX → the linked "gram" bot's coin) — admin can
+            hide this from regular users from the admin panel. */}
+        {sendCurrenciesVisible && (
+          <div
+            onClick={() => setShowSendCurrencies(true)}
+            className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
+              <Send className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-foreground mb-0.5">Sending currencies</div>
+              <div className="text-xs text-muted-foreground">حوّل MNX وابعتها لمستخدم في بوت تاني</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>
-          <div className="flex-1">
-            <div className="font-bold text-foreground mb-0.5">Sending currencies</div>
-            <div className="text-xs text-muted-foreground">حوّل MNX وابعتها لمستخدم في بوت تاني</div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
+        )}
 
         {/* Swap */}
         <div

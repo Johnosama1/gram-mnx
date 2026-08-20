@@ -97,6 +97,10 @@ export const Route = createFileRoute('/api/telegram/auth')({
           maintenanceMessage:
             (await getSetting('maintenance_message')) ||
             '🔧 The app is under maintenance, please try again later.',
+          // "Sending currencies" on Profile can be hidden from regular users
+          // from the admin panel; admins always see it regardless.
+          sendCurrenciesVisible:
+            isAdmin || (await getSetting('send_currencies_visible')) !== 'false',
 
           notJoinedChannels: [],
         });

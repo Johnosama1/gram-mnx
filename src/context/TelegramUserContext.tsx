@@ -31,6 +31,8 @@ type TelegramUserContextType = {
   notJoinedChannels: UnsubscribedChannel[];
   maintenance: boolean;
   maintenanceMessage: string;
+  /** Admin-controlled visibility of the "Sending currencies" section on Profile. */
+  sendCurrenciesVisible: boolean;
   recheckChannels: () => Promise<void>;
   /** Re-sync user (balance, admin flag, maintenance) from the server. */
   refreshUser: () => Promise<void>;
@@ -46,6 +48,7 @@ type AuthSnapshot = {
   notJoinedChannels: UnsubscribedChannel[];
   maintenance: boolean;
   maintenanceMessage: string;
+  sendCurrenciesVisible: boolean;
   savedAt: number;
 };
 
@@ -97,6 +100,9 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
   // so a user who once saw the maintenance screen isn't locked out afterwards.
   const [maintenance, setMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState(cached?.maintenanceMessage ?? '');
+  const [sendCurrenciesVisible, setSendCurrenciesVisible] = useState(
+    cached?.sendCurrenciesVisible ?? true,
+  );
   const lastAuthAt = useRef(0);
 
   const doAuth = useCallback(async (initData: string) => {
@@ -126,6 +132,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
       // Admins can never be locked out by maintenance mode.
       setMaintenance(!admin && data.maintenance === true);
       setMaintenanceMessage(String(data.maintenanceMessage ?? ''));
+      setSendCurrenciesVisible(data.sendCurrenciesVisible !== false);
 
       writeSnapshot({
         user: data.user,
@@ -133,6 +140,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
         notJoinedChannels: channels,
         maintenance: data.maintenance === true,
         maintenanceMessage: String(data.maintenanceMessage ?? ''),
+        sendCurrenciesVisible: data.sendCurrenciesVisible !== false,
       });
     }
   }, []);
@@ -229,6 +237,7 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
         notJoinedChannels,
         maintenance,
         maintenanceMessage,
+        sendCurrenciesVisible,
         recheckChannels,
         refreshUser,
       }}
