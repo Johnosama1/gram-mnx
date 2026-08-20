@@ -432,6 +432,7 @@
   "tasks_checkin_day_short": "يوم {day}",
   "tasks_checkin_claim": "استلام",
   "tasks_checkin_already": "❌ تم التسجيل بالفعل اليوم",
+  "tasks_checkin_ad_hint": "🎬 شاهد إعلان قصير عشان تستلم مكافأة اليوم",
   "tasks_ads_title": "شاهد واربح",
   "tasks_ads_desc": "شاهد إعلان قصير واربح {reward} MNX",
   "tasks_ads_watch": "شاهد إعلان",

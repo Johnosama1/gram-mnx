@@ -85,6 +85,14 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     setClaiming(true);
     setMsg(null);
     try {
+      // Must watch a full ad before the daily reward can be claimed — a
+      // skip/close/load failure rejects and no claim request is sent.
+      try {
+        await showMonetagAd();
+      } catch {
+        setMsg({ ok: false, text: t('tasks_ads_failed') });
+        return;
+      }
       const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number; message?: string }>(
         '/tasks/checkin', {},
       );
@@ -123,6 +131,7 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
             <div className="text-xs text-muted-foreground mt-0.5">
               {t('tasks_checkin_day', { day: String(displayDay), reward: String(rewards[displayDay - 1] ?? 0) })}
             </div>
+            {canClaim && <div className="text-[10px] text-violet-500 mt-0.5">{t('tasks_checkin_ad_hint')}</div>}
           </div>
         </div>
 

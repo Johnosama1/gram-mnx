@@ -430,6 +430,7 @@
   "tasks_checkin_day_short": "Day {day}",
   "tasks_checkin_claim": "Claim",
   "tasks_checkin_already": "❌ Already checked in today",
+  "tasks_checkin_ad_hint": "🎬 Watch a short ad to claim today's reward",
   "tasks_ads_title": "Watch & earn",
   "tasks_ads_desc": "Watch a short ad to earn {reward} MNX",
   "tasks_ads_watch": "Watch ad",

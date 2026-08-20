@@ -430,6 +430,7 @@
   "tasks_checkin_day_short": "День {day}",
   "tasks_checkin_claim": "Забрать",
   "tasks_checkin_already": "❌ Сегодня уже отмечено",
+  "tasks_checkin_ad_hint": "🎬 Посмотрите короткую рекламу, чтобы получить награду за сегодня",
   "tasks_ads_title": "Смотри и зарабатывай",
   "tasks_ads_desc": "Посмотрите короткую рекламу и заработайте {reward} MNX",
   "tasks_ads_watch": "Смотреть рекламу",
