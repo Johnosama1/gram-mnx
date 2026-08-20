@@ -10,9 +10,13 @@ const MIN_AMOUNT = 1;
 const MAX_AMOUNT = 1_000_000;
 
 function checkApiKey(request: Request): boolean {
-  const expected = process.env.GRAM_INBOUND_API_KEY;
+  const expected = process.env.GRAM_INBOUND_API_KEY?.trim();
   if (!expected) return false;
-  return request.headers.get('x-api-key') === expected;
+  // Trim the incoming header too: a stray trailing newline/space from
+  // copy-pasting the key into a secrets UI is a common, easy-to-miss cause
+  // of a false 401 that has nothing to do with the key actually being wrong.
+  const provided = request.headers.get('x-api-key')?.trim();
+  return provided === expected;
 }
 
 function err(code: string, message: string, status: number): Response {
