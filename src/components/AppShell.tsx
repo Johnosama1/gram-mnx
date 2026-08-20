@@ -137,7 +137,7 @@ function ChannelGate() {
             href={`https://t.me/${ch.channelUsername}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full bg-card/80 bg-white border border-border rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-secondary transition-all group"
+            className="flex items-center justify-between w-full bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/40 hover:bg-secondary transition-all group"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -340,14 +340,14 @@ function Shell() {
       className="app-shell flex flex-col w-full max-w-[640px] mx-auto relative shadow-2xl overflow-hidden"
       style={{
         background:
-          'radial-gradient(120% 60% at 50% 0%, hsl(262 90% 96%) 0%, hsl(250 40% 98%) 55%, hsl(250 40% 98%) 100%)',
+          'radial-gradient(120% 60% at 50% 0%, hsl(262 45% 12%) 0%, hsl(240 8% 5%) 55%, hsl(240 8% 5%) 100%)',
       }}
     >
-      {/* Static dark veil so cards, text and buttons stay readable on every screen */}
+      {/* Static veil so cards, text and buttons stay readable on every screen */}
       <div
         aria-hidden
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35))' }}
+        style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.25))' }}
       />
 
       {isBanned ? (

@@ -560,7 +560,7 @@ export default function Friends() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'hsl(var(--background))' }} />
 
       {/* Leaderboard Modal */}
       {showLeaderboard && (
@@ -590,18 +590,18 @@ export default function Friends() {
 
       {/* Stats */}
       <div className="relative z-10 flex gap-3 mb-4">
-        <div className="flex-1 rounded-2xl p-4 text-center border border-violet-500/20" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="flex-1 rounded-2xl p-4 text-center border border-violet-500/20" style={{ backgroundColor: 'hsl(var(--card))' }}>
           <div className="text-2xl font-black text-foreground">{displayCount}</div>
           <div className="text-xs text-muted-foreground mt-1 font-semibold">{t('friends_total_referrals')}</div>
         </div>
-        <div className="flex-1 rounded-2xl p-4 text-center border border-primary/30" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="flex-1 rounded-2xl p-4 text-center border border-primary/30" style={{ backgroundColor: 'hsl(var(--card))' }}>
           <div className="text-2xl font-black text-primary">{Number(displayReward).toFixed(4)}</div>
           <div className="text-xs text-muted-foreground mt-1 font-semibold">{t('friends_gmr_rewards')}</div>
         </div>
         <button
           onClick={() => setShowTasks(true)}
           className="flex-1 rounded-2xl p-4 text-center border border-success/30 hover:border-success/60 transition-colors"
-          style={{ backgroundColor: '#FFFFFF' }}
+          style={{ backgroundColor: 'hsl(var(--card))' }}
         >
           <div className="text-2xl font-black text-success">
             {milestones.filter(m => m.isEnabled && !m.credited).length}
@@ -613,7 +613,7 @@ export default function Friends() {
       {/* Tasks Modal (referral milestones) */}
       {showTasks && (
         <div
-          className="fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4"
+          className="fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
           style={{ bottom: 'var(--nav-height)' }}
           onClick={() => setShowTasks(false)}
         >
@@ -689,7 +689,7 @@ export default function Friends() {
       )}
 
       {/* Invite Card */}
-      <div className="relative z-10 backdrop-blur-sm border border-violet-500/20 rounded-3xl p-5 mb-4" style={{ backgroundColor: '#FFFFFF' }}>
+      <div className="relative z-10 backdrop-blur-sm border border-violet-500/20 rounded-3xl p-5 mb-4" style={{ backgroundColor: 'hsl(var(--card))' }}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shadow-[0_0_15px_rgba(245,166,35,0.2)]">
             <StickerBadge size={38} src={inviteFriendSticker.url} />
@@ -714,14 +714,14 @@ export default function Friends() {
           <button
             onClick={handleOpenLeaderboard}
             className="w-[60px] flex-shrink-0 rounded-xl border border-violet-500/20 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform overflow-hidden"
-            style={{ backgroundColor: '#ffffff' }}
+            style={{ backgroundColor: 'hsl(var(--card))' }}
           >
             <img
               src={LEADERBOARD_ICON}
               alt="leaderboard"
               className="w-8 h-8 object-contain"
             />
-            <span className="text-[9px] text-primary-foreground/70 font-bold leading-tight text-center px-1">
+            <span className="text-[9px] text-muted-foreground font-bold leading-tight text-center px-1">
               {t('friends_leaderboard')}
             </span>
           </button>
@@ -746,7 +746,7 @@ export default function Friends() {
       </div>
 
       {/* How it works */}
-      <div className="relative z-10 border border-violet-500/20 rounded-2xl p-4 mb-4" style={{ backgroundColor: '#FFFFFF' }}>
+      <div className="relative z-10 border border-violet-500/20 rounded-2xl p-4 mb-4" style={{ backgroundColor: 'hsl(var(--card))' }}>
         <h3 className="text-sm font-black text-foreground mb-3">{t('friends_how_it_works')}</h3>
         <div className="space-y-2">
           {steps.map((step, i) => (

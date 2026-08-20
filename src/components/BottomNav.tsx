@@ -24,7 +24,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
       className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-2 max-w-[640px] mx-auto"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
     >
-      <div className="flex items-center w-full rounded-3xl bg-white border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(88,44,180,0.12)]">
+      <div className="flex items-center w-full rounded-3xl bg-card border border-border px-1 py-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
         {navItems.map((item) => {
           const isActive = location === item.path;
           const Icon = item.icon;

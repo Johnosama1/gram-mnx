@@ -121,7 +121,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
       >
         {/* Backdrop */}
         <motion.div
-          className="absolute inset-0 bg-foreground/40"
+          className="absolute inset-0 bg-black/70"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -130,7 +130,7 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
 
         {/* Sheet */}
         <motion.div
-          className="relative w-full max-w-[640px] bg-white rounded-t-3xl p-6 pb-8 border-t border-violet-500/20"
+          className="relative w-full max-w-[640px] bg-card rounded-t-3xl p-6 pb-8 border-t border-violet-500/20"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}

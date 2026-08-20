@@ -160,7 +160,7 @@ export default function Combo() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'hsl(var(--background))' }} />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b border-violet-500/20">
@@ -352,7 +352,7 @@ function ItemCard({
       className={`
         relative flex flex-col items-center justify-center gap-1
         rounded-2xl border p-1.5 pb-2
-        bg-white border-violet-500/30
+        bg-card border-violet-500/30
         transition-all duration-200 touch-manipulation
         ${selected ? 'ring-2 ring-violet-500 border-violet-400 shadow-lg shadow-violet-600/25' : 'opacity-90'}
         ${disabled ? 'cursor-default' : 'active:scale-95'}

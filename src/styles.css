@@ -28,6 +28,8 @@
   --color-success: hsl(var(--success));
   --color-destructive: hsl(var(--destructive));
 
+  --color-card: hsl(var(--card));
+
   --font-sans: var(--app-font-sans);
 }
 
@@ -37,44 +39,48 @@
      Includes the nav's own min-height (~72px) + version line + safe-area inset.
      Overlays/sheets use this to sit on top of the nav instead of behind it. */
   --nav-height: calc(80px + env(safe-area-inset-bottom, 0px));
-  --background: 0 0% 100%;
-  --foreground: 258 25% 12%;
-  --border: 258 55% 92%;
+  /* Dark theme, matched to the Leaderboard modal's near-black look. */
+  --background: 240 8% 5%;
+  --foreground: 0 0% 96%;
+  --border: 258 30% 22%;
 
   --primary: 262 83% 62%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 255 100% 96%;
-  --secondary-foreground: 262 60% 35%;
+  --secondary: 258 20% 14%;
+  --secondary-foreground: 262 55% 88%;
 
-  --muted: 255 100% 97%;
-  --muted-foreground: 255 8% 48%;
+  --muted: 255 15% 12%;
+  --muted-foreground: 255 10% 65%;
 
   --accent: 262 90% 70%;
   --accent-foreground: 0 0% 100%;
 
-  --success: 152 62% 40%;
-  --destructive: 0 72% 52%;
+  --success: 152 55% 48%;
+  --destructive: 0 75% 62%;
+
+  --card: 252 18% 10%;
 
   --app-font-sans: 'Inter', sans-serif;
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 .dark {
-  --background: 0 0% 100%;
-  --foreground: 258 25% 12%;
-  --border: 258 55% 92%;
+  --background: 240 8% 5%;
+  --foreground: 0 0% 96%;
+  --border: 258 30% 22%;
   --primary: 262 83% 62%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 255 100% 96%;
-  --secondary-foreground: 262 60% 35%;
-  --muted: 255 100% 97%;
-  --muted-foreground: 255 8% 48%;
+  --secondary: 258 20% 14%;
+  --secondary-foreground: 262 55% 88%;
+  --muted: 255 15% 12%;
+  --muted-foreground: 255 10% 65%;
   --accent: 262 90% 70%;
   --accent-foreground: 0 0% 100%;
-  --success: 152 62% 40%;
-  --destructive: 0 72% 52%;
+  --success: 152 55% 48%;
+  --destructive: 0 75% 62%;
+  --card: 252 18% 10%;
 }
 
 

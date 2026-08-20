@@ -55,7 +55,7 @@ export default function Dashboard() {
     claimEarnings();
   };
 
-  const card = 'rounded-2xl bg-white border border-border shadow-[0_6px_18px_rgba(88,44,180,0.07)]';
+  const card = 'rounded-2xl bg-card border border-border shadow-[0_6px_18px_rgba(0,0,0,0.35)]';
 
   return (
     <div className="h-full flex flex-col relative w-full overflow-hidden">
@@ -166,7 +166,7 @@ export default function Dashboard() {
           <div
             aria-hidden
             className="absolute h-[80%] aspect-square rounded-full"
-            style={{ background: 'radial-gradient(circle, hsl(262 90% 92%) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, hsl(262 75% 45%) 0%, transparent 70%)' }}
           />
           <div
             className={`relative h-full max-h-full w-full flex flex-col items-center justify-center ${mining ? '' : 'opacity-90'}`}
@@ -182,7 +182,7 @@ export default function Dashboard() {
       {/* ── fixed bottom controls ── */}
       <div className="shrink-0 px-3 pb-3 bg-gradient-to-t from-background via-background to-transparent">
         {claimError && (
-          <div className="mb-2 rounded-xl border border-destructive/30 bg-white px-3 py-2 text-center text-xs font-bold text-destructive shadow-lg">
+          <div className="mb-2 rounded-xl border border-destructive/30 bg-card px-3 py-2 text-center text-xs font-bold text-destructive shadow-lg">
             {claimError === 'MIN_CLAIM' ? t('dashboard_min_claim') : t('dashboard_claim_failed')}
           </div>
         )}

@@ -356,7 +356,7 @@ function TaskAvatar({
 
 function TaskCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-right ${className ?? ''}`}>
+    <div className={`w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 text-right ${className ?? ''}`}>
       {children}
     </div>
   );
@@ -1020,7 +1020,7 @@ export default function Tasks() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'hsl(var(--background))' }} />
 
       <div className="relative z-10 mb-3 flex items-center justify-between">
         <h1 className="text-3xl font-black text-foreground tracking-tight">{t('tasks_header')}</h1>
@@ -1140,8 +1140,8 @@ export default function Tasks() {
               className="rounded-2xl p-4"
               style={{
                 background: isDone
-                  ? 'linear-gradient(135deg, rgba(139,92,246,0.10) 0%, #FFFFFF 100%)'
-                  : '#FFFFFF',
+                  ? 'linear-gradient(135deg, rgba(139,92,246,0.18) 0%, hsl(var(--card)) 100%)'
+                  : 'hsl(var(--card))',
                 border: `1px solid ${isDone ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.15)'}`,
               }}
             >

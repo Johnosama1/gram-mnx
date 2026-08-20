@@ -68,7 +68,7 @@ const FAQS: FAQItem[] = [
 
 function FAQRow({ item, index }: { item: FAQItem; index: number }) {
   return (
-    <div className="border border-violet-500/25 rounded-2xl overflow-hidden bg-white/85 backdrop-blur-sm">
+    <div className="border border-violet-500/25 rounded-2xl overflow-hidden bg-card/85 backdrop-blur-sm">
       <div className="flex items-start gap-3 px-4 pt-4 text-right">
         <span className="w-6 h-6 shrink-0 rounded-lg bg-violet-500/20 text-violet-200 text-[11px] font-black flex items-center justify-center">
           {index + 1}
@@ -87,7 +87,7 @@ export default function FAQ() {
   const navigate = useNavigate();
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }} />
 
       <div className="relative z-10 flex items-center gap-3 mb-6">
         <button

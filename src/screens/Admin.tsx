@@ -229,7 +229,7 @@ function StatsSection() {
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-foreground/40 flex items-end sm:items-center justify-center p-3" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-3" onClick={() => setOpen(false)}>
           <div className="bg-card w-full max-w-md max-h-[75vh] rounded-2xl border border-violet-500/20 p-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-sm">{t('admin_stat_blocked')} · {stats.blockedUsers}</h3>

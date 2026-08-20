@@ -93,7 +93,7 @@ function GiftCountdown({ endsAt }: { endsAt: string | null }) {
 function GiftWinnerBanner({ gift }: { gift: GiftItem }) {
   if (!gift.winnerId) return null;
   return (
-    <div className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] font-bold text-amber-700 flex items-center gap-1.5">
+    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] font-bold text-amber-400 flex items-center gap-1.5">
       🏆 الفائز: {gift.winnerName ?? `#${gift.winnerId}`}
       {gift.winnerChances ? ` (×${gift.winnerChances} فرصة)` : ''}
     </div>
@@ -261,7 +261,7 @@ export default function GiftScreen() {
           <ArrowRight className="w-4 h-4" /> رجوع
         </button>
 
-        <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-5 text-center">
+        <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-5 text-center">
           <div className="flex justify-center mb-3">
             <GiftMedia url={activeGift.imageUrl} size={110} />
           </div>
@@ -281,29 +281,29 @@ export default function GiftScreen() {
         {activeGift.winnerId ? null : activeGift.entryMode === 'ads' ? (
           <>
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
                 <p className="text-lg font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
               </div>
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">للفرصة الجاية</p>
                 <p className="text-lg font-extrabold text-muted-foreground">
                   {activeGift.adsWatched % AD_CHANCE_STEP}/{AD_CHANCE_STEP}
                 </p>
               </div>
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">اليوم</p>
                 <p className="text-lg font-extrabold text-muted-foreground">
                   {activeGift.adsToday}/{activeGift.adsDailyLimit}
                 </p>
               </div>
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-2.5 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
                 <p className="text-[10px] text-violet-600/70">فرصك في الفوز</p>
                 <p className="text-lg font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
+            <div className="mt-4 rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
               <p className="text-xs text-violet-600/80 mb-3">
                 شاهد إعلان لزيادة فرصتك — كل 10 إعلانات = فرصة إضافية (بحد أقصى{' '}
                 {activeGift.adsDailyLimit} إعلانات كل 24 ساعة)
@@ -323,17 +323,17 @@ export default function GiftScreen() {
         ) : (
           <>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-3 text-center">
                 <p className="text-[11px] text-violet-600/70">إحالاتك</p>
                 <p className="text-xl font-extrabold text-muted-foreground">{activeGift.invitedCount}</p>
               </div>
-              <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 text-center">
+              <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-3 text-center">
                 <p className="text-[11px] text-violet-600/70">فرصك في الفوز</p>
                 <p className="text-xl font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
+            <div className="mt-4 rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
               <p className="text-xs text-violet-600/80 mb-2">
                 رابط الإحالة الخاص بك — كل صديق ينضم يزوّد فرصتك
               </p>
@@ -372,7 +372,7 @@ export default function GiftScreen() {
       )}
 
       {state && !state.enabled && (
-        <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-8 text-center">
+        <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-8 text-center">
           <Lock className="w-10 h-10 mx-auto text-violet-600/60 mb-3" />
           <p className="text-muted-foreground font-bold">{state.message || 'قريباً'}</p>
         </div>
@@ -385,7 +385,7 @@ export default function GiftScreen() {
       )}
 
       {state?.enabled && state.gifts.length === 0 && (
-        <div className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-8 text-center text-violet-600/70 text-sm">
+        <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-8 text-center text-violet-600/70 text-sm">
           لا توجد مسابقات متاحة حالياً
         </div>
       )}
@@ -395,7 +395,7 @@ export default function GiftScreen() {
           state.gifts.map((g) => {
             const pct = g.capacity > 0 ? Math.min(100, (g.participants / g.capacity) * 100) : 0;
             return (
-              <div key={g.id} className="rounded-2xl border border-violet-500/15 bg-white shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-4">
+              <div key={g.id} className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
                 <div className="flex items-start gap-3">
                   <GiftMedia url={g.imageUrl} size={64} />
                   <div className="flex-1 min-w-0">
@@ -430,7 +430,7 @@ export default function GiftScreen() {
                     <p className="text-[11px] text-violet-600/70 mb-1">⏱ <GiftCountdown endsAt={g.endsAt} /></p>
                   )}
                   {!g.joined && ENTRY_MODE_HINT[g.entryMode] && (
-                    <p className="text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mb-1">
+                    <p className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-1">
                       {ENTRY_MODE_HINT[g.entryMode]}
                     </p>
                   )}

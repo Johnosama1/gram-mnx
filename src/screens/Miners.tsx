@@ -93,7 +93,7 @@ function PackageCard({
       onClick={onClick}
       className="flex flex-col items-center justify-center rounded-2xl p-3 transition-all active:scale-95"
       style={{
-        background: 'linear-gradient(160deg, #FFFFFF 0%, #F7F4FF 100%)',
+        background: 'linear-gradient(160deg, hsl(var(--card)) 0%, hsl(258 25% 8%) 100%)',
         border: '1px solid rgba(245,166,35,0.25)',
         boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
         minHeight: 100,
@@ -189,7 +189,7 @@ function PackageModal({
       <div
         className="w-full max-w-sm rounded-t-3xl overflow-hidden"
         style={{
-          background: 'linear-gradient(160deg, #FFFFFF 0%, #F7F4FF 100%)',
+          background: 'linear-gradient(160deg, hsl(var(--card)) 0%, hsl(258 25% 8%) 100%)',
           border: '1px solid rgba(245,166,35,0.2)',
           borderBottom: 'none',
           boxShadow: '0 -8px 40px rgba(0,0,0,0.8)',
@@ -409,7 +409,7 @@ export default function Store() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'hsl(var(--background))' }} />
 
       <div className="relative z-10 w-full px-3 pt-3 pb-28">
         {/* Top row */}
@@ -471,7 +471,7 @@ export default function Store() {
             <div className="space-y-1.5">
               {history.map(h => (
                 <div key={h.id} className="flex items-center justify-between rounded-xl px-3 py-2.5"
-                  style={{ background: '#FFFFFF', border: '1px solid rgba(139,92,246,0.10)' }}>
+                  style={{ background: 'hsl(var(--card))', border: '1px solid rgba(139,92,246,0.10)' }}>
                   <div>
                     <div className="text-foreground font-bold text-xs">
                       {h.gram_amount.toFixed(2)} gram → <span className="text-primary">{h.coins_amount.toLocaleString()} MNX</span>

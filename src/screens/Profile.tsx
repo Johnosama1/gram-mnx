@@ -80,7 +80,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
@@ -98,7 +98,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* From */}
-        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+        <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground font-bold uppercase">{t('swap_from')}</span>
             <span className="text-xs text-muted-foreground">{t('swap_balance')}: {fromBalance}</span>
@@ -126,7 +126,7 @@ function SwapPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* To */}
-        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+        <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('swap_to')}</div>
           <div className="flex items-center gap-3">
             <div className="flex-1 text-2xl font-black text-muted-foreground">
@@ -254,7 +254,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
     s === 'sent' ? 'text-emerald-600' : s === 'refunded' ? 'text-destructive' : 'text-amber-600';
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={step === 'send' && !result?.ok ? () => setStep('swap') : onClose}
@@ -269,9 +269,9 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
         {step === 'swap' ? (
           <>
             {/* Link status */}
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center justify-between">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-bold">حالة الربط ببوت gram</span>
-              <span className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">
+              <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-full px-2.5 py-1">
                 قريبًا
               </span>
             </div>
@@ -281,7 +281,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               <div className="text-xs text-muted-foreground mt-1">سعر مبدئي — هيتحدد بالظبط لما يتم الربط بين البوتين</div>
             </div>
 
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground font-bold uppercase">من</span>
                 <span className="text-xs text-muted-foreground">رصيدك: {coins.toLocaleString()} MNX</span>
@@ -307,7 +307,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               </div>
             </div>
 
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
               <div className="text-xs text-muted-foreground font-bold uppercase">إلى</div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 text-2xl font-black text-muted-foreground">
@@ -330,7 +330,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             </button>
 
             {/* How it works */}
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-3">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
               <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">خطوات الإرسال</div>
               {[
                 'حوّل MNX لعملة Coin بتاعة بوت gram',
@@ -347,7 +347,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             </div>
           </>
         ) : result?.ok ? (
-          <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-8 text-center space-y-3">
+          <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-8 text-center space-y-3">
             <div className="text-4xl">✅</div>
             <p className="font-bold text-foreground">{result.message}</p>
             <button onClick={onClose} className="w-full py-3 rounded-2xl bg-secondary text-foreground font-bold">
@@ -356,7 +356,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <>
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
               <span className="text-xs text-muted-foreground font-bold uppercase">ID المستخدم في البوت التاني</span>
               <input
                 type="text"
@@ -368,7 +368,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               />
             </div>
 
-            <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+            <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
               <span className="text-xs text-muted-foreground font-bold uppercase">عدد العملات (Coin)</span>
               <input
                 type="number"
@@ -601,7 +601,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
 
         {/* Wallet status */}
-        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-white border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)]'}`}>
+        <div className={`rounded-2xl p-4 border ${connected ? 'bg-green-500/10 border-green-500/30' : 'bg-card border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)]'}`}>
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('deposit_wallet')}</div>
           {connected ? (
             <div className="flex items-center gap-2">
@@ -627,7 +627,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
         )}
 
         {/* Amount input */}
-        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-2">
+        <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('deposit_amount_label')}</div>
           <div className="flex items-center gap-3">
             <input
@@ -710,7 +710,7 @@ function DepositPanel({ onClose, embedded }: { onClose: () => void; embedded?: b
   if (embedded) return body;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('deposit_title')}</h2>
@@ -796,7 +796,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
       <div className="flex-1 overflow-y-auto px-4 pt-6 pb-24 space-y-4">
 
         {/* Wallet address */}
-        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4">
+        <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4">
           <div className="text-xs text-muted-foreground mb-1 font-bold">{t('withdraw_linked_wallet')}</div>
           {walletAddress ? (
             <div className="font-mono text-sm text-muted-foreground break-all">{toFriendlyAddress(walletAddress)}</div>
@@ -812,7 +812,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         </div>
 
         {/* Amount input */}
-        <div className="bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 space-y-3">
+        <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
           <div className="text-xs text-muted-foreground font-bold uppercase">{t('withdraw_amount_label')}</div>
           <div className="flex items-center gap-3">
             <input
@@ -882,7 +882,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   if (embedded) return body;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button onClick={onClose} className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold">‹</button>
         <h2 className="text-lg font-black text-foreground">{t('withdraw_title')}</h2>
@@ -930,7 +930,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
       <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
         <button
           onClick={back}
@@ -944,7 +944,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
           <>
             <button
               onClick={() => setView('pick')}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <StickerBadge size={30} src={supportBalloonSticker.url} />
@@ -959,7 +959,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             <button
               type="button"
               onClick={() => navigate({ to: '/faq' })}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <HelpCircle className="w-5 h-5" />
@@ -973,7 +973,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
 
             <button
               onClick={openSupportChat}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-success/15 flex items-center justify-center text-success">
                 <Headphones className="w-5 h-5" />
@@ -992,7 +992,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">{t('support_pick_type')}</p>
             <button
               onClick={() => { setKind('complaint'); setView('form'); }}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-destructive/15 flex items-center justify-center text-destructive">
                 <MessageSquare className="w-5 h-5" />
@@ -1002,7 +1002,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
             </button>
             <button
               onClick={() => { setKind('suggestion'); setView('form'); }}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center gap-4 text-right hover:bg-secondary transition-colors"
             >
               <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
                 <Lightbulb className="w-5 h-5" />
@@ -1024,7 +1024,7 @@ function SupportPanel({ onClose }: { onClose: () => void }) {
               maxLength={1000}
               rows={7}
               placeholder={t('support_placeholder')}
-              className="w-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] rounded-2xl p-4 text-primary text-sm outline-none focus:border-primary/50 resize-none select-text"
+              className="w-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 text-primary text-sm outline-none focus:border-primary/50 resize-none select-text"
             />
             <div className="text-[10px] text-muted-foreground text-left">{text.length}/1000</div>
             <button
@@ -1103,7 +1103,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-full flex flex-col relative w-full px-4 pt-6">
-      <div className="absolute inset-0 z-0" style={{ backgroundColor: '#FFFFFF' }} />
+      <div className="absolute inset-0 z-0" style={{ backgroundColor: 'hsl(var(--background))' }} />
 
       {/* ── User info ── */}
       <div className="relative z-10 flex flex-col items-center mt-2 mb-8">
@@ -1131,7 +1131,7 @@ export default function Profile() {
           ID: {tgUser?.id ?? '—'}
           {idCopied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}
         </button>
-        <div className="px-4 py-1.5 rounded-full bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
+        <div className="px-4 py-1.5 rounded-full bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] text-xs font-medium mt-4 flex flex-col items-center gap-0.5">
           {walletAddress ? (
             <>
               <span className="text-success font-semibold">{t('profile_connected')}</span>
@@ -1148,7 +1148,7 @@ export default function Profile() {
         {/* Wallet (connect + deposit/withdraw hub) */}
         <div
           onClick={() => (walletAddress ? setShowWalletHub(true) : setShowWallet(true))}
-          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+          className="bg-card/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={walletSticker.url} />
@@ -1167,7 +1167,7 @@ export default function Profile() {
         {sendCurrenciesVisible && (
           <div
             onClick={() => setShowSendCurrencies(true)}
-            className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+            className="bg-card/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
           >
             <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
               <Send className="w-6 h-6" />
@@ -1183,7 +1183,7 @@ export default function Profile() {
         {/* Swap */}
         <div
           onClick={() => setShowSwap(true)}
-          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+          className="bg-card/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={30} src={swapSticker.url} />
@@ -1198,7 +1198,7 @@ export default function Profile() {
         {/* Settings */}
         <div
           onClick={() => setShowSettings(true)}
-          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+          className="bg-card/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={gearSticker.url} />
@@ -1213,7 +1213,7 @@ export default function Profile() {
         {/* Support */}
         <div
           onClick={() => setShowSupport(true)}
-          className="bg-white/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
+          className="bg-card/85 backdrop-blur-sm border border-violet-500/25 rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/90 transition-colors"
         >
           <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-primary">
             <StickerBadge size={32} src={supportBalloonSticker.url} />
@@ -1237,7 +1237,7 @@ export default function Profile() {
         />
       )}
       {showWalletHub && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowWalletHub(false)}
@@ -1247,7 +1247,7 @@ export default function Profile() {
           </div>
 
           <div className="px-4 py-4">
-            <div className="rounded-2xl bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] p-3 flex items-center justify-between">
+            <div className="rounded-2xl bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-bold uppercase">{t('profile_wallet_connection')}</span>
               <span className="font-mono text-[11px] text-foreground">{shortAddr ?? '—'}</span>
             </div>
@@ -1255,7 +1255,7 @@ export default function Profile() {
 
           {/* Tabs: Deposit / Withdraw */}
           <div className="px-4">
-            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-white border border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)]">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)]">
               {(['deposit', 'withdraw'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -1287,7 +1287,7 @@ export default function Profile() {
 
       {/* ── Settings Panel ── */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg,#FFFFFF 0%,#F7F4FF 100%)' }}>
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'linear-gradient(180deg, hsl(240 8% 5%) 0%, hsl(258 25% 8%) 100%)' }}>
           <div className="flex items-center gap-3 px-4 pt-8 pb-4 border-b border-violet-500/20">
             <button
               onClick={() => setShowSettings(false)}
@@ -1307,7 +1307,7 @@ export default function Profile() {
                   className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-colors ${
                     lang === l.value
                       ? 'bg-primary/15 border-primary/50 text-white'
-                      : 'bg-white border-violet-500/15 shadow-[0_4px_18px_rgba(124,58,237,0.07)] text-muted-foreground hover:bg-violet-500/15'
+                      : 'bg-card border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] text-muted-foreground hover:bg-violet-500/15'
                   }`}
                 >
                   {l.value === 'en' ? (
