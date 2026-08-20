@@ -362,15 +362,3 @@ body {
   100% { transform: perspective(900px) rotateX(6deg) rotateY(360deg) rotateZ(0deg) scale(1); }
 }
 
-@keyframes claim-glow-pulse {
-  0%, 100% { box-shadow: 0 0 40px rgba(245,179,66,0.45), 0 10px 24px rgba(0,0,0,0.4); }
-  50%      { box-shadow: 0 0 58px rgba(245,179,66,0.7), 0 10px 24px rgba(0,0,0,0.4); }
-}
-.claim-glow-pulse { animation: claim-glow-pulse 2.4s ease-in-out infinite; }
-
-@keyframes balance-shimmer {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.75; }
-}
-.balance-shimmer { animation: balance-shimmer 3s ease-in-out infinite; }
-
