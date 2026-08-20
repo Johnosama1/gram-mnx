@@ -50,9 +50,17 @@ export async function settleDueTournaments(): Promise<number> {
       prizes = [];
     }
 
+    // This whole function runs inline inside a public, frequently-polled
+    // endpoint (/api/leaderboard) the instant a tournament crosses its end
+    // time — whichever request wins the atomic claim above pays this cost.
+    // With up to ~20 winners, paying each out and notifying them one at a
+    // time (sequential awaits) could hold that one request open for many
+    // seconds; each winner's payout/notify pair is independent of every
+    // other's (different rows, different chat), so they run concurrently.
     const winners: Array<Record<string, unknown>> = [];
     const adminLines: string[] = [];
     let rank = 0;
+    const payoutTasks: Array<Promise<unknown>> = [];
     for (const u of (rows ?? []) as Array<Record<string, any>>) {
       rank += 1;
       const prize = prizes.find((p) => Number(p.rank) === rank);
@@ -67,21 +75,27 @@ export async function settleDueTournaments(): Promise<number> {
       );
       if (amount <= 0) continue;
 
+      const telegramId = Number(u.telegram_id);
       const current = Number(u[column] ?? 0);
-      await db
-        .from('gm_users')
-        .update({ [column]: current + amount })
-        .eq('telegram_id', u.telegram_id);
-      await notifyUser(
-        Number(u.telegram_id),
-        [
-          `🏆 <b>${t.title}</b> has ended!`,
-          '',
-          `You finished at rank #${rank}.`,
-          `🎁 Prize: <b>${amount} ${isCoin ? 'coin' : 'GRAM'}</b> added to your balance.`,
-        ].join('\n'),
-      ).catch(() => undefined);
+      payoutTasks.push(
+        db
+          .from('gm_users')
+          .update({ [column]: current + amount })
+          .eq('telegram_id', telegramId)
+          .then(() =>
+            notifyUser(
+              telegramId,
+              [
+                `🏆 <b>${t.title}</b> has ended!`,
+                '',
+                `You finished at rank #${rank}.`,
+                `🎁 Prize: <b>${amount} ${isCoin ? 'coin' : 'GRAM'}</b> added to your balance.`,
+              ].join('\n'),
+            ).catch(() => undefined),
+          ),
+      );
     }
+    await Promise.all(payoutTasks);
 
     // Admin summary — full ranking with the prize each winner received.
     try {
@@ -92,9 +106,7 @@ export async function settleDueTournaments(): Promise<number> {
         '',
         ...(adminLines.length ? adminLines : ['No winners']),
       ].join('\n');
-      for (const id of adminIds) {
-        await notifyUser(id, text).catch(() => undefined);
-      }
+      await Promise.all(adminIds.map((id) => notifyUser(id, text).catch(() => undefined)));
     } catch { /* best-effort */ }
 
     await db

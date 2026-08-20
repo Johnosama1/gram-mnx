@@ -9,6 +9,16 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
 }
 
+/**
+ * Every Supabase call goes through this fetch, so a hard timeout here bounds
+ * every DB round-trip in the app. Without it, a slow/unresponsive database —
+ * exactly the failure mode a burst of concurrent users can trigger (pool
+ * exhaustion, lock contention) — leaves the request hanging indefinitely
+ * instead of failing fast, which under load ties up worker capacity and
+ * cascades into the whole app looking frozen rather than one slow request.
+ */
+const SUPABASE_FETCH_TIMEOUT_MS = 10_000;
+
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
   return (input, init) => {
     const headers = new Headers(
@@ -25,7 +35,10 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
     }
 
     headers.set('apikey', supabaseKey);
-    return fetch(input, { ...init, headers });
+    // Respect a caller-provided signal if there is one; otherwise bound the
+    // request ourselves so it can never hang past SUPABASE_FETCH_TIMEOUT_MS.
+    const signal = init?.signal ?? AbortSignal.timeout(SUPABASE_FETCH_TIMEOUT_MS);
+    return fetch(input, { ...init, headers, signal });
   };
 }
 

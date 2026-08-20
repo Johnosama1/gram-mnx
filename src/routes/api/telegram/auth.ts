@@ -82,7 +82,19 @@ export const Route = createFileRoute('/api/telegram/auth')({
           console.error('referral from initData failed:', err);
         }
 
-        const isAdmin = (await getAllAdminIds()).includes(user.id);
+        // This endpoint fires on every app open for every user, so the four
+        // independent lookups below (none depends on another's result) are
+        // batched into one round trip each instead of four sequential ones —
+        // that's the difference between one and four DB round-trip latencies
+        // stacked on every single request across a burst of concurrent users.
+        const [adminIds, maintenanceMode, maintenanceMessageSetting, sendCurrenciesVisibleSetting] =
+          await Promise.all([
+            getAllAdminIds(),
+            getSetting('maintenance_mode'),
+            getSetting('maintenance_message'),
+            getSetting('send_currencies_visible'),
+          ]);
+        const isAdmin = adminIds.includes(user.id);
         const response = json({
           user: {
             id: user.id,
@@ -93,14 +105,12 @@ export const Route = createFileRoute('/api/telegram/auth')({
           },
           isAdmin,
           // Maintenance is controlled from the admin panel; admins bypass it.
-          maintenance: !isAdmin && (await getSetting('maintenance_mode')) === 'true',
+          maintenance: !isAdmin && maintenanceMode === 'true',
           maintenanceMessage:
-            (await getSetting('maintenance_message')) ||
-            '🔧 The app is under maintenance, please try again later.',
+            maintenanceMessageSetting || '🔧 The app is under maintenance, please try again later.',
           // "Sending currencies" on Profile can be hidden from regular users
           // from the admin panel; admins always see it regardless.
-          sendCurrenciesVisible:
-            isAdmin || (await getSetting('send_currencies_visible')) !== 'false',
+          sendCurrenciesVisible: isAdmin || sendCurrenciesVisibleSetting !== 'false',
 
           notJoinedChannels: [],
         });
