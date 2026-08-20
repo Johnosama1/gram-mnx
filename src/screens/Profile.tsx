@@ -197,6 +197,7 @@ type SendHistoryItem = {
 };
 
 function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage();
   const { coins, refreshBalance } = useCoins();
   const [step, setStep] = useState<'swap' | 'send'>('swap');
   const [swapAmount, setSwapAmount] = useState('');
@@ -237,11 +238,11 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
         '/telegram/wallet/send',
         { recipientId: recipientId.trim(), amount: sendNum },
       );
-      setResult({ ok: true, message: data.message ?? 'تم الإرسال بنجاح ✅' });
+      setResult({ ok: true, message: data.message ?? t('send_currencies_success_default') });
       if (typeof data.newBalance === 'number') refreshBalance().catch(() => undefined);
       loadHistory();
     } catch (e) {
-      setResult({ ok: false, message: (e as Error).message || 'تعذر الإرسال، حاول مرة أخرى' });
+      setResult({ ok: false, message: (e as Error).message || t('send_currencies_failed_default') });
       refreshBalance().catch(() => undefined);
     } finally {
       setSending(false);
@@ -249,7 +250,11 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
   };
 
   const statusLabel = (s: SendHistoryItem['status']) =>
-    s === 'sent' ? 'اتبعتت ✅' : s === 'refunded' ? 'فشلت — تم الاسترجاع' : 'قيد التنفيذ…';
+    s === 'sent'
+      ? t('send_currencies_status_sent')
+      : s === 'refunded'
+        ? t('send_currencies_status_refunded')
+        : t('send_currencies_status_pending');
   const statusColor = (s: SendHistoryItem['status']) =>
     s === 'sent' ? 'text-emerald-600' : s === 'refunded' ? 'text-destructive' : 'text-amber-600';
 
@@ -261,7 +266,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
           className="w-9 h-9 rounded-xl bg-violet-500/20 flex items-center justify-center text-primary hover:bg-violet-500/30 transition-colors text-lg font-bold"
         >‹</button>
         <h2 className="text-lg font-black text-foreground">
-          {step === 'swap' ? 'Swap' : 'إرسال العملات'}
+          {step === 'swap' ? 'Swap' : t('send_currencies_title')}
         </h2>
       </div>
 
@@ -270,21 +275,23 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
           <>
             {/* Link status */}
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-bold">حالة الربط ببوت gram</span>
+              <span className="text-xs text-muted-foreground font-bold">{t('send_currencies_link_status_label')}</span>
               <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-full px-2.5 py-1">
-                قريبًا
+                {t('send_currencies_soon')}
               </span>
             </div>
 
             <div className="bg-primary/10 border border-primary/30 rounded-2xl p-4 text-center">
               <div className="text-primary font-black text-lg">1 MNX = 1 Coin</div>
-              <div className="text-xs text-muted-foreground mt-1">سعر مبدئي — هيتحدد بالظبط لما يتم الربط بين البوتين</div>
+              <div className="text-xs text-muted-foreground mt-1">{t('send_currencies_rate_note')}</div>
             </div>
 
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground font-bold uppercase">من</span>
-                <span className="text-xs text-muted-foreground">رصيدك: {coins.toLocaleString()} MNX</span>
+                <span className="text-xs text-muted-foreground font-bold uppercase">{t('send_currencies_from')}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t('send_currencies_your_balance', { balance: coins.toLocaleString() })}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <input
@@ -308,7 +315,7 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             </div>
 
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
-              <div className="text-xs text-muted-foreground font-bold uppercase">إلى</div>
+              <div className="text-xs text-muted-foreground font-bold uppercase">{t('send_currencies_to')}</div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 text-2xl font-black text-muted-foreground">
                   {swapNum > 0 ? coinPreview.toLocaleString() : '0'}
@@ -319,23 +326,25 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               </div>
             </div>
 
-            {swapNum > coins && <p className="text-xs text-destructive text-center">رصيدك مش كافي</p>}
+            {swapNum > coins && (
+              <p className="text-xs text-destructive text-center">{t('send_currencies_insufficient')}</p>
+            )}
 
             <button
               onClick={proceedToSend}
               disabled={!canSwap}
               className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
             >
-              🔄 تحويل ومتابعة
+              {t('send_currencies_convert_continue')}
             </button>
 
             {/* How it works */}
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
-              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">خطوات الإرسال</div>
+              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('send_currencies_how_it_works')}</div>
               {[
-                'حوّل MNX لعملة Coin بتاعة بوت gram',
-                'اكتب الـ ID بتاع المستلم في بوت gram',
-                'اكتب عدد العملات واضغط إرسال',
+                t('send_currencies_step1'),
+                t('send_currencies_step2'),
+                t('send_currencies_step3'),
               ].map((line, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/15 text-primary font-black text-xs flex items-center justify-center shrink-0">
@@ -351,25 +360,25 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
             <div className="text-4xl">✅</div>
             <p className="font-bold text-foreground">{result.message}</p>
             <button onClick={onClose} className="w-full py-3 rounded-2xl bg-secondary text-foreground font-bold">
-              تمام
+              {t('send_currencies_ok')}
             </button>
           </div>
         ) : (
           <>
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
-              <span className="text-xs text-muted-foreground font-bold uppercase">ID المستخدم في البوت التاني</span>
+              <span className="text-xs text-muted-foreground font-bold uppercase">{t('send_currencies_recipient_id_label')}</span>
               <input
                 type="text"
                 value={recipientId}
                 onChange={(e) => setRecipientId(e.target.value)}
-                placeholder="مثال: 123456789"
+                placeholder={t('send_currencies_id_placeholder')}
                 className="w-full bg-transparent text-lg font-bold text-foreground outline-none"
                 dir="ltr"
               />
             </div>
 
             <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-2">
-              <span className="text-xs text-muted-foreground font-bold uppercase">عدد العملات (Coin)</span>
+              <span className="text-xs text-muted-foreground font-bold uppercase">{t('send_currencies_coin_amount_label')}</span>
               <input
                 type="number"
                 value={sendAmount}
@@ -391,15 +400,15 @@ function SendCurrenciesPanel({ onClose }: { onClose: () => void }) {
               className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              إرسال
+              {t('send_currencies_send_btn')}
             </button>
 
             {/* Sending history */}
             <div className="space-y-2 pb-4">
-              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">سجل الإرسال</div>
+              <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">{t('send_currencies_history_title')}</div>
               {history.length === 0 ? (
                 <div className="bg-secondary border border-violet-500/15 rounded-xl p-6 text-center">
-                  <p className="text-muted-foreground text-sm">لا توجد عمليات إرسال بعد</p>
+                  <p className="text-muted-foreground text-sm">{t('send_currencies_no_history')}</p>
                 </div>
               ) : (
                 history.map((h) => (
@@ -1173,8 +1182,8 @@ export default function Profile() {
               <Send className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <div className="font-bold text-foreground mb-0.5">Sending currencies</div>
-              <div className="text-xs text-muted-foreground">حوّل MNX وابعتها لمستخدم في بوت تاني</div>
+              <div className="font-bold text-foreground mb-0.5">{t('send_currencies_title')}</div>
+              <div className="text-xs text-muted-foreground">{t('send_currencies_desc')}</div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>

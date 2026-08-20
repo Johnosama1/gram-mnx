@@ -186,16 +186,12 @@ function MaintenanceScreen({ message }: { message: string }) {
 
 /** Shown when the account has been banned by an administrator. */
 function BannedScreen() {
+  const { t } = useLanguage();
   return (
     <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 px-8 text-center">
       <div className="text-5xl">🚫</div>
       <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
-      <p className="text-sm text-destructive font-bold">
-        تم حظر حسابك من قبل الإدارة.
-      </p>
-      <p className="text-xs text-muted-foreground">
-        Your account has been banned by the administrators.
-      </p>
+      <p className="text-sm text-destructive font-bold">{t('banned_screen_message')}</p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Tick
 import { API_BASE, getInitData } from '@/lib/telegramApi';
 import { showMonetagAd } from '@/lib/monetag';
 import StickerBadge from '@/components/StickerBadge';
+import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 
 const BOT_USERNAME = 'GRAMMNX1_bot';
@@ -37,20 +38,18 @@ type GiftItem = {
   settledAt: string | null;
 };
 
-const ENTRY_MODE_HINT: Record<GiftEntryMode, string | null> = {
-  referral: null,
-  tasks: '🧩 لازم تكمل مهمة أو كومبو اليوم عشان تشترك — وكل صديق تدعوه لازم يعمل نفس الشي عشان فرصتك تزيد',
-  ads: null,
-};
+function entryModeHint(mode: GiftEntryMode, t: (key: string) => string): string | null {
+  return mode === 'tasks' ? t('gift_entry_hint_tasks') : null;
+}
 
-async function postAdsWatch(): Promise<{ justUnlockedChance: boolean }> {
+async function postAdsWatch(t: (key: string) => string): Promise<{ justUnlockedChance: boolean }> {
   const res = await fetch(`${API_BASE}/api/gift/ads-watch`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ initData: getInitData() }),
   });
   const data = (await res.json().catch(() => ({}))) as { error?: string; justUnlockedChance?: boolean };
-  if (!res.ok) throw new Error(data.error || 'تعذر تسجيل مشاهدة الإعلان، حاول مرة أخرى');
+  if (!res.ok) throw new Error(data.error || t('gift_ad_watch_failed'));
   return { justUnlockedChance: Boolean(data.justUnlockedChance) };
 }
 
@@ -73,32 +72,34 @@ function useCountdown(endsAt: string | null): number {
   return endsAt ? Math.max(0, Date.parse(endsAt) - now) : Infinity;
 }
 
-function formatCountdown(ms: number): string {
+function formatCountdown(ms: number, daySuffix: string): string {
   const total = Math.floor(ms / 1000);
   const days = Math.floor(total / 86400);
   const h = String(Math.floor((total % 86400) / 3600)).padStart(2, '0');
   const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
   const s = String(total % 60).padStart(2, '0');
-  return days > 0 ? `${days}ي ${h}:${m}:${s}` : `${h}:${m}:${s}`;
+  return days > 0 ? `${days}${daySuffix} ${h}:${m}:${s}` : `${h}:${m}:${s}`;
 }
 
 /** Small ticking countdown shown on a contest card. */
 function GiftCountdown({ endsAt }: { endsAt: string | null }) {
+  const { t } = useLanguage();
   const ms = useCountdown(endsAt);
-  if (!endsAt) return <>بدون وقت محدد</>;
-  if (ms <= 0) return <>انتهت المسابقة</>;
-  return <span className="font-mono tabular-nums" dir="ltr">{formatCountdown(ms)}</span>;
+  if (!endsAt) return <>{t('gift_no_deadline')}</>;
+  if (ms <= 0) return <>{t('gift_ended')}</>;
+  return <span className="font-mono tabular-nums" dir="ltr">{formatCountdown(ms, t('gift_day_short'))}</span>;
 }
 
 /** Highlighted banner shown once a contest has been settled and has winners. */
 function GiftWinnerBanner({ gift }: { gift: GiftItem }) {
+  const { t } = useLanguage();
   if (!gift.winners || gift.winners.length === 0) return null;
   return (
     <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] font-bold text-amber-400 space-y-0.5">
       {gift.winners.map((w) => (
         <div key={w.id} className="flex items-center gap-1.5">
-          🏆 {gift.winners.length > 1 ? '' : 'الفائز: '}{w.name ?? `#${w.id}`}
-          {w.chances ? ` (×${w.chances} فرصة)` : ''}
+          🏆 {gift.winners.length > 1 ? '' : t('gift_winner_label')}{w.name ?? `#${w.id}`}
+          {w.chances ? ` (×${w.chances}${t('gift_chances_suffix')})` : ''}
         </div>
       ))}
     </div>
@@ -176,6 +177,7 @@ function getStartRef(): number | null {
 
 
 export default function GiftScreen() {
+  const { t } = useLanguage();
   const [state, setState] = useState<GiftStatus | null>(null);
   const [busy, setBusy] = useState<number | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
@@ -206,14 +208,10 @@ export default function GiftScreen() {
         body: JSON.stringify({ initData: getInitData(), giftId: gift.id, ref: getStartRef() }),
       });
       const data = (await res.json()) as GiftStatus & { error?: string };
-      if (!res.ok) throw new Error(data.error || 'فشل الاشتراك');
+      if (!res.ok) throw new Error(data.error || t('gift_join_failed'));
       setState(data);
       setActive(gift.id);
-      toast.success(
-        gift.entryMode === 'ads'
-          ? 'تم اشتراكك 🎉 شاهد إعلانات لزيادة فرصتك'
-          : 'تم اشتراكك 🎉 ادعُ أصدقاءك لمضاعفة فرصتك في الفوز',
-      );
+      toast.success(gift.entryMode === 'ads' ? t('gift_joined_ads') : t('gift_joined_referral'));
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -227,11 +225,11 @@ export default function GiftScreen() {
     setAdWatching(true);
     try {
       await showMonetagAd();
-      const { justUnlockedChance } = await postAdsWatch();
-      toast.success(justUnlockedChance ? '🎟️ +1 فرصة إضافية!' : '✅ تم تسجيل المشاهدة');
+      const { justUnlockedChance } = await postAdsWatch(t);
+      toast.success(justUnlockedChance ? t('gift_extra_chance') : t('gift_view_recorded'));
       await load();
     } catch (e) {
-      toast.error((e as Error).message || 'تعذر عرض الإعلان، حاول مرة أخرى');
+      toast.error((e as Error).message || t('gift_ad_show_failed'));
     } finally {
       setAdWatching(false);
     }
@@ -249,7 +247,7 @@ export default function GiftScreen() {
       /* clipboard may be blocked inside Telegram */
     }
     setCopied(giftId);
-    toast.success('تم نسخ رابطك الخاص');
+    toast.success(t('gift_link_copied'));
     setTimeout(() => setCopied(null), 2000);
   };
 
@@ -263,7 +261,7 @@ export default function GiftScreen() {
           onClick={() => setActive(null)}
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground"
         >
-          <ArrowRight className="w-4 h-4" /> رجوع
+          <ArrowRight className="w-4 h-4" /> {t('gift_back')}
         </button>
 
         <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-5 text-center">
@@ -287,31 +285,30 @@ export default function GiftScreen() {
           <>
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
-                <p className="text-[10px] text-violet-600/70">الإعلانات اللي شاهدتها</p>
+                <p className="text-[10px] text-violet-600/70">{t('gift_ads_watched_label')}</p>
                 <p className="text-lg font-extrabold text-muted-foreground">{activeGift.adsWatched}</p>
               </div>
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
-                <p className="text-[10px] text-violet-600/70">للفرصة الجاية</p>
+                <p className="text-[10px] text-violet-600/70">{t('gift_next_chance_label')}</p>
                 <p className="text-lg font-extrabold text-muted-foreground">
                   {activeGift.adsWatched % AD_CHANCE_STEP}/{AD_CHANCE_STEP}
                 </p>
               </div>
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
-                <p className="text-[10px] text-violet-600/70">اليوم</p>
+                <p className="text-[10px] text-violet-600/70">{t('gift_today_label')}</p>
                 <p className="text-lg font-extrabold text-muted-foreground">
                   {activeGift.adsToday}/{activeGift.adsDailyLimit}
                 </p>
               </div>
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-2.5 text-center">
-                <p className="text-[10px] text-violet-600/70">فرصك في الفوز</p>
+                <p className="text-[10px] text-violet-600/70">{t('gift_chances_label')}</p>
                 <p className="text-lg font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
             </div>
 
             <div className="mt-4 rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
               <p className="text-xs text-violet-600/80 mb-3">
-                شاهد إعلان لزيادة فرصتك — كل 10 إعلانات = فرصة إضافية (بحد أقصى{' '}
-                {activeGift.adsDailyLimit} إعلانات كل 24 ساعة)
+                {t('gift_watch_hint', { limit: String(activeGift.adsDailyLimit) })}
               </p>
               <button
                 disabled={adWatching || activeGift.adsToday >= activeGift.adsDailyLimit}
@@ -320,8 +317,8 @@ export default function GiftScreen() {
               >
                 {adWatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
                 {activeGift.adsToday >= activeGift.adsDailyLimit
-                  ? 'وصلت للحد اليومي — تعالى بكرة'
-                  : 'مشاهدة إعلان'}
+                  ? t('gift_daily_limit_reached')
+                  : t('gift_watch_ad')}
               </button>
             </div>
           </>
@@ -329,18 +326,18 @@ export default function GiftScreen() {
           <>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-3 text-center">
-                <p className="text-[11px] text-violet-600/70">إحالاتك</p>
+                <p className="text-[11px] text-violet-600/70">{t('gift_invited_label')}</p>
                 <p className="text-xl font-extrabold text-muted-foreground">{activeGift.invitedCount}</p>
               </div>
               <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-3 text-center">
-                <p className="text-[11px] text-violet-600/70">فرصك في الفوز</p>
+                <p className="text-[11px] text-violet-600/70">{t('gift_chances_label')}</p>
                 <p className="text-xl font-extrabold text-muted-foreground">×{activeGift.chances}</p>
               </div>
             </div>
 
             <div className="mt-4 rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
               <p className="text-xs text-violet-600/80 mb-2">
-                رابط الإحالة الخاص بك — كل صديق ينضم يزوّد فرصتك
+                {t('gift_invite_hint')}
               </p>
               <p
                 dir="ltr"
@@ -353,7 +350,7 @@ export default function GiftScreen() {
                 className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm flex items-center justify-center gap-2"
               >
                 {copied === activeGift.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                نسخ رابط الدعوة
+                {t('gift_copy_invite')}
               </button>
             </div>
           </>
@@ -367,7 +364,7 @@ export default function GiftScreen() {
     <div className="h-full overflow-y-auto px-4 pt-5 pb-28">
       <header className="flex items-center gap-2 mb-5">
         <GiftIcon className="w-6 h-6 text-muted-foreground" />
-        <h1 className="text-xl font-extrabold text-muted-foreground">Gifts</h1>
+        <h1 className="text-xl font-extrabold text-muted-foreground">{t('gift_header_title')}</h1>
       </header>
 
       {!state && (
@@ -379,19 +376,19 @@ export default function GiftScreen() {
       {state && !state.enabled && (
         <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-8 text-center">
           <Lock className="w-10 h-10 mx-auto text-violet-600/60 mb-3" />
-          <p className="text-muted-foreground font-bold">{state.message || 'قريباً'}</p>
+          <p className="text-muted-foreground font-bold">{state.message || t('gift_coming_soon')}</p>
         </div>
       )}
 
       {state?.adminPreview && (
         <div className="mb-4 rounded-xl border border-[#8b5cf6]/40 bg-[#8b5cf6]/10 px-3 py-2 text-xs text-muted-foreground">
-          القسم مقفول للمستخدمين — أنت تشاهده كأدمن فقط
+          {t('gift_admin_preview')}
         </div>
       )}
 
       {state?.enabled && state.gifts.length === 0 && (
         <div className="rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-8 text-center text-violet-600/70 text-sm">
-          لا توجد مسابقات متاحة حالياً
+          {t('gift_no_contests')}
         </div>
       )}
 
@@ -415,7 +412,7 @@ export default function GiftScreen() {
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-muted-foreground mt-1 underline"
                       >
-                        فتح <ExternalLink className="w-3 h-3" />
+                        {t('gift_open_link')} <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
                   </div>
@@ -425,18 +422,18 @@ export default function GiftScreen() {
                   <div className="flex items-center justify-between text-[11px] text-violet-600/70 mb-1">
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" /> {g.participants}
-                      {g.capacity > 0 ? ` / ${g.capacity}` : ' مشترك'}
+                      {g.capacity > 0 ? ` / ${g.capacity}` : t('gift_participant_suffix')}
                     </span>
-                    {g.capacity === 0 && <span>مسابقة مفتوحة — بدون حد</span>}
+                    {g.capacity === 0 && <span>{t('gift_open_unlimited')}</span>}
                   </div>
                   {g.winners.length > 0 ? (
                     <div className="mb-1"><GiftWinnerBanner gift={g} /></div>
                   ) : (
                     <p className="text-[11px] text-violet-600/70 mb-1">⏱ <GiftCountdown endsAt={g.endsAt} /></p>
                   )}
-                  {!g.joined && ENTRY_MODE_HINT[g.entryMode] && (
+                  {!g.joined && entryModeHint(g.entryMode, t) && (
                     <p className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-1">
-                      {ENTRY_MODE_HINT[g.entryMode]}
+                      {entryModeHint(g.entryMode, t)}
                     </p>
                   )}
                   {g.capacity > 0 && (
@@ -454,7 +451,7 @@ export default function GiftScreen() {
                     onClick={() => setActive(g.id)}
                     className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm flex items-center justify-center gap-2"
                   >
-                    <Ticket className="w-4 h-4" /> فتح صفحة المسابقة
+                    <Ticket className="w-4 h-4" /> {t('gift_open_page')}
                   </button>
                 ) : (
                   <button
@@ -463,7 +460,7 @@ export default function GiftScreen() {
                     className="mt-3 w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {busy === g.id && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {g.expired ? 'انتهت المسابقة' : g.full ? 'اكتمل العدد' : 'اشترك في المسابقة'}
+                    {g.expired ? t('gift_ended') : g.full ? t('gift_full') : t('gift_join')}
                   </button>
                 )}
               </div>

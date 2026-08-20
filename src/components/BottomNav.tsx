@@ -11,7 +11,7 @@ export default function BottomNav({ showAdmin = false }: { showAdmin?: boolean }
 
   const navItems = [
     { path: '/',        label: t('nav_mine'),    icon: Pickaxe       },
-    { path: '/gift',    label: 'Gift',           icon: Gift          },
+    { path: '/gift',    label: t('nav_gift'),    icon: Gift          },
     { path: '/tasks',   label: t('nav_tasks'),   icon: ClipboardList },
     { path: '/combo',   label: t('nav_combo'),   icon: Puzzle        },
     { path: '/friends', label: t('nav_friends'), icon: Users         },
