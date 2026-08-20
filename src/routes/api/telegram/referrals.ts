@@ -57,18 +57,19 @@ export const Route = createFileRoute('/api/telegram/referrals')({
         const count = confirmedRows.length;
         const pending = fresh.length - count;
 
-        // Milestones + credits
-        const { data: msRows } = await db
-          .from('gm_referral_milestones')
-          .select('id, invite_count, reward_coins, is_enabled')
-          .eq('is_enabled', true)
-          .order('invite_count', { ascending: true });
+        // Milestones + credits — independent reads, fetched together.
+        const [{ data: msRows }, { data: creditRows }] = await Promise.all([
+          db
+            .from('gm_referral_milestones')
+            .select('id, invite_count, reward_coins, is_enabled')
+            .eq('is_enabled', true)
+            .order('invite_count', { ascending: true }),
+          db
+            .from('gm_referral_milestone_credits')
+            .select('milestone_id')
+            .eq('telegram_id', user.id),
+        ]);
         const msList = (msRows ?? []) as MilestoneRow[];
-
-        const { data: creditRows } = await db
-          .from('gm_referral_milestone_credits')
-          .select('milestone_id')
-          .eq('telegram_id', user.id);
         const credited = new Set(
           ((creditRows ?? []) as Array<{ milestone_id: number }>).map((c) => c.milestone_id),
         );
@@ -120,8 +121,19 @@ export const Route = createFileRoute('/api/telegram/referrals')({
         const next = milestones.find((m) => !m.reached);
         const progress = next ? Math.min(100, Math.round((count / next.inviteCount) * 100)) : 100;
 
-        // Invited friends: names + usernames for the friends list UI
+        // Invited friends (names/usernames) and deposit commission both only
+        // need invitedIds and don't depend on each other — fetched together.
         const confirmedIds = new Set(confirmedRows.map((r) => Number(r.referred_id)));
+        const [fRowsRes, depositCommission] = await Promise.all([
+          invitedIds.length
+            ? db
+                .from('gm_users')
+                .select('telegram_id, first_name, last_name, username')
+                .in('telegram_id', invitedIds)
+            : Promise.resolve({ data: [] }),
+          // Coins earned = referral rewards + 10% commission on friends' deposits.
+          getDepositCommission(invitedIds),
+        ]);
         let friends: Array<{
           id: number;
           name: string;
@@ -132,12 +144,8 @@ export const Route = createFileRoute('/api/telegram/referrals')({
           tasks: number;
         }> = [];
         if (invitedIds.length) {
-          const { data: fRows } = await db
-            .from('gm_users')
-            .select('telegram_id, first_name, last_name, username')
-            .in('telegram_id', invitedIds);
           const byId = new Map(
-            ((fRows ?? []) as Array<Record<string, any>>).map((u) => [Number(u.telegram_id), u]),
+            ((fRowsRes.data ?? []) as Array<Record<string, any>>).map((u) => [Number(u.telegram_id), u]),
           );
           friends = invitedIds.map((fid) => {
             const u = byId.get(fid);
@@ -154,9 +162,6 @@ export const Route = createFileRoute('/api/telegram/referrals')({
             };
           });
         }
-
-        // Coins earned = referral rewards + 10% commission on friends' deposits.
-        const depositCommission = await getDepositCommission(invitedIds);
 
         // Aggregate condition stats across the invited friends (X out of N).
         const totalInvited = invitedIds.length;

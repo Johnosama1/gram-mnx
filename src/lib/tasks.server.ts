@@ -510,10 +510,15 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
 
   // ── Ads ────────────────────────────────────────────────────────────────────
   if (sub === 'ads-status' && method === 'GET') {
-    const rewardCoins = Number((await getSetting('ad_reward_coins')) ?? 0.5) || 0.5;
-    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 10) || 10;
-    const enabled = (await getSetting('ads_task_enabled')) !== 'false';
-    const quota = await getAdQuota(db, auth.id);
+    const [rewardSetting, limitSetting, enabledSetting, quota] = await Promise.all([
+      getSetting('ad_reward_coins'),
+      getSetting('ad_daily_limit'),
+      getSetting('ads_task_enabled'),
+      getAdQuota(db, auth.id),
+    ]);
+    const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
+    const dailyLimit = Number(limitSetting ?? 10) || 10;
+    const enabled = enabledSetting !== 'false';
     return json({
       enabled,
       watchedToday: quota.watched,
@@ -529,9 +534,14 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     // The request body was already read above, so reuse it here; reading the
     // stream a second time returns an empty object and incorrectly credits 0.
     const credit = body.credit === true;
-    const rewardCoins = Number((await getSetting('ad_reward_coins')) ?? 0.5) || 0.5;
-    const dailyLimit = Number((await getSetting('ad_daily_limit')) ?? 10) || 10;
-    const watchedToday = (await getAdQuota(db, auth.id)).watched;
+    const [rewardSetting, limitSetting, quota] = await Promise.all([
+      getSetting('ad_reward_coins'),
+      getSetting('ad_daily_limit'),
+      getAdQuota(db, auth.id),
+    ]);
+    const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
+    const dailyLimit = Number(limitSetting ?? 10) || 10;
+    const watchedToday = quota.watched;
     if (watchedToday >= dailyLimit)
       return json({ ok: false, message: 'daily limit reached' }, 400);
 
