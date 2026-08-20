@@ -235,7 +235,7 @@
   "admin_sending_progress": "تم إرسال {n} من {total}",
   "admin_maintenance_mode": "البوت شغال (اقفله = وضع الصيانة)",
   "admin_maintenance_placeholder": "رسالة الصيانة...",
-  "admin_maintenance_default": "🔧 البوت تحت الصيانة، حاول مرة أخرى لاحقاً.",
+  "admin_maintenance_default": "<tg-emoji emoji-id=\"5462921117423384478\">🛠</tg-emoji> البوت تحت الصيانة، حاول مرة أخرى لاحقاً.",
   "admin_welcome_placeholder": "رسالة الترحيب...",
   "admin_welcome_hint_pre": "(تظهر قبل الزر)",
   "admin_welcome_hint_post": "(تظهر بعد الزر)",

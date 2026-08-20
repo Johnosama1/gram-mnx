@@ -3,6 +3,7 @@ import { Outlet, useRouter, useRouterState } from '@tanstack/react-router';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import BottomNav from './BottomNav';
 import ScreenErrorBoundary from './ScreenErrorBoundary';
+import PublicSticker from './PublicSticker';
 import { WalletProvider } from '@/context/WalletContext';
 import { prefetchApi } from '@/lib/apiCache';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
@@ -176,7 +177,7 @@ function MaintenanceScreen({ message }: { message: string }) {
       className="flex flex-col items-center justify-center h-full w-full px-8 gap-4 text-center"
       style={{ backgroundColor: 'hsl(var(--background))' }}
     >
-      <div className="text-5xl">🔧</div>
+      <PublicSticker src="/stickers/maintenance.json" size={140} />
       <h2 className="text-foreground font-black text-xl">GRAM MNX</h2>
       <p className="text-muted-foreground text-sm whitespace-pre-line">{message}</p>
     </div>

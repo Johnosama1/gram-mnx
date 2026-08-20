@@ -320,7 +320,7 @@ async function handleStart(chatId: number, from: TgUser, text: string, isNewUser
   if ((await getSetting('maintenance_mode')) === 'true' && !(await isAdmin(from.id))) {
     const msg =
       (await getSetting('maintenance_message')) ||
-      '🔧 The bot is under maintenance, please try again later.';
+      '<tg-emoji emoji-id="5462921117423384478">🛠</tg-emoji> The bot is under maintenance, please try again later.';
     await send(chatId, msg);
     return;
   }
