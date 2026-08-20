@@ -3243,7 +3243,7 @@ export default function Admin() {
       </div>
 
       {/* Stacked sections */}
-      <div className="relative z-10 flex-1 overflow-y-auto p-3">
+      <div className="relative z-10 flex-1 p-3 pb-24">
         <Section title={t('admin_sec_stats')} icon={BarChart3} defaultOpen>
           <StatsSection />
         </Section>
