@@ -19,6 +19,22 @@ function err(code: string, message: string, status: number): Response {
   return json({ ok: false, error: code, message }, status);
 }
 
+/**
+ * Best-effort real-time visibility for real (non-dry-run) credit attempts —
+ * there is no way to read Cloudflare/Supabase logs from outside the
+ * deployed app, so this is the only diagnostic signal available once a
+ * request leaves the "gram" bot's side. Never blocks or throws.
+ */
+async function notifyAdminsOfAttempt(text: string) {
+  try {
+    const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
+    const admins = await getAllAdminIds();
+    await Promise.all(admins.map((id) => notifyUser(id, text)));
+  } catch {
+    /* best-effort */
+  }
+}
+
 /** Digits-only Telegram id (as the spec requires), parsed to a safe integer. */
 function parseUserId(raw: unknown): number | null {
   if (typeof raw !== 'string' && typeof raw !== 'number') return null;
@@ -43,15 +59,30 @@ async function rateLimitByIp(request: Request, bucket: string): Promise<Response
 
 /** POST /api/public/wallet/credit — adds MNX to a GRAM MNX user's balance. */
 export async function handleWalletCredit(request: Request): Promise<Response> {
-  if (!checkApiKey(request)) return err('UNAUTHORIZED', 'Invalid or missing x-api-key', 401);
+  // Every outcome of a REAL (non-dry-run) attempt is relayed to admins over
+  // Telegram — the only diagnostic signal available once a request leaves
+  // the gram bot's side, since Worker/DB logs aren't reachable from here.
+  let dryRun = false;
+  const notify = (text: string) => {
+    if (!dryRun) void notifyAdminsOfAttempt(text);
+  };
+
+  if (!checkApiKey(request)) {
+    notify('⚠️ inbound wallet/credit: 401 UNAUTHORIZED (bad or missing x-api-key)');
+    return err('UNAUTHORIZED', 'Invalid or missing x-api-key', 401);
+  }
 
   const limited = await rateLimitByIp(request, 'inbound-credit');
   if (limited) return limited;
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  dryRun = body.dry_run === true;
 
   const telegramId = parseUserId(body.user_id);
-  if (telegramId === null) return err('INVALID_USER_ID', 'user_id must be a numeric Telegram id', 400);
+  if (telegramId === null) {
+    notify(`⚠️ inbound wallet/credit: 400 INVALID_USER_ID (got "${String(body.user_id)}")`);
+    return err('INVALID_USER_ID', 'user_id must be a numeric Telegram id', 400);
+  }
 
   const db = (await getDb()) as any;
   const { data: user } = await db
@@ -59,18 +90,29 @@ export async function handleWalletCredit(request: Request): Promise<Response> {
     .select('telegram_id,is_banned')
     .eq('telegram_id', telegramId)
     .maybeSingle();
-  if (!user) return err('USER_NOT_FOUND', 'No user with this id in GRAM MNX', 404);
-  if (user.is_banned) return err('USER_BANNED', 'User is banned', 403);
+  if (!user) {
+    notify(`⚠️ inbound wallet/credit: 404 USER_NOT_FOUND (user_id ${telegramId})`);
+    return err('USER_NOT_FOUND', 'No user with this id in GRAM MNX', 404);
+  }
+  if (user.is_banned) {
+    notify(`⚠️ inbound wallet/credit: 403 USER_BANNED (user_id ${telegramId})`);
+    return err('USER_BANNED', 'User is banned', 403);
+  }
 
   const rawAmount = Number(body.amount);
   if (!Number.isFinite(rawAmount) || rawAmount < MIN_AMOUNT || rawAmount > MAX_AMOUNT) {
+    notify(`⚠️ inbound wallet/credit: 400 INVALID_AMOUNT (got "${String(body.amount)}")`);
     return err('INVALID_AMOUNT', `amount must be a number between ${MIN_AMOUNT} and ${MAX_AMOUNT}`, 400);
   }
   const amount = Math.round(rawAmount * 100) / 100;
 
-  if (body.currency !== 'MNX') return err('UNSUPPORTED_CURRENCY', 'currency must be "MNX"', 400);
+  if (body.currency !== 'MNX') {
+    notify(`⚠️ inbound wallet/credit: 400 UNSUPPORTED_CURRENCY (got "${String(body.currency)}")`);
+    return err('UNSUPPORTED_CURRENCY', 'currency must be "MNX"', 400);
+  }
 
   if (!isValidTransactionId(body.transaction_id)) {
+    notify('⚠️ inbound wallet/credit: 400 INVALID_TRANSACTION_ID');
     return err(
       'INVALID_TRANSACTION_ID',
       'transaction_id is required (1-100 chars: letters, digits, "-", "_")',
@@ -79,7 +121,6 @@ export async function handleWalletCredit(request: Request): Promise<Response> {
   }
   const transactionId = body.transaction_id;
   const source = typeof body.source === 'string' && body.source.trim() ? body.source.trim().slice(0, 60) : 'gram';
-  const dryRun = body.dry_run === true;
 
   if (dryRun) {
     const current = Number(
@@ -102,14 +143,23 @@ export async function handleWalletCredit(request: Request): Promise<Response> {
   });
   if (error) {
     if (String(error.message).includes('user_not_found')) {
+      notify(`⚠️ inbound wallet/credit: 404 USER_NOT_FOUND at RPC time (user_id ${telegramId})`);
       return err('USER_NOT_FOUND', 'No user with this id in GRAM MNX', 404);
     }
     console.error('[inbound-wallet] credit RPC failed', error);
+    notify(`⚠️ inbound wallet/credit: 500 SERVER_ERROR — ${error.message}`);
     return err('SERVER_ERROR', 'Internal error — safe to retry with the same transaction_id', 500);
   }
   const settled = Array.isArray(result) ? result[0] : result;
-  if (settled?.duplicate) return err('DUPLICATE_TRANSACTION', 'transaction_id already processed', 409);
+  if (settled?.duplicate) {
+    notify(`⚠️ inbound wallet/credit: 409 DUPLICATE_TRANSACTION (transaction_id ${transactionId})`);
+    return err('DUPLICATE_TRANSACTION', 'transaction_id already processed', 409);
+  }
 
+  notify(
+    `✅ inbound wallet/credit: credited ${amount} MNX to user_id ${telegramId} ` +
+      `(transaction_id ${transactionId}, new balance ${settled?.new_balance})`,
+  );
   return json({
     ok: true,
     status: 'credited',
