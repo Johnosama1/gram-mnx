@@ -318,12 +318,23 @@ export async function handleWithdraw(request: Request) {
     // (waitUntil) instead of cancelling it and leaving the row in
     // `processing`. Behaviour and messages below are unchanged.
     const { runDetached } = await import('@/lib/withdraw-sweep.server');
-    const result = (await runDetached('auto payout', () =>
+    const result = await runDetached('auto payout', () =>
       review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
         id: null,
         name: 'Auto payout',
       }),
-    )) ?? { ok: false, message: 'payout task interrupted' };
+    );
+
+    if (!result) {
+      // The payout task threw before returning a verdict. Never refund or
+      // reject here — the transfer may already be on-chain. The background
+      // sweep checks the chain and settles the row (approved or requeued).
+      return json({
+        ok: true,
+        message: tr(lang, 'withdraw_pending_admin'),
+        balance: newBalance,
+      });
+    }
 
     if (result.ok) {
       return json({
@@ -332,6 +343,7 @@ export async function handleWithdraw(request: Request) {
         balance: newBalance,
       });
     }
+
     // Payout wallet out of funds → do NOT tell the user "no funds". Keep the
     // request pending, notify the admins, and show a normal "under review"
     // message. The amount stays reserved (already deducted) so the admin can
