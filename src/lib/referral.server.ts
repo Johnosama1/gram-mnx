@@ -166,7 +166,7 @@ export async function creditReferralIfEligible(referredId: number): Promise<bool
   }
 }
 
-/** Total coins earned from the 10% commission on invited users' deposits. */
+/** Total coins earned from the 5% commission on invited users' deposits. */
 export async function getDepositCommission(invitedIds: number[]): Promise<number> {
   if (!invitedIds.length) return 0;
   const db = (await getDb()) as any;
@@ -178,7 +178,7 @@ export async function getDepositCommission(invitedIds: number[]): Promise<number
     .in('telegram_id', invitedIds);
   let total = 0;
   for (const d of (data ?? []) as Array<{ amount: number }>) {
-    total += Math.floor(Number(d.amount ?? 0) * rate) * 0.1;
+    total += Math.floor(Number(d.amount ?? 0) * rate) * 0.05;
   }
   return Number(total.toFixed(4));
 }

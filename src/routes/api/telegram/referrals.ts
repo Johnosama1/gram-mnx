@@ -131,7 +131,7 @@ export const Route = createFileRoute('/api/telegram/referrals')({
                 .select('telegram_id, first_name, last_name, username')
                 .in('telegram_id', invitedIds)
             : Promise.resolve({ data: [] }),
-          // Coins earned = referral rewards + 10% commission on friends' deposits.
+          // Coins earned = referral rewards + 5% commission on friends' deposits.
           getDepositCommission(invitedIds),
         ]);
         let friends: Array<{

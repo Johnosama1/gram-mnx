@@ -121,9 +121,9 @@ async function finalizeDeposit(db: any, req: PendingRequest, input: SettleInput)
   // A deposit alone confirms the referral, even if the other conditions are unmet.
   await creditReferralIfEligible(req.telegram_id).catch(() => undefined);
 
-  // Referral commission: the inviter earns 10% of the invited user's deposit (in coins).
+  // Referral commission: the inviter earns 5% of the invited user's deposit (in coins).
   const referrerId = Number((user as { referred_by?: number | null }).referred_by ?? 0);
-  const bonus = round12(input.coins * 0.1);
+  const bonus = round12(input.coins * 0.05);
   if (Number.isFinite(referrerId) && referrerId > 0 && bonus > 0) {
     const { data: refRow } = await db
       .from('gm_users')
@@ -134,7 +134,7 @@ async function finalizeDeposit(db: any, req: PendingRequest, input: SettleInput)
       await db.rpc('gm_add_coins', { _telegram_id: referrerId, _amount: bonus });
       await notifyUser(
         referrerId,
-        `🎁 <b>10% referral commission added</b>\n💰 You earned <b>${bonus} Coin</b> because your friend made a deposit.`,
+        `🎁 <b>5% referral commission added</b>\n💰 You earned <b>${bonus} Coin</b> because your friend made a deposit.`,
       ).catch(() => undefined);
     }
   }
