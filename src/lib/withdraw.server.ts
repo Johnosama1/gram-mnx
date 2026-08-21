@@ -55,10 +55,16 @@ export async function recordUserIp(telegramId: number, ip: string | null): Promi
       .eq('ip', ip)
       .maybeSingle();
     if (existing) {
+      // Already-known (user, IP) pairing: refresh the timestamp only. The
+      // set of accounts sharing this IP hasn't changed, so there is nothing
+      // new for the abuse scan below to catch — skip it.
       await db.from('gm_user_ips').update({ last_seen_at: now }).eq('id', existing.id);
-    } else {
-      await db.from('gm_user_ips').insert({ telegram_id: telegramId, ip, last_seen_at: now });
+      return;
     }
+    // A brand-new (user, IP) pairing is the only event that can change this
+    // IP's shared-account count, so the abuse scan only needs to run here —
+    // once per user per IP ever, not on every repeat visit.
+    await db.from('gm_user_ips').insert({ telegram_id: telegramId, ip, last_seen_at: now });
     await enforceIpAccountLimit(ip);
   } catch {
     /* never block the request on IP bookkeeping */
