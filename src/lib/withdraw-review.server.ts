@@ -246,13 +246,15 @@ export async function reviewWithdrawal(
  * reach it (in which case it shows up on-chain and is recorded as approved).
  * Either way this never resends a transfer, so it can never double-pay.
  */
-export async function recoverStaleWithdrawals(staleMinutes = 5) {
+export async function recoverStaleWithdrawals(staleMinutes = 2) {
   const db = (await getDb()) as any;
   const cutoff = new Date(Date.now() - staleMinutes * 60_000).toISOString();
   const { data: stuck } = await db
     .from('gm_withdrawals')
     .select('id, telegram_id, wallet_address, amount, created_at')
-    .eq('status', 'processing')
+    // 'recovering' rows are included too: a recovery pass that was itself
+    // interrupted would otherwise leave the row parked forever.
+    .in('status', ['processing', 'recovering'])
     .lt('created_at', cutoff);
 
   let recovered = 0;
@@ -271,10 +273,11 @@ export async function recoverStaleWithdrawals(staleMinutes = 5) {
         .from('gm_withdrawals')
         .update({ status: 'recovering' })
         .eq('id', w.id)
-        .eq('status', 'processing')
+        .in('status', ['processing', 'recovering'])
         .select('id')
         .maybeSingle();
       if (!reserved) continue;
+
 
       const { findOutgoingPayout } = await import('@/lib/ton.server');
       const sinceUnix = Math.floor(new Date(w.created_at).getTime() / 1000);

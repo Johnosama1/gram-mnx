@@ -21,15 +21,12 @@ async function run() {
   // the deposit scan below so a deposit-scan hiccup never stalls this queue.
   let withdrawals: unknown = null;
   try {
-    const { recoverStaleWithdrawals, processPendingWithdrawals } = await import(
-      '@/lib/withdraw-review.server'
-    );
-    const recovery = await recoverStaleWithdrawals();
-    const queue = await processPendingWithdrawals(25);
-    withdrawals = { ...queue, ...recovery };
+    const { sweepWithdrawals } = await import('@/lib/withdraw-sweep.server');
+    withdrawals = await sweepWithdrawals();
   } catch (e) {
-    console.error('processPendingWithdrawals failed:', e);
+    console.error('withdrawal sweep failed:', e);
   }
+
 
   try {
     const result = await scanDeposits(50);
