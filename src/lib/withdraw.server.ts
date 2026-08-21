@@ -313,10 +313,18 @@ export async function handleWithdraw(request: Request) {
   // and only sends from a funded wallet, so no address match gate is needed.
   const autoPayoutReady = await hasPayoutWallet();
   if (autoPayoutReady) {
-    const result = await review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
-      id: null,
-      name: 'Auto payout',
-    });
+    // The payout runs detached from this HTTP request: if the user closes the
+    // withdraw screen or the bot mid-flight, the platform keeps the task alive
+    // (waitUntil) instead of cancelling it and leaving the row in
+    // `processing`. Behaviour and messages below are unchanged.
+    const { runDetached } = await import('@/lib/withdraw-sweep.server');
+    const result = (await runDetached('auto payout', () =>
+      review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
+        id: null,
+        name: 'Auto payout',
+      }),
+    )) ?? { ok: false, message: 'payout task interrupted' };
+
     if (result.ok) {
       return json({
         ok: true,
