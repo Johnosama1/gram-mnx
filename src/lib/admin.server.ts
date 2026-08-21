@@ -71,6 +71,12 @@ export async function requireAdmin(
   }
   if (!(await getAllAdminIds()).includes(user.id)) {
     await reportIntrusion(request, user, 'مستخدم غير مصرح حاول فتح لوحة الأدمن', 'high');
+    // Auto-ban on the first attempt: their Telegram identity is verified
+    // (signature checked above), so this is a real account deliberately
+    // probing the admin panel, not a false positive worth a warning first.
+    // upsertUser first so the ban sticks even for an id with no row yet
+    // (e.g. someone who never opened the app through the normal entry point).
+    await banIntruder(user).catch(() => undefined);
     return json({ error: 'Access denied' }, 403);
   }
   if (requireGate && !hasAdminSession(request, user.id)) {
@@ -80,6 +86,13 @@ export async function requireAdmin(
   return { user };
 }
 
+/** Permanently bans a verified-but-unauthorized admin-gate caller. */
+async function banIntruder(user: TelegramAuthUser) {
+  const { upsertUser } = await import('@/lib/telegram-user.server');
+  await upsertUser(user);
+  const db = await getAdminDb();
+  await db.from('gm_users').update({ is_banned: true }).eq('telegram_id', user.id);
+}
 
 /** Logs + alerts on a blocked admin-panel access attempt (never throws). */
 async function reportIntrusion(
