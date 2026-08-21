@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
 import { showMonetagAd } from '@/lib/monetag';
+import { showAdsgramAd } from '@/lib/adsgram';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -315,7 +316,7 @@ function WatchAdCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) 
   );
 }
 
-// ─── Bonus Ad Card (Monetag) ──────────────────────────────────────────────────
+// ─── Bonus Ad Card (AdsGram) ──────────────────────────────────────────────────
 interface BonusAdStatus {
   enabled: boolean;
   watchedToday: number;
@@ -323,6 +324,7 @@ interface BonusAdStatus {
   rewardCoins: number;
   dailyLimit: number;
   taskClaimAdEnabled: boolean;
+  blockId: string;
 }
 
 function BonusAdCard({
@@ -369,7 +371,7 @@ function BonusAdCard({
     try {
       // Resolves only once the ad was watched to completion; a skip/close/
       // load failure rejects and no reward is requested below.
-      await showMonetagAd();
+      await showAdsgramAd(status.blockId);
       const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number }>(
         '/tasks/bonus-ads-watched',
         {},

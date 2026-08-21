@@ -60,6 +60,7 @@ type GiftStatus = {
   telegramId?: number | null;
   adminPreview?: boolean;
   blockId?: string;
+  adEnabled?: boolean;
 };
 
 /** Live remaining ms until endsAt — ticks every second while there's a deadline. */
@@ -225,7 +226,7 @@ export default function GiftScreen() {
     if (adWatching) return;
     setAdWatching(true);
     try {
-      await showAdsgramAd(state?.blockId || '43843');
+      await showAdsgramAd(state?.blockId || '43943');
       const { justUnlockedChance } = await postAdsWatch(t);
       toast.success(justUnlockedChance ? t('gift_extra_chance') : t('gift_view_recorded'));
       await load();
@@ -312,14 +313,16 @@ export default function GiftScreen() {
                 {t('gift_watch_hint', { limit: String(activeGift.adsDailyLimit) })}
               </p>
               <button
-                disabled={adWatching || activeGift.adsToday >= activeGift.adsDailyLimit}
+                disabled={adWatching || state?.adEnabled === false || activeGift.adsToday >= activeGift.adsDailyLimit}
                 onClick={() => { void watchMoreAds(activeGift); }}
                 className="w-full rounded-xl bg-[#8b5cf6] text-primary-foreground font-bold py-2.5 text-sm disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {adWatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-                {activeGift.adsToday >= activeGift.adsDailyLimit
-                  ? t('gift_daily_limit_reached')
-                  : t('gift_watch_ad')}
+                {state?.adEnabled === false
+                  ? t('gift_ads_disabled')
+                  : activeGift.adsToday >= activeGift.adsDailyLimit
+                    ? t('gift_daily_limit_reached')
+                    : t('gift_watch_ad')}
               </button>
             </div>
           </>

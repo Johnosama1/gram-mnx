@@ -7,14 +7,14 @@ import { getSetting } from '@/lib/admin.server';
  * copy, so the toggles can never drift out of sync between screens.
  *
  * Two ad networks are in use, split by placement:
- *  - Monetag: the "Watch & Earn" task, the Bonus Ad task, Daily Check-in,
- *    and the task-claim gate (see src/lib/monetag.ts).
+ *  - Monetag: the "Watch & Earn" task, Daily Check-in, and the task-claim
+ *    gate (channels/Twitter/etc. task completions) — see src/lib/monetag.ts.
  *  - AdsGram (this block id): Daily Combo, the Gifts screen's ad-watching,
- *    and Promo Code redemption (see src/lib/adsgram.ts).
+ *    the Bonus Ad task, and Promo Code redemption — see src/lib/adsgram.ts.
  */
-export const DEFAULT_ADSGRAM_BLOCK_ID = '43843';
+export const DEFAULT_ADSGRAM_BLOCK_ID = '43943';
 
-/** AdsGram block id — used by Combo, Gifts and Promo Code. */
+/** AdsGram block id — used by Combo, Gifts, Bonus Ad and Promo Code. */
 export async function getAdsGramBlockId(): Promise<string> {
   const raw = await getSetting('adsgram_block_id');
   const trimmed = (raw ?? '').trim();
@@ -34,4 +34,9 @@ export async function isComboAdEnabled(): Promise<boolean> {
 /** Task claims (Monetag) never required an ad before — opt-in, default off. */
 export async function isTaskClaimAdEnabled(): Promise<boolean> {
   return (await getSetting('task_claim_ad_enabled')) === 'true';
+}
+
+/** Gifts screen's "watch more ads" ad-watching (AdsGram) — default on. */
+export async function isGiftAdEnabled(): Promise<boolean> {
+  return (await getSetting('gift_ad_enabled')) !== 'false';
 }

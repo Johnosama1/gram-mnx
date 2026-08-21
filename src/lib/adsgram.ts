@@ -4,7 +4,7 @@
  * every page load gets exactly one <script> tag — this module only waits
  * for the `Adsgram` global it exposes and calls it.
  *
- * The block id is admin-configurable (default 43843) and passed in at call
+ * The block id is admin-configurable (default 43943) and passed in at call
  * time rather than baked in, since it can change from the admin panel
  * without a redeploy.
  */

@@ -16,7 +16,7 @@ export default function PromoCodeCard() {
   const { addCoins } = useCoins();
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [adEnabled, setAdEnabled] = useState(true);
-  const [blockId, setBlockId] = useState('43843');
+  const [blockId, setBlockId] = useState('43943');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
 

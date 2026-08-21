@@ -32,6 +32,7 @@
   "gift_chances_label": "Your winning chances",
   "gift_watch_hint": "Watch an ad to increase your chances — every 10 ads = one extra chance (up to {limit} ads every 24 hours)",
   "gift_daily_limit_reached": "You've reached today's limit — come back tomorrow",
+  "gift_ads_disabled": "Watching ads is currently disabled",
   "gift_watch_ad": "Watch ad",
   "gift_invited_label": "Your referrals",
   "gift_invite_hint": "Your referral link — every friend who joins boosts your chances",

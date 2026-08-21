@@ -43,7 +43,7 @@ export default function Combo() {
   const [nextReset, setNextReset] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [adEnabled, setAdEnabled] = useState(false);
-  const [adsgramBlockId, setAdsgramBlockId] = useState('43843');
+  const [adsgramBlockId, setAdsgramBlockId] = useState('43943');
 
   // Tick the countdown every second while a reset time is known
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { json, getSetting, getBotToken } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
-import { isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
+import { getAdsGramBlockId, isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
 
 const DAILY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
@@ -576,14 +576,15 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     });
   }
 
-  // ── Bonus Ad task (second rewarded-ad card, Monetag) ───────────────────────
+  // ── Bonus Ad task (second rewarded-ad card, AdsGram) ───────────────────────
   if (sub === 'bonus-ads-status' && method === 'GET') {
-    const [rewardSetting, limitSetting, enabledSetting, quota, taskClaimAdEnabled] = await Promise.all([
+    const [rewardSetting, limitSetting, enabledSetting, quota, taskClaimAdEnabled, blockId] = await Promise.all([
       getSetting('bonus_ad_reward_coins'),
       getSetting('bonus_ad_daily_limit'),
       getSetting('bonus_ad_task_enabled'),
       getBonusAdQuota(db, auth.id),
       isTaskClaimAdEnabled(),
+      getAdsGramBlockId(),
     ]);
     const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
     const dailyLimit = Number(limitSetting ?? 10) || 10;
@@ -596,6 +597,7 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
       rewardCoins,
       dailyLimit,
       taskClaimAdEnabled,
+      blockId,
     });
   }
 

@@ -493,6 +493,9 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
   if (!auth) return json({ error: 'Unauthorized' }, 401);
   await upsertUser(auth);
 
+  const { isGiftAdEnabled } = await import('@/lib/adsgram.server');
+  if (!(await isGiftAdEnabled())) return json({ error: 'gift_ads_disabled' }, 403);
+
   const { rateLimit } = await import('@/lib/rate-limit.server');
   if (!(await rateLimit(`giftads:${auth.id}`, 20, 60)))
     return json({ error: 'حاول مرة أخرى بعد قليل' }, 429);
@@ -511,15 +514,23 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
 
 export async function getGiftState(initData: string | null) {
   const auth = resolveTelegramUser(initData);
-  const { getAdsGramBlockId } = await import('@/lib/adsgram.server');
-  const [cfg, isAdmin, blockId] = await Promise.all([
+  const { getAdsGramBlockId, isGiftAdEnabled } = await import('@/lib/adsgram.server');
+  const [cfg, isAdmin, blockId, adEnabled] = await Promise.all([
     getGiftConfig(),
     isAdminUser(auth?.id ?? null),
     getAdsGramBlockId(),
+    isGiftAdEnabled(),
   ]);
   // A locked section stays locked for everyone except admins (preview mode).
   if (!cfg.enabled && !isAdmin) {
-    return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false, blockId };
+    return {
+      enabled: false,
+      message: cfg.message,
+      gifts: [] as GiftPublicItem[],
+      adminPreview: false,
+      blockId,
+      adEnabled,
+    };
   }
 
   const settledGiftList = await settleExpiredGifts(cfg.gifts);
@@ -549,6 +560,7 @@ export async function getGiftState(initData: string | null) {
     telegramId: auth?.id ?? null,
     adminPreview: !cfg.enabled && isAdmin,
     blockId,
+    adEnabled,
   };
 }
 

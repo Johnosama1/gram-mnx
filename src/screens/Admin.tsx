@@ -517,13 +517,14 @@ function ToggleRow({
 }
 
 function AdsGramSection() {
-  const [blockId, setBlockId] = useState('43843');
+  const [blockId, setBlockId] = useState('43943');
   const [bonusEnabled, setBonusEnabled] = useState(true);
   const [bonusReward, setBonusReward] = useState('0.5');
   const [bonusLimit, setBonusLimit] = useState('10');
   const [checkinAdEnabled, setCheckinAdEnabled] = useState(true);
   const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(false);
   const [comboAdEnabled, setComboAdEnabled] = useState(false);
+  const [giftAdEnabled, setGiftAdEnabled] = useState(true);
   const [promoAdEnabled, setPromoAdEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
@@ -531,13 +532,14 @@ function AdsGramSection() {
   useEffect(() => {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
       .then((s) => {
-        setBlockId(s['adsgram_block_id'] || '43843');
+        setBlockId(s['adsgram_block_id'] || '43943');
         setBonusEnabled(s['bonus_ad_task_enabled'] !== 'false');
         setBonusReward(s['bonus_ad_reward_coins'] ?? '0.5');
         setBonusLimit(s['bonus_ad_daily_limit'] ?? '10');
         setCheckinAdEnabled(s['checkin_ad_enabled'] !== 'false');
         setTaskClaimAdEnabled(s['task_claim_ad_enabled'] === 'true');
         setComboAdEnabled(s['combo_ad_enabled'] === 'true');
+        setGiftAdEnabled(s['gift_ad_enabled'] !== 'false');
         setPromoAdEnabled(s['promo_ad_enabled'] !== 'false');
       })
       .finally(() => setLoading(false));
@@ -546,13 +548,14 @@ function AdsGramSection() {
   const save = async () => {
     try {
       await Promise.all([
-        api('POST', '/admin/general?type=settings', { key: 'adsgram_block_id', value: blockId.trim() || '43843' }),
+        api('POST', '/admin/general?type=settings', { key: 'adsgram_block_id', value: blockId.trim() || '43943' }),
         api('POST', '/admin/general?type=settings', { key: 'bonus_ad_task_enabled', value: String(bonusEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'bonus_ad_reward_coins', value: bonusReward }),
         api('POST', '/admin/general?type=settings', { key: 'bonus_ad_daily_limit', value: bonusLimit }),
         api('POST', '/admin/general?type=settings', { key: 'checkin_ad_enabled', value: String(checkinAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'task_claim_ad_enabled', value: String(taskClaimAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'combo_ad_enabled', value: String(comboAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'gift_ad_enabled', value: String(giftAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'promo_ad_enabled', value: String(promoAdEnabled) }),
       ]);
       notifyDataChange('admin', 'tasks', 'combo');
@@ -568,7 +571,7 @@ function AdsGramSection() {
   return (
     <div className="space-y-3">
       <label className="text-xs text-muted-foreground block">
-        AdsGram Block ID (الكومبو، الهدايا، كود الخصم)
+        AdsGram Block ID (الكومبو، الهدايا، الإعلان الإضافي، كود الخصم)
         <input
           value={blockId}
           onChange={(e) => setBlockId(e.target.value)}
@@ -578,6 +581,10 @@ function AdsGramSection() {
       </label>
 
       <div className="text-[10px] text-muted-foreground uppercase tracking-wide pt-1">شبكة Monetag</div>
+      <ToggleRow label="إعلان قبل التسجيل اليومي" value={checkinAdEnabled} onChange={setCheckinAdEnabled} />
+      <ToggleRow label="إعلان عند استلام مكافأة مهمة" value={taskClaimAdEnabled} onChange={setTaskClaimAdEnabled} />
+
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wide pt-2">شبكة AdsGram</div>
       <ToggleRow label="بطاقة الإعلان الإضافي (Bonus Ad)" value={bonusEnabled} onChange={setBonusEnabled} />
       <div className="grid grid-cols-2 gap-2">
         <label className="text-xs text-muted-foreground">
@@ -597,15 +604,9 @@ function AdsGramSection() {
           />
         </label>
       </div>
-      <ToggleRow label="إعلان قبل التسجيل اليومي" value={checkinAdEnabled} onChange={setCheckinAdEnabled} />
-      <ToggleRow label="إعلان عند استلام مكافأة مهمة" value={taskClaimAdEnabled} onChange={setTaskClaimAdEnabled} />
-
-      <div className="text-[10px] text-muted-foreground uppercase tracking-wide pt-2">شبكة AdsGram</div>
       <ToggleRow label="إعلان قبل الكومبو اليومي" value={comboAdEnabled} onChange={setComboAdEnabled} />
+      <ToggleRow label="مشاهدة الإعلانات في قسم الهدايا" value={giftAdEnabled} onChange={setGiftAdEnabled} />
       <ToggleRow label="إعلان قبل استرداد كود الخصم" value={promoAdEnabled} onChange={setPromoAdEnabled} />
-      <p className="text-[10px] text-muted-foreground leading-relaxed">
-        قسم الهدايا (Gifts) بيستخدم AdsGram دايمًا لمشاهدة الإعلانات جوه المسابقات — مفيش مفتاح تفعيل منفصل ليه، بيتحكم فيه من خلال إعدادات كل مسابقة.
-      </p>
 
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full">
