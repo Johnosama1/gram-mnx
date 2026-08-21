@@ -38,6 +38,13 @@ export function getClientIp(request: Request): string | null {
 /** Records (telegram_id, ip) so multi-account abuse can be detected later. */
 export async function recordUserIp(telegramId: number, ip: string | null): Promise<void> {
   if (!ip) return;
+  // This is called on every /api/telegram/auth poll (every 15-20s per user
+  // while the app is foregrounded) but the bookkeeping it does — an upsert
+  // plus a full scan of every account sharing this IP — doesn't need
+  // per-poll freshness. Throttled to once per user per window so the
+  // hottest endpoint in the app isn't redoing this on nearly every request;
+  // a genuinely new IP still gets recorded well within a normal session.
+  if (!(await rateLimit(`ip-touch:${telegramId}`, 1, 180))) return;
   try {
     const db = (await getDb()) as any;
     const now = new Date().toISOString();

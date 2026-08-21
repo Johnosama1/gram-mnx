@@ -30,8 +30,17 @@ export const Route = createFileRoute('/api/telegram/auth')({
 
         // Register the invite immediately when the WebApp is opened from a
         // referral link — but only for a brand-new user. Anyone who already
-        // opened the bot before can never be counted as someone's referral.
-        try {
+        // opened the bot before can never be counted as someone's referral,
+        // and Telegram keeps resending the same start_param on every reopen,
+        // so without this guard a returning user re-runs this whole block
+        // (several DB lookups) on every 15-20s poll for no reason: the
+        // gift-invite ledger and the referral row are both one-time-ever
+        // writes that already no-op after the first success, and referral
+        // eligibility is independently re-checked at its own trigger points
+        // (wallet link, combo win, check-in, task completion, deposit) —
+        // never solely by this endpoint — so skipping it here for a known
+        // user changes no outcome, just the redundant polling cost.
+        if (!alreadyKnown) try {
           const startParam = new URLSearchParams(initData ?? '').get('start_param') ?? '';
 
           // Gift giveaway link (g_<id>) — counted for every user opening it,
