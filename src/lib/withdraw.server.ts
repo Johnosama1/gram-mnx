@@ -460,9 +460,13 @@ export async function handleWithdrawStatus(request: Request) {
   const user = resolveTelegramUser(getInitData(request));
   if (!user) return json({ message: 'Invalid initData' }, 401);
   await recordUserIp(user.id, getClientIp(request));
-  // Opportunistic retry so a stuck pending withdrawal is settled without a
-  // manual step, without depending on the original requester's connection.
-  await retryStalePendingWithdrawals();
+  // Background maintenance (detached from this request): recovers rows stuck
+  // in processing/recovering and drains the pending payout queue. Fire and
+  // forget so the history response is never blocked by a chain call.
+  const { kickWithdrawSweep } = await import('@/lib/withdraw-sweep.server');
+  kickWithdrawSweep();
+  void retryStalePendingWithdrawals();
+
   const db = (await getDb()) as any;
   const { data } = await db
     .from('gm_withdrawals')
