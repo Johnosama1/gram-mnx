@@ -14,6 +14,37 @@ function matches(input: string, expected: string): boolean {
   return timingSafeEqual(a, b);
 }
 
+/** Alerts every admin the first time a successful gate login is seen from a
+ *  given IP for this admin id, then records it so it's "known" from then on. */
+async function alertIfNewIp(request: Request, telegramId: number, username: string | null) {
+  const { clientIp, logSecurityEvent } = await import('@/lib/security.server');
+  const { getDb } = await import('@/lib/telegram-user.server');
+  const { recordUserIp } = await import('@/lib/withdraw.server');
+  const ip = clientIp(request);
+  if (!ip) return;
+
+  const db = (await getDb()) as any;
+  const { data: known } = await db
+    .from('gm_user_ips')
+    .select('id')
+    .eq('telegram_id', telegramId)
+    .eq('ip', ip)
+    .maybeSingle();
+
+  if (!known) {
+    await logSecurityEvent({
+      type: 'تسجيل دخول ناجح للوحة الأدمن من IP جديد',
+      severity: 'medium',
+      telegramId,
+      username,
+      ip,
+      path: '/api/admin/gate',
+      detail: 'كلمة السر صحيحة، لكن هذا IP لم يُستخدم من قبل لهذا الأدمن',
+    });
+  }
+  await recordUserIp(telegramId, ip);
+}
+
 /** Checks whether the caller already holds a valid admin-gate session. */
 async function check({ request }: { request: Request }) {
   const auth = await requireAdmin(request, { requireGate: false });
@@ -46,6 +77,11 @@ async function unlock({ request }: { request: Request }) {
   if (!password || !matches(password, expected)) {
     return Response.json({ ok: false }, { status: 401 });
   }
+
+  // A correct password from an IP never seen for this admin before is still
+  // worth an immediate heads-up (e.g. the password leaked / session cookie
+  // stolen) — this never blocks the login, only alerts the other admins.
+  await alertIfNewIp(request, auth.user.id, auth.user.username ?? null).catch(() => undefined);
 
   // Fresh session id on every unlock → no session fixation, no reuse of an old
   // cookie value. HttpOnly, so browser JavaScript can never read or forge it.

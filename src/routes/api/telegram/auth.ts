@@ -3,6 +3,7 @@ import { getAllAdminIds, getSetting, json } from '@/lib/admin.server';
 import { resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 import { touchIpFromRequest } from '@/lib/withdraw.server';
 import { userSessionCookieHeader } from '@/lib/telegram-auth.server';
+import { rateLimit, tooMany } from '@/lib/rate-limit.server';
 
 export const Route = createFileRoute('/api/telegram/auth')({
   server: {
@@ -15,6 +16,11 @@ export const Route = createFileRoute('/api/telegram/auth')({
           request.headers.get('x-telegram-initdata');
         const user = resolveTelegramUser(initData);
         if (!user) return json({ error: 'Invalid or expired Telegram initData' }, 401);
+
+        // Generous per-user cap: the client legitimately polls this endpoint
+        // every 15-20s while the app is open (a few tabs included), so this
+        // only ever trips on a scripted/abusive replay loop.
+        if (!(await rateLimit(`auth:${user.id}`, 30, 60))) return tooMany();
 
         const { userExists } = await import('@/lib/telegram-user.server');
         const alreadyKnown = await userExists(user.id);

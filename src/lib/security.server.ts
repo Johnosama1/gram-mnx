@@ -8,6 +8,7 @@
  */
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import { getAllAdminIds, getBotToken, getSetting, notifyUser, setSetting } from '@/lib/admin.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -87,7 +88,13 @@ export async function logSecurityEvent(
     // Never let logging break the request it is protecting.
   }
 
-  if (notify) {
+  // Every attempt is always logged above; only the Telegram ping to admins is
+  // throttled per source (telegram id, else IP) so a retried/scripted burst
+  // from the same intruder doesn't flood the admins with duplicate alerts.
+  const identity = event.telegramId ? `tg:${event.telegramId}` : event.ip ? `ip:${event.ip}` : null;
+  const shouldNotify = notify && (identity === null || (await rateLimit(`intrusion-notify:${identity}`, 1, 300)));
+
+  if (shouldNotify) {
     const score = riskScore(next);
     const lines = [
       '🚨 <b>تنبيه أمني</b>',
