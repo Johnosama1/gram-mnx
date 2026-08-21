@@ -313,10 +313,29 @@ export async function handleWithdraw(request: Request) {
   // and only sends from a funded wallet, so no address match gate is needed.
   const autoPayoutReady = await hasPayoutWallet();
   if (autoPayoutReady) {
-    const result = await review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
-      id: null,
-      name: 'Auto payout',
-    });
+    // The payout runs detached from this HTTP request: if the user closes the
+    // withdraw screen or the bot mid-flight, the platform keeps the task alive
+    // (waitUntil) instead of cancelling it and leaving the row in
+    // `processing`. Behaviour and messages below are unchanged.
+    const { runDetached } = await import('@/lib/withdraw-sweep.server');
+    const result = await runDetached('auto payout', () =>
+      review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
+        id: null,
+        name: 'Auto payout',
+      }),
+    );
+
+    if (!result) {
+      // The payout task threw before returning a verdict. Never refund or
+      // reject here — the transfer may already be on-chain. The background
+      // sweep checks the chain and settles the row (approved or requeued).
+      return json({
+        ok: true,
+        message: tr(lang, 'withdraw_pending_admin'),
+        balance: newBalance,
+      });
+    }
+
     if (result.ok) {
       return json({
         ok: true,
@@ -324,6 +343,7 @@ export async function handleWithdraw(request: Request) {
         balance: newBalance,
       });
     }
+
     // Payout wallet out of funds → do NOT tell the user "no funds". Keep the
     // request pending, notify the admins, and show a normal "under review"
     // message. The amount stays reserved (already deducted) so the admin can
@@ -440,9 +460,13 @@ export async function handleWithdrawStatus(request: Request) {
   const user = resolveTelegramUser(getInitData(request));
   if (!user) return json({ message: 'Invalid initData' }, 401);
   await recordUserIp(user.id, getClientIp(request));
-  // Opportunistic retry so a stuck pending withdrawal is settled without a
-  // manual step, without depending on the original requester's connection.
-  await retryStalePendingWithdrawals();
+  // Background maintenance (detached from this request): recovers rows stuck
+  // in processing/recovering and drains the pending payout queue. Fire and
+  // forget so the history response is never blocked by a chain call.
+  const { kickWithdrawSweep } = await import('@/lib/withdraw-sweep.server');
+  kickWithdrawSweep();
+  void retryStalePendingWithdrawals();
+
   const db = (await getDb()) as any;
   const { data } = await db
     .from('gm_withdrawals')
