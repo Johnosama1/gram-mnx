@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Gift as GiftIcon, Lock, Loader2, ExternalLink, Users, Copy, Check, Ticket, ArrowRight, PlayCircle } from 'lucide-react';
 import { API_BASE, getInitData } from '@/lib/telegramApi';
-import { showMonetagAd } from '@/lib/monetag';
+import { showAdsgramAd } from '@/lib/adsgram';
 import StickerBadge from '@/components/StickerBadge';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
@@ -59,6 +59,7 @@ type GiftStatus = {
   gifts: GiftItem[];
   telegramId?: number | null;
   adminPreview?: boolean;
+  blockId?: string;
 };
 
 /** Live remaining ms until endsAt — ticks every second while there's a deadline. */
@@ -224,7 +225,7 @@ export default function GiftScreen() {
     if (adWatching) return;
     setAdWatching(true);
     try {
-      await showMonetagAd();
+      await showAdsgramAd(state?.blockId || '43843');
       const { justUnlockedChance } = await postAdsWatch(t);
       toast.success(justUnlockedChance ? t('gift_extra_chance') : t('gift_view_recorded'));
       await load();

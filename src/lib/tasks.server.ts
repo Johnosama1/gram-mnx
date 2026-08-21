@@ -1,6 +1,6 @@
 import { json, getSetting, getBotToken } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
-import { getAdsGramBlockId, isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
+import { isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
 
 const DAILY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
@@ -499,12 +499,11 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
 
   // ── Daily check-in ─────────────────────────────────────────────────────────
   if (sub === 'checkin' && method === 'GET') {
-    const [state, adEnabled, blockId] = await Promise.all([
+    const [state, adEnabled] = await Promise.all([
       getCheckinState(auth.id),
       isCheckinAdEnabled(),
-      getAdsGramBlockId(),
     ]);
-    return json({ ...state, adEnabled, blockId });
+    return json({ ...state, adEnabled });
   }
 
   if (sub === 'checkin' && method === 'POST') {
@@ -577,18 +576,17 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     });
   }
 
-  // ── Bonus Ad task (second rewarded-ad card, AdsGram) ───────────────────────
+  // ── Bonus Ad task (second rewarded-ad card, Monetag) ───────────────────────
   if (sub === 'bonus-ads-status' && method === 'GET') {
-    const [rewardSetting, limitSetting, enabledSetting, quota, blockId, taskClaimAdEnabled] = await Promise.all([
+    const [rewardSetting, limitSetting, enabledSetting, quota, taskClaimAdEnabled] = await Promise.all([
       getSetting('bonus_ad_reward_coins'),
       getSetting('bonus_ad_daily_limit'),
       getSetting('bonus_ad_task_enabled'),
       getBonusAdQuota(db, auth.id),
-      getAdsGramBlockId(),
       isTaskClaimAdEnabled(),
     ]);
     const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
-    const dailyLimit = Number(limitSetting ?? 20) || 20;
+    const dailyLimit = Number(limitSetting ?? 10) || 10;
     const enabled = enabledSetting !== 'false';
     return json({
       enabled,
@@ -597,7 +595,6 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
       resetAt: quota.resetAt,
       rewardCoins,
       dailyLimit,
-      blockId,
       taskClaimAdEnabled,
     });
   }
@@ -609,7 +606,7 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
       getBonusAdQuota(db, auth.id),
     ]);
     const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
-    const dailyLimit = Number(limitSetting ?? 20) || 20;
+    const dailyLimit = Number(limitSetting ?? 10) || 10;
     const watchedToday = quota.watched;
     if (watchedToday >= dailyLimit)
       return json({ ok: false, message: 'daily limit reached' }, 400);

@@ -520,10 +520,11 @@ function AdsGramSection() {
   const [blockId, setBlockId] = useState('43843');
   const [bonusEnabled, setBonusEnabled] = useState(true);
   const [bonusReward, setBonusReward] = useState('0.5');
-  const [bonusLimit, setBonusLimit] = useState('20');
+  const [bonusLimit, setBonusLimit] = useState('10');
   const [checkinAdEnabled, setCheckinAdEnabled] = useState(true);
-  const [comboAdEnabled, setComboAdEnabled] = useState(false);
   const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(false);
+  const [comboAdEnabled, setComboAdEnabled] = useState(false);
+  const [promoAdEnabled, setPromoAdEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
 
@@ -533,10 +534,11 @@ function AdsGramSection() {
         setBlockId(s['adsgram_block_id'] || '43843');
         setBonusEnabled(s['bonus_ad_task_enabled'] !== 'false');
         setBonusReward(s['bonus_ad_reward_coins'] ?? '0.5');
-        setBonusLimit(s['bonus_ad_daily_limit'] ?? '20');
+        setBonusLimit(s['bonus_ad_daily_limit'] ?? '10');
         setCheckinAdEnabled(s['checkin_ad_enabled'] !== 'false');
-        setComboAdEnabled(s['combo_ad_enabled'] === 'true');
         setTaskClaimAdEnabled(s['task_claim_ad_enabled'] === 'true');
+        setComboAdEnabled(s['combo_ad_enabled'] === 'true');
+        setPromoAdEnabled(s['promo_ad_enabled'] !== 'false');
       })
       .finally(() => setLoading(false));
   }, []);
@@ -549,8 +551,9 @@ function AdsGramSection() {
         api('POST', '/admin/general?type=settings', { key: 'bonus_ad_reward_coins', value: bonusReward }),
         api('POST', '/admin/general?type=settings', { key: 'bonus_ad_daily_limit', value: bonusLimit }),
         api('POST', '/admin/general?type=settings', { key: 'checkin_ad_enabled', value: String(checkinAdEnabled) }),
-        api('POST', '/admin/general?type=settings', { key: 'combo_ad_enabled', value: String(comboAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'task_claim_ad_enabled', value: String(taskClaimAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'combo_ad_enabled', value: String(comboAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'promo_ad_enabled', value: String(promoAdEnabled) }),
       ]);
       notifyDataChange('admin', 'tasks', 'combo');
       setStatus('✅ تم الحفظ');
@@ -565,7 +568,7 @@ function AdsGramSection() {
   return (
     <div className="space-y-3">
       <label className="text-xs text-muted-foreground block">
-        AdsGram Block ID
+        AdsGram Block ID (الكومبو، الهدايا، كود الخصم)
         <input
           value={blockId}
           onChange={(e) => setBlockId(e.target.value)}
@@ -574,6 +577,7 @@ function AdsGramSection() {
         />
       </label>
 
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wide pt-1">شبكة Monetag</div>
       <ToggleRow label="بطاقة الإعلان الإضافي (Bonus Ad)" value={bonusEnabled} onChange={setBonusEnabled} />
       <div className="grid grid-cols-2 gap-2">
         <label className="text-xs text-muted-foreground">
@@ -593,14 +597,19 @@ function AdsGramSection() {
           />
         </label>
       </div>
-
       <ToggleRow label="إعلان قبل التسجيل اليومي" value={checkinAdEnabled} onChange={setCheckinAdEnabled} />
-      <ToggleRow label="إعلان قبل الكومبو اليومي" value={comboAdEnabled} onChange={setComboAdEnabled} />
       <ToggleRow label="إعلان عند استلام مكافأة مهمة" value={taskClaimAdEnabled} onChange={setTaskClaimAdEnabled} />
+
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wide pt-2">شبكة AdsGram</div>
+      <ToggleRow label="إعلان قبل الكومبو اليومي" value={comboAdEnabled} onChange={setComboAdEnabled} />
+      <ToggleRow label="إعلان قبل استرداد كود الخصم" value={promoAdEnabled} onChange={setPromoAdEnabled} />
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        قسم الهدايا (Gifts) بيستخدم AdsGram دايمًا لمشاهدة الإعلانات جوه المسابقات — مفيش مفتاح تفعيل منفصل ليه، بيتحكم فيه من خلال إعدادات كل مسابقة.
+      </p>
 
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full">
-        <Sparkles className="w-3.5 h-3.5" />حفظ إعدادات AdsGram
+        <Sparkles className="w-3.5 h-3.5" />حفظ إعدادات الإعلانات الموحدة
       </Btn>
     </div>
   );
@@ -3437,7 +3446,7 @@ export default function Admin() {
         <Section title="مهمة الإعلانات (Monetag)" icon={Sparkles}>
           <AdsSection />
         </Section>
-        <Section title="إعلانات AdsGram (موحدة)" icon={Sparkles}>
+        <Section title="الإعلانات الموحدة (Monetag / AdsGram)" icon={Sparkles}>
           <AdsGramSection />
         </Section>
         <Section title="قسم الهدايا (Gift)" icon={Sparkles}>

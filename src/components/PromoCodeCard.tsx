@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoins } from '@/context/CoinsContext';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
+import { showAdsgramAd } from '@/lib/adsgram';
 
 /**
  * Promo code redemption card (Tasks tab).
@@ -14,6 +15,8 @@ export default function PromoCodeCard() {
   const { t } = useLanguage();
   const { addCoins } = useCoins();
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [adEnabled, setAdEnabled] = useState(true);
+  const [blockId, setBlockId] = useState('43843');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -27,8 +30,12 @@ export default function PromoCodeCard() {
           cache: 'no-store',
         });
         if (!res.ok) return;
-        const data = (await res.json()) as { enabled?: boolean };
-        if (alive) setEnabled(data.enabled !== false);
+        const data = (await res.json()) as { enabled?: boolean; adEnabled?: boolean; blockId?: string };
+        if (alive) {
+          setEnabled(data.enabled !== false);
+          setAdEnabled(data.adEnabled !== false);
+          if (data.blockId) setBlockId(data.blockId);
+        }
       } catch {
         /* best-effort: keep the card hidden on failure */
       }
@@ -55,6 +62,17 @@ export default function PromoCodeCard() {
     try {
       // 1) Validate first so the user never watches an ad for a bad code.
       await telegramApiPost('/promo', { code: value, check: true });
+
+      // 2) Admin-configurable gate (AdsGram): a skip/close/load failure stops
+      // here so no redeem request is sent and the code stays unused.
+      if (adEnabled) {
+        try {
+          await showAdsgramAd(blockId);
+        } catch {
+          toast.error(t('tasks_ads_failed'));
+          return;
+        }
+      }
 
       // 3) Credit.
       const data = await telegramApiPost<{ coinsEarned: number }>('/promo', { code: value });

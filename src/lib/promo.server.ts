@@ -27,6 +27,11 @@ export async function isPromoSectionEnabled(): Promise<boolean> {
   return (await getSetting('promo_section_enabled')) !== 'false';
 }
 
+/** Whether redeeming a code requires watching a rewarded ad first (AdsGram). */
+async function isPromoAdEnabled(): Promise<boolean> {
+  return (await getSetting('promo_ad_enabled')) !== 'false';
+}
+
 /**
  * User-facing promo API.
  *  GET  → { enabled }
@@ -43,7 +48,11 @@ export async function handlePromoApi(request: Request): Promise<Response> {
     (typeof body.initData === 'string' ? body.initData : null);
 
   const enabled = await isPromoSectionEnabled();
-  if (method === 'GET') return json({ enabled });
+  if (method === 'GET') {
+    const { getAdsGramBlockId } = await import('@/lib/adsgram.server');
+    const [adEnabled, blockId] = await Promise.all([isPromoAdEnabled(), getAdsGramBlockId()]);
+    return json({ enabled, adEnabled, blockId });
+  }
 
   const auth = resolveTelegramUser(initData);
   if (!auth) return json({ error: 'Unauthorized' }, 401);

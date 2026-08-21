@@ -511,10 +511,15 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
 
 export async function getGiftState(initData: string | null) {
   const auth = resolveTelegramUser(initData);
-  const [cfg, isAdmin] = await Promise.all([getGiftConfig(), isAdminUser(auth?.id ?? null)]);
+  const { getAdsGramBlockId } = await import('@/lib/adsgram.server');
+  const [cfg, isAdmin, blockId] = await Promise.all([
+    getGiftConfig(),
+    isAdminUser(auth?.id ?? null),
+    getAdsGramBlockId(),
+  ]);
   // A locked section stays locked for everyone except admins (preview mode).
   if (!cfg.enabled && !isAdmin) {
-    return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false };
+    return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false, blockId };
   }
 
   const settledGiftList = await settleExpiredGifts(cfg.gifts);
@@ -543,6 +548,7 @@ export async function getGiftState(initData: string | null) {
     gifts,
     telegramId: auth?.id ?? null,
     adminPreview: !cfg.enabled && isAdmin,
+    blockId,
   };
 }
 

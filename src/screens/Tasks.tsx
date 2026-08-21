@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
 import { showMonetagAd } from '@/lib/monetag';
-import { showAdsgramAd } from '@/lib/adsgram';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -57,7 +56,6 @@ interface CheckinState {
   canClaim: boolean;
   nextAvailableAt: string | null;
   adEnabled?: boolean;
-  blockId?: string;
 }
 
 function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) {
@@ -88,13 +86,13 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     setClaiming(true);
     setMsg(null);
     try {
-      // Admin-configurable gate (AdsGram): must watch a full ad before the
+      // Admin-configurable gate (Monetag): must watch a full ad before the
       // daily reward can be claimed — a skip/close/load failure rejects and
       // no claim request is sent. Disabled entirely when the admin turns
       // this placement off.
       if (state?.adEnabled !== false) {
         try {
-          await showAdsgramAd(state?.blockId || '43843');
+          await showMonetagAd();
         } catch {
           setMsg({ ok: false, text: t('tasks_ads_failed') });
           return;
@@ -317,14 +315,13 @@ function WatchAdCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) 
   );
 }
 
-// ─── Bonus Ad Card (AdsGram, block 43843 by default) ─────────────────────────
+// ─── Bonus Ad Card (Monetag) ──────────────────────────────────────────────────
 interface BonusAdStatus {
   enabled: boolean;
   watchedToday: number;
   remainingToday: number;
   rewardCoins: number;
   dailyLimit: number;
-  blockId: string;
   taskClaimAdEnabled: boolean;
 }
 
@@ -333,7 +330,7 @@ function BonusAdCard({
   onConfig,
 }: {
   onCoinsEarned: (n: number) => void;
-  onConfig: (cfg: { blockId: string; taskClaimAdEnabled: boolean }) => void;
+  onConfig: (taskClaimAdEnabled: boolean) => void;
 }) {
   const { t } = useLanguage();
   const [status, setStatus] = useState<BonusAdStatus | null>(null);
@@ -350,7 +347,7 @@ function BonusAdCard({
       if (res.ok) {
         const data = (await res.json()) as BonusAdStatus;
         setStatus(data);
-        onConfig({ blockId: data.blockId, taskClaimAdEnabled: data.taskClaimAdEnabled });
+        onConfig(data.taskClaimAdEnabled);
       }
     } catch {
       /* best-effort — the card just stays hidden/disabled until the next load */
@@ -372,7 +369,7 @@ function BonusAdCard({
     try {
       // Resolves only once the ad was watched to completion; a skip/close/
       // load failure rejects and no reward is requested below.
-      await showAdsgramAd(status.blockId);
+      await showMonetagAd();
       const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number }>(
         '/tasks/bonus-ads-watched',
         {},
@@ -996,19 +993,19 @@ export default function Tasks() {
     return () => clearInterval(id);
   }, []);
 
-  // Admin-configurable gate: show an AdsGram ad before a task reward is
+  // Admin-configurable gate: show a Monetag ad before a task reward is
   // claimed. Sourced from BonusAdCard's own status load (same settings,
   // one fetch) rather than a second request for the same data.
-  const [adsgramConfig, setAdsgramConfig] = useState({ blockId: '43843', taskClaimAdEnabled: false });
+  const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(false);
   const ensureClaimAd = useCallback(async (): Promise<boolean> => {
-    if (!adsgramConfig.taskClaimAdEnabled) return true;
+    if (!taskClaimAdEnabled) return true;
     try {
-      await showAdsgramAd(adsgramConfig.blockId);
+      await showMonetagAd();
       return true;
     } catch {
       return false;
     }
-  }, [adsgramConfig]);
+  }, [taskClaimAdEnabled]);
 
   const loadCompleted = useCallback(async () => {
     const initData = getInitData();
@@ -1219,7 +1216,7 @@ export default function Tasks() {
           <>
             <DailyCheckInCard onCoinsEarned={(n) => addCoins(n)} />
             <WatchAdCard onCoinsEarned={(n) => addCoins(n)} />
-            <BonusAdCard onCoinsEarned={(n) => addCoins(n)} onConfig={setAdsgramConfig} />
+            <BonusAdCard onCoinsEarned={(n) => addCoins(n)} onConfig={setTaskClaimAdEnabled} />
             <PromoCodeCard />
           </>
         )}
