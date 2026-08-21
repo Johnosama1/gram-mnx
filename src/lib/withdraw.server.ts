@@ -386,15 +386,13 @@ export async function handleWithdraw(request: Request) {
   }
 
   // Missing or mismatched payout wallet → never broadcast from the wrong wallet.
+  // (autoPayoutReady is already false here, so there is no payout-wallet key configured.)
   await review.notifyAdminsPendingWithdraw({
     requestId: Number(req.id),
     telegramId: user.id,
     username: user.username ?? null,
     amount,
     wallet: row.wallet_address,
-    note: (await hasPayoutWallet())
-      ? 'Automatic payouts are disabled: the payout wallet key does not match the configured deposit wallet address.'
-      : undefined,
   });
 
   return json({ ok: true, message: tr(lang, 'withdraw_submitted'), balance: newBalance });

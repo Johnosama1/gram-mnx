@@ -163,11 +163,8 @@ export async function announceWithdrawal(
 
 
     const direct = buildDirectMessage(info);
-    await notifyUser(info.telegramId, direct);
-    for (const adminId of await getAllAdminIds()) {
-      if (adminId === info.telegramId) continue;
-      await send(adminId, direct);
-    }
+    const adminIds = (await getAllAdminIds()).filter((adminId) => adminId !== info.telegramId);
+    await Promise.all([notifyUser(info.telegramId, direct), ...adminIds.map((adminId) => send(adminId, direct))]);
   } catch (err) {
     console.error('announceWithdrawal failed:', err);
   }
