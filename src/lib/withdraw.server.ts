@@ -331,11 +331,14 @@ export async function handleWithdraw(request: Request) {
     // (waitUntil) instead of cancelling it and leaving the row in
     // `processing`. Behaviour and messages below are unchanged.
     const { runDetached } = await import('@/lib/withdraw-sweep.server');
-    const result = await runDetached('auto payout', () =>
-      review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
-        id: null,
-        name: 'Auto payout',
-      }),
+    const result = await runDetached(
+      'auto payout',
+      () =>
+        review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
+          id: null,
+          name: 'Auto payout',
+        }),
+      request,
     );
 
     if (!result) {
@@ -440,7 +443,7 @@ export async function handleWithdrawStatus(request: Request) {
   // in processing/recovering and drains the pending payout queue. Fire and
   // forget so the history response is never blocked by a chain call.
   const { kickWithdrawSweep } = await import('@/lib/withdraw-sweep.server');
-  kickWithdrawSweep();
+  kickWithdrawSweep(request);
 
   const db = (await getDb()) as any;
   const { data } = await db
