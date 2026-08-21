@@ -159,9 +159,8 @@ export async function handleWithdraw(request: Request) {
     return json({ message: tr(lang, 'invalid_amount') }, 429);
   }
 
-  await upsertUser(user);
   const ip = getClientIp(request);
-  await recordUserIp(user.id, ip);
+  await Promise.all([upsertUser(user), recordUserIp(user.id, ip)]);
 
   const db = (await getDb()) as any;
   const { data: row } = await db
@@ -190,8 +189,7 @@ export async function handleWithdraw(request: Request) {
   }
 
   // Multi-account abuse guard: reject when too many accounts share this IP.
-  const limit = await getMaxAccountsPerIp();
-  const shared = await countAccountsSharingIp(user.id);
+  const [limit, shared] = await Promise.all([getMaxAccountsPerIp(), countAccountsSharingIp(user.id)]);
   if (shared >= limit) {
     await db.from('gm_withdrawals').insert({
       telegram_id: user.id,
@@ -210,8 +208,10 @@ export async function handleWithdraw(request: Request) {
   }
 
   // Same-address abuse guard: reject when several accounts withdraw to one wallet.
-  const walletLimit = await getMaxAccountsPerWallet();
-  const walletShared = await countAccountsSharingWallet(user.id, row.wallet_address);
+  const [walletLimit, walletShared] = await Promise.all([
+    getMaxAccountsPerWallet(),
+    countAccountsSharingWallet(user.id, row.wallet_address),
+  ]);
   if (walletShared > walletLimit) {
     await db.from('gm_withdrawals').insert({
       telegram_id: user.id,
