@@ -398,11 +398,51 @@ export async function handleWithdraw(request: Request) {
   return json({ ok: true, message: tr(lang, 'withdraw_submitted'), balance: newBalance });
 }
 
+const RETRY_STALE_MS = 2 * 60 * 1000;
+const RETRY_BATCH_LIMIT = 1;
+
+/**
+ * Opportunistically retries the oldest stale pending withdrawal through the
+ * same auto-payout path used at creation time (gm_debit already happened;
+ * this only (re)attempts the on-chain send). A request only stays pending
+ * because the payout wallet was briefly unfunded or a transient chain error
+ * occurred — this gives it a fresh attempt whenever anyone loads withdrawal
+ * history, independent of the original requester's connection, instead of
+ * waiting on a manual admin click. reviewWithdrawal's own row lock (it only
+ * acts while status is still 'pending') makes this safe to run concurrently
+ * with a manual admin approve/reject.
+ */
+async function retryStalePendingWithdrawals(): Promise<void> {
+  try {
+    const { hasPayoutWallet } = await import('@/lib/ton.server');
+    if (!(await hasPayoutWallet())) return;
+    const db = (await getDb()) as any;
+    const cutoff = new Date(Date.now() - RETRY_STALE_MS).toISOString();
+    const { data: stale } = await db
+      .from('gm_withdrawals')
+      .select('id')
+      .eq('status', 'pending')
+      .lt('created_at', cutoff)
+      .order('created_at', { ascending: true })
+      .limit(RETRY_BATCH_LIMIT);
+    if (!stale?.length) return;
+    const { reviewWithdrawal } = await import('@/lib/withdraw-review.server');
+    for (const row of stale as { id: number }[]) {
+      await reviewWithdrawal(Number(row.id), 'approve', undefined, { id: null, name: 'Auto retry' }).catch(() => undefined);
+    }
+  } catch (err) {
+    console.error('retryStalePendingWithdrawals failed:', err);
+  }
+}
+
 /** GET /api/telegram/withdraw/status — recent withdrawal history. */
 export async function handleWithdrawStatus(request: Request) {
   const user = resolveTelegramUser(getInitData(request));
   if (!user) return json({ message: 'Invalid initData' }, 401);
   await recordUserIp(user.id, getClientIp(request));
+  // Opportunistic retry so a stuck pending withdrawal is settled without a
+  // manual step, without depending on the original requester's connection.
+  await retryStalePendingWithdrawals();
   const db = (await getDb()) as any;
   const { data } = await db
     .from('gm_withdrawals')
