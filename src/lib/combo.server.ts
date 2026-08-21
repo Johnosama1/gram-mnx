@@ -14,8 +14,10 @@ const COMBO_ITEM_IDS = [1, 2, 3, 4, 5];
 
 /** Admin-configurable random reward range for the daily combo. */
 export async function getComboRewardRange(): Promise<{ min: number; max: number }> {
-  const minRaw = Number(await getSetting('combo_reward_min'));
-  const maxRaw = Number(await getSetting('combo_reward_max'));
+  const [minRaw, maxRaw] = await Promise.all([
+    getSetting('combo_reward_min').then(Number),
+    getSetting('combo_reward_max').then(Number),
+  ]);
   let min = Number.isFinite(minRaw) && minRaw > 0 ? Math.floor(minRaw) : 1;
   let max = Number.isFinite(maxRaw) && maxRaw > 0 ? Math.floor(maxRaw) : 10;
   if (max < min) max = min;

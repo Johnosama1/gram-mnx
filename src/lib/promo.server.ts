@@ -65,10 +65,13 @@ export async function handlePromoApi(request: Request): Promise<Response> {
   // Validation-only pass (client shows this before crediting): a plain read,
   // never writes, so it's never part of the redemption race.
   if (body.check === true) {
+    // Codes are always stored upper-cased at creation time (admin-general.server.ts),
+    // so an exact match on the upper-cased input is equivalent to the old
+    // case-insensitive ILIKE — but it can use a plain index instead of a scan.
     const { data: row } = await db
       .from('gm_promo_codes')
       .select('*')
-      .ilike('code', code)
+      .eq('code', code.toUpperCase())
       .maybeSingle();
     if (!row) return json({ ok: false, message: 'promo_invalid' }, 400);
 

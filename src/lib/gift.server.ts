@@ -307,19 +307,23 @@ async function settleOneGift(db: any, gift: GiftItem): Promise<GiftItem> {
   const chances = await computeAllChances(db, gift);
   const winnerIds = drawWeightedWinners(chances, Math.max(1, gift.winnerCount || 1));
 
-  const winners: GiftWinner[] = [];
-  for (const winnerId of winnerIds) {
-    const { data: u } = await db
-      .from('gm_users')
-      .select('username,first_name')
-      .eq('telegram_id', winnerId)
-      .maybeSingle();
-    winners.push({
+  // Batch the winner profile lookup into one query instead of one per winner.
+  const { data: winnerRows } = winnerIds.length
+    ? await db.from('gm_users').select('telegram_id,username,first_name').in('telegram_id', winnerIds)
+    : { data: [] };
+  const byId = new Map<number, { username?: string | null; first_name?: string | null }>(
+    ((winnerRows ?? []) as Array<{ telegram_id: number; username?: string | null; first_name?: string | null }>).map(
+      (u) => [Number(u.telegram_id), u],
+    ),
+  );
+  const winners: GiftWinner[] = winnerIds.map((winnerId) => {
+    const u = byId.get(winnerId);
+    return {
       id: winnerId,
       name: u?.username ? `@${u.username}` : (u?.first_name ?? `مستخدم #${winnerId}`),
       chances: chances.get(winnerId) ?? null,
-    });
-  }
+    };
+  });
 
   // Re-read the freshest stored list right before writing so two requests
   // landing at almost the same moment right after expiry can't both draw.
@@ -506,9 +510,8 @@ export async function handleGiftAdsWatch(request: Request): Promise<Response> {
 
 
 export async function getGiftState(initData: string | null) {
-  const cfg = await getGiftConfig();
   const auth = resolveTelegramUser(initData);
-  const isAdmin = await isAdminUser(auth?.id ?? null);
+  const [cfg, isAdmin] = await Promise.all([getGiftConfig(), isAdminUser(auth?.id ?? null)]);
   // A locked section stays locked for everyone except admins (preview mode).
   if (!cfg.enabled && !isAdmin) {
     return { enabled: false, message: cfg.message, gifts: [] as GiftPublicItem[], adminPreview: false };

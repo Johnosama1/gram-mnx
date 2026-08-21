@@ -67,15 +67,14 @@ export async function getCountryStats(): Promise<{
 }> {
   const db = (await getAdminDb()) as any;
 
-  const { count: totalUsers } = await db
-    .from('gm_users')
-    .select('id', { count: 'exact', head: true });
-
-  const { data: rows } = await db
-    .from('gm_user_ips')
-    .select('telegram_id, ip, country_code, country_name, last_seen_at')
-    .order('last_seen_at', { ascending: false })
-    .limit(20000);
+  const [{ count: totalUsers }, { data: rows }] = await Promise.all([
+    db.from('gm_users').select('id', { count: 'exact', head: true }),
+    db
+      .from('gm_user_ips')
+      .select('telegram_id, ip, country_code, country_name, last_seen_at')
+      .order('last_seen_at', { ascending: false })
+      .limit(20000),
+  ]);
 
   // Keep only the most recent IP row per user.
   const latest = new Map<number, { ip: string; code: string | null; name: string | null }>();

@@ -158,21 +158,23 @@ async function missingChannels(userId: number): Promise<GateChannel[]> {
   const token = getBotToken();
   const list = (data ?? []) as Array<{ channel_username: string; channel_name?: string | null }>;
   if (!token || list.length === 0) return [];
-  const missing: GateChannel[] = [];
-  for (const c of list) {
-    const username = c.channel_username.replace(/^@/, '');
-    const res = await fetch(
-      `https://api.telegram.org/bot${token}/getChatMember?chat_id=@${username}&user_id=${userId}`,
-    );
-    const body = (await res.json().catch(() => null)) as
-      | { ok?: boolean; result?: { status?: string } }
-      | null;
-    const status = body?.result?.status;
-    if (!body?.ok || !status || ['left', 'kicked'].includes(status)) {
-      missing.push({ username, name: (c.channel_name || '').trim() || `@${username}` });
-    }
-  }
-  return missing;
+  // One Telegram API round trip per channel, but the channels are
+  // independent of each other so they run concurrently instead of in series.
+  const results = await Promise.all(
+    list.map(async (c) => {
+      const username = c.channel_username.replace(/^@/, '');
+      const res = await fetch(
+        `https://api.telegram.org/bot${token}/getChatMember?chat_id=@${username}&user_id=${userId}`,
+      );
+      const body = (await res.json().catch(() => null)) as
+        | { ok?: boolean; result?: { status?: string } }
+        | null;
+      const status = body?.result?.status;
+      const isMissing = !body?.ok || !status || ['left', 'kicked'].includes(status);
+      return isMissing ? { username, name: (c.channel_name || '').trim() || `@${username}` } : null;
+    }),
+  );
+  return results.filter((c): c is GateChannel => c !== null);
 }
 
 /** Blue channel buttons + a single green "verify" button. */

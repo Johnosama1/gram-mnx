@@ -33,16 +33,17 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
   try {
     if (type === 'stats') {
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-      const total = await db.from('gm_users').select('id', { count: 'exact', head: true });
+      // Three independent counts on the same table — one round trip each,
+      // fired together instead of one after another.
+      const [total, blocked, active] = await Promise.all([
+        db.from('gm_users').select('id', { count: 'exact', head: true }),
+        db
+          .from('gm_users')
+          .select('id', { count: 'exact', head: true })
+          .or('blocked_bot.eq.true,is_banned.eq.true'),
+        db.from('gm_users').select('id', { count: 'exact', head: true }).gte('last_active_at', fiveMinAgo),
+      ]);
       if (total.error) return json({ error: total.error.message }, 500);
-      const blocked = await db
-        .from('gm_users')
-        .select('id', { count: 'exact', head: true })
-        .or('blocked_bot.eq.true,is_banned.eq.true');
-      const active = await db
-        .from('gm_users')
-        .select('id', { count: 'exact', head: true })
-        .gte('last_active_at', fiveMinAgo);
       return json({
         totalUsers: total.count ?? 0,
         blockedUsers: blocked.count ?? 0,

@@ -82,23 +82,25 @@ export type Accrued = {
  */
 export async function computeAccrued(telegramId: number): Promise<Accrued> {
   const db = await getDb();
-  const { data } = await db
-    .from('gm_users')
-    .select('coins, last_claim_at, mining_rate, unclaimed_mining_balance')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-
-  // Admin-configurable daily mining percentage (default 5%).
-  let miningDailyPct = 5;
-  try {
-    const { data: s } = await db
+  // These two reads don't depend on each other's result.
+  const [{ data }, settingRow] = await Promise.all([
+    db
+      .from('gm_users')
+      .select('coins, last_claim_at, mining_rate, unclaimed_mining_balance')
+      .eq('telegram_id', telegramId)
+      .maybeSingle(),
+    db
       .from('gm_settings')
       .select('value')
       .eq('key', 'mining_daily_pct')
-      .maybeSingle();
-    const parsed = Number((s as { value?: string } | null)?.value);
-    if (Number.isFinite(parsed) && parsed >= 0) miningDailyPct = parsed;
-  } catch { /* keep default */ }
+      .maybeSingle()
+      .then((r: { data: unknown }) => r.data, () => null),
+  ]);
+
+  // Admin-configurable daily mining percentage (default 5%).
+  let miningDailyPct = 5;
+  const parsed = Number((settingRow as { value?: string } | null)?.value);
+  if (Number.isFinite(parsed) && parsed >= 0) miningDailyPct = parsed;
 
 
   const liveCoins = Math.max(0, Number(data?.coins ?? 0) || 0);

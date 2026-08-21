@@ -67,36 +67,26 @@ export async function getReferralPrice(): Promise<number> {
 export async function checkEligibility(telegramId: number): Promise<ReferralEligibility> {
   const db = (await getDb()) as any;
 
-  const { data: user } = await db
-    .from('gm_users')
-    .select('wallet_address')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
+  // These five reads are all keyed only on telegramId and don't depend on
+  // each other's result, so they run as one round trip instead of five.
+  const [{ data: user }, { count: comboCount }, { count: taskCount }, { data: checkinRow }, { count: depositCount }] =
+    await Promise.all([
+      db.from('gm_users').select('wallet_address').eq('telegram_id', telegramId).maybeSingle(),
+      db
+        .from('gm_combo_attempts')
+        .select('id', { count: 'exact', head: true })
+        .eq('telegram_id', telegramId)
+        .eq('success', true),
+      db.from('gm_task_completions').select('id', { count: 'exact', head: true }).eq('telegram_id', telegramId),
+      db.from('gm_daily_checkins').select('total_claims').eq('telegram_id', telegramId).maybeSingle(),
+      // A confirmed deposit alone qualifies the referral, regardless of the other steps.
+      db
+        .from('gm_deposits')
+        .select('id', { count: 'exact', head: true })
+        .eq('telegram_id', telegramId)
+        .in('status', ['credited', 'confirmed', 'completed']),
+    ]);
   const wallet = Boolean(user?.wallet_address);
-
-  const { count: comboCount } = await db
-    .from('gm_combo_attempts')
-    .select('id', { count: 'exact', head: true })
-    .eq('telegram_id', telegramId)
-    .eq('success', true);
-
-  const { count: taskCount } = await db
-    .from('gm_task_completions')
-    .select('id', { count: 'exact', head: true })
-    .eq('telegram_id', telegramId);
-
-  const { data: checkinRow } = await db
-    .from('gm_daily_checkins')
-    .select('total_claims')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-
-  // A confirmed deposit alone qualifies the referral, regardless of the other steps.
-  const { count: depositCount } = await db
-    .from('gm_deposits')
-    .select('id', { count: 'exact', head: true })
-    .eq('telegram_id', telegramId)
-    .in('status', ['credited', 'confirmed', 'completed']);
   const deposited = Number(depositCount ?? 0) > 0;
 
   const combo = Number(comboCount ?? 0) > 0;

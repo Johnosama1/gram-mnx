@@ -38,9 +38,7 @@ export async function handleSupportSubmit(request: Request): Promise<Response> {
   const title = kind === 'suggestion' ? '💡 New suggestion' : '📩 New complaint';
   const escaped = message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const text = `${title}\n\n👤 ${tag}\n🪪 <code>${user.id}</code>\n\n${escaped}`;
-  for (const adminId of await getAllAdminIds()) {
-    await notifyUser(adminId, text);
-  }
+  await Promise.all((await getAllAdminIds()).map((adminId) => notifyUser(adminId, text)));
 
   return json({ ok: true });
 }

@@ -33,17 +33,17 @@ async function enrich(db: any, rows: any[]) {
   if (!users.length) return users;
   const ids = users.map((u) => u.telegramId);
 
-  const { data: refRows } = await db
-    .from('gm_referrals')
-    .select('referrer_id')
-    .in('referrer_id', ids);
+  // Independent of each other — both only need `ids`.
+  const [{ data: refRows }, { data: ipRows }] = await Promise.all([
+    db.from('gm_referrals').select('referrer_id').in('referrer_id', ids),
+    db.from('gm_user_ips').select('telegram_id, ip').in('telegram_id', ids),
+  ]);
   const refCount = new Map<number, number>();
   for (const r of refRows ?? []) {
     const k = Number(r.referrer_id);
     refCount.set(k, (refCount.get(k) ?? 0) + 1);
   }
 
-  const { data: ipRows } = await db.from('gm_user_ips').select('telegram_id, ip').in('telegram_id', ids);
   const ipsOf = new Map<number, string[]>();
   for (const r of ipRows ?? []) {
     const k = Number(r.telegram_id);
