@@ -9,6 +9,7 @@ import {
 import arTranslations from '@/locales/ar.json';
 import { notifyDataChange } from '@/lib/apiCache';
 import { GiftMedia } from '@/screens/Gift';
+import { COMBO_ITEM_NAME, COMBO_ITEM_EMOJI } from '@/lib/combo-items';
 
 /**
  * Admin panel is Arabic-only: shadow the app-wide language hook with a
@@ -2390,13 +2391,9 @@ function AdminsSection() {
 }
 
 // ─── Daily Combo (read-only view) ─────────────────────────────────────────
-const COMBO_ITEM_NAMES: Record<number, string> = {
-  1: 'فأس ذهبي', 2: 'عربة جرام', 3: 'علم جرام',
-  4: 'خزنة ذهبية',  5: 'ألماسة ذهبية',
-};
-const COMBO_EMOJIS: Record<number, string> = {
-  1: '⛏️', 2: '🛒', 3: '🚩', 4: '🔐', 5: '💎',
-};
+// Item id → name/emoji comes from the same shared list the user-facing
+// Combo screen renders (src/lib/combo-items.ts), so this display can never
+// drift out of sync with what the user actually sees and selects.
 
 function ComboDailySection() {
   return <ComboDailySectionInner />;
@@ -2571,7 +2568,7 @@ const COMBO_REWARD_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function ComboDailyInner() {
   const { t } = useLanguage();
-  const [combo, setCombo] = useState<{ date: string|null; correctIds: number[]; correctNames: string[] } | null>(null);
+  const [combo, setCombo] = useState<{ date: string|null; correctIds: number[] } | null>(null);
   const [rewardMin, setRewardMin] = useState('1');
   const [rewardMax, setRewardMax] = useState('10');
   const [savingRange, setSavingRange] = useState(false);
@@ -2588,7 +2585,7 @@ function ComboDailyInner() {
   const weightsTotal = COMBO_REWARD_VALUES.reduce((s, v) => s + (Number(weights[String(v)]) || 0), 0);
 
   useEffect(() => {
-    api<{ date: string|null; correctIds: number[]; correctNames: string[]; rewardMin?: number; rewardMax?: number; rewardWeights?: Record<string, number> }>(
+    api<{ date: string|null; correctIds: number[]; rewardMin?: number; rewardMax?: number; rewardWeights?: Record<string, number> }>(
       'GET', '/admin/general?type=combo'
     ).then(c => {
       setCombo(c);
@@ -2647,7 +2644,7 @@ function ComboDailyInner() {
         correctIds: selected,
         reward: Number(reward) || 0,
       });
-      const fresh = await api<{ date: string|null; correctIds: number[]; correctNames: string[] }>(
+      const fresh = await api<{ date: string|null; correctIds: number[] }>(
         'GET', '/admin/general?type=combo'
       );
       setCombo(fresh);
@@ -2671,8 +2668,8 @@ function ComboDailyInner() {
           <div className="flex gap-2 flex-wrap">
             {combo.correctIds.map(id => (
               <div key={id} className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-3 py-2">
-                <span className="text-lg">{COMBO_EMOJIS[id]}</span>
-                <span className="text-foreground font-bold text-xs">{COMBO_ITEM_NAMES[id]}</span>
+                <span className="text-lg">{COMBO_ITEM_EMOJI[id]}</span>
+                <span className="text-foreground font-bold text-xs">{COMBO_ITEM_NAME[id]}</span>
               </div>
             ))}
           </div>
@@ -2750,8 +2747,8 @@ function ComboDailyInner() {
                   : 'bg-secondary border-violet-500/20 text-muted-foreground'
               }`}
             >
-              <span className="text-lg">{COMBO_EMOJIS[id]}</span>
-              {COMBO_ITEM_NAMES[id]}
+              <span className="text-lg">{COMBO_ITEM_EMOJI[id]}</span>
+              {COMBO_ITEM_NAME[id]}
             </button>
           ))}
         </div>

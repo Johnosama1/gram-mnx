@@ -487,17 +487,9 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
         const range = await getComboRewardRange();
         const weights = await getComboRewardWeights();
         const correctIds = daily.correctIds;
-        const NAMES: Record<number, string> = {
-          1: 'Golden Pickaxe',
-          2: 'GRAM Cart',
-          3: 'GRAM Flag',
-          4: 'Gold Vault',
-          5: 'Golden Diamond',
-        };
         return json({
           date: today,
           correctIds,
-          correctNames: correctIds.map((i) => NAMES[i] ?? String(i)),
           reward: daily.reward,
           rewardMin: range.min,
           rewardMax: range.max,

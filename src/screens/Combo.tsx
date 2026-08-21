@@ -8,20 +8,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
-import comboCrystal from '@/assets/combo/crystal-v2.png.asset.json';
-import comboBox from '@/assets/combo/box-v2.png.asset.json';
-import comboCart from '@/assets/combo/cart-v2.png.asset.json';
-import comboFlag from '@/assets/combo/flag-v2.png.asset.json';
-import comboCoins from '@/assets/combo/coins-v2.png.asset.json';
-
-// ─── Item definitions ────────────────────────────────────────────────────────
-const ITEMS = [
-  { id: 1, name: 'Crystal\nShard', img: comboCrystal.url },
-  { id: 2, name: 'GRAM\nBox', img: comboBox.url },
-  { id: 3, name: 'GRAM\nCart', img: comboCart.url },
-  { id: 4, name: 'GRAM\nFlag', img: comboFlag.url },
-  { id: 5, name: 'GRAM\nCoins', img: comboCoins.url },
-];
+import { COMBO_ITEMS } from '@/lib/combo-items';
 
 
 // Max allowed attempts per day
@@ -221,7 +208,7 @@ export default function Combo() {
               <div className="grid grid-cols-3 gap-2">
                 {[0, 1, 2].map(i => {
                   const id = selected[i];
-                  const item = ITEMS.find(x => x.id === id);
+                  const item = COMBO_ITEMS.find(x => x.id === id);
                   const wrong = showSuccess === false;
                   const good = showSuccess === true;
                   return (
@@ -294,7 +281,7 @@ export default function Combo() {
 
             {/* Cards grid */}
             <div className="grid grid-cols-5 gap-2">
-              {ITEMS.map(item => (
+              {COMBO_ITEMS.map(item => (
                 <ItemCard
                   key={item.id}
                   item={item}
@@ -340,7 +327,7 @@ export default function Combo() {
 function ItemCard({
   item, selected, disabled, onTap,
 }: {
-  item: typeof ITEMS[number];
+  item: typeof COMBO_ITEMS[number];
   selected: boolean;
   disabled: boolean;
   onTap: () => void;
