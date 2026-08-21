@@ -128,10 +128,13 @@ export async function handleComboRequest(request: Request): Promise<Response> {
   if (request.method === 'GET') {
     // Read-only lookups with no dependency on each other or on the user row
     // existing yet, so they all go over the wire together.
-    const [daily, attemptRes] = await Promise.all([
+    const { isComboAdEnabled, getAdsGramBlockId } = await import('@/lib/adsgram.server');
+    const [daily, attemptRes, , adEnabled, blockId] = await Promise.all([
       ensureDailyCombo(),
       db.from('gm_combo_attempts').select('success,reward').eq('telegram_id', auth.id).eq('combo_date', date).maybeSingle(),
       upsertUser(auth),
+      isComboAdEnabled(),
+      getAdsGramBlockId(),
     ]);
     const { data } = attemptRes;
     return json({
@@ -142,6 +145,8 @@ export async function handleComboRequest(request: Request): Promise<Response> {
       // Reveal today's answer only after the user has already attempted.
       correctIds: data ? daily.correctIds : null,
       nextResetAt: nextResetAt(),
+      adEnabled,
+      blockId,
     });
   }
 

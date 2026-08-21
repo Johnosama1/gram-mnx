@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
 import { showMonetagAd } from '@/lib/monetag';
+import { showAdsgramAd } from '@/lib/adsgram';
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -55,6 +56,8 @@ interface CheckinState {
   reward: number;
   canClaim: boolean;
   nextAvailableAt: string | null;
+  adEnabled?: boolean;
+  blockId?: string;
 }
 
 function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) {
@@ -85,13 +88,17 @@ function DailyCheckInCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => voi
     setClaiming(true);
     setMsg(null);
     try {
-      // Must watch a full ad before the daily reward can be claimed — a
-      // skip/close/load failure rejects and no claim request is sent.
-      try {
-        await showMonetagAd();
-      } catch {
-        setMsg({ ok: false, text: t('tasks_ads_failed') });
-        return;
+      // Admin-configurable gate (AdsGram): must watch a full ad before the
+      // daily reward can be claimed — a skip/close/load failure rejects and
+      // no claim request is sent. Disabled entirely when the admin turns
+      // this placement off.
+      if (state?.adEnabled !== false) {
+        try {
+          await showAdsgramAd(state?.blockId || '43843');
+        } catch {
+          setMsg({ ok: false, text: t('tasks_ads_failed') });
+          return;
+        }
       }
       const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number; message?: string }>(
         '/tasks/checkin', {},
@@ -291,6 +298,138 @@ function WatchAdCard({ onCoinsEarned }: { onCoinsEarned: (n: number) => void }) 
             t('tasks_ads_limit_reached')
           ) : (
             t('tasks_ads_watch')
+          )}
+        </button>
+      </div>
+
+      {msg && (
+        <div
+          className="mt-2 text-xs font-medium px-2 py-1 rounded-lg"
+          style={{
+            background: msg.ok ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)',
+            color: msg.ok ? '#a78bfa' : '#f87171',
+          }}
+        >
+          {msg.text}
+        </div>
+      )}
+    </TaskCard>
+  );
+}
+
+// ─── Bonus Ad Card (AdsGram, block 43843 by default) ─────────────────────────
+interface BonusAdStatus {
+  enabled: boolean;
+  watchedToday: number;
+  remainingToday: number;
+  rewardCoins: number;
+  dailyLimit: number;
+  blockId: string;
+  taskClaimAdEnabled: boolean;
+}
+
+function BonusAdCard({
+  onCoinsEarned,
+  onConfig,
+}: {
+  onCoinsEarned: (n: number) => void;
+  onConfig: (cfg: { blockId: string; taskClaimAdEnabled: boolean }) => void;
+}) {
+  const { t } = useLanguage();
+  const [status, setStatus] = useState<BonusAdStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const load = useCallback(async () => {
+    const initData = getInitData();
+    if (!initData) return;
+    try {
+      const res = await cachedFetch(`${API_BASE}/api/tasks/bonus-ads-status`, {
+        headers: { 'x-init-data': initData },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as BonusAdStatus;
+        setStatus(data);
+        onConfig({ blockId: data.blockId, taskClaimAdEnabled: data.taskClaimAdEnabled });
+      }
+    } catch {
+      /* best-effort — the card just stays hidden/disabled until the next load */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const canWatch = !!status?.enabled && status.remainingToday > 0;
+
+  const watch = async () => {
+    // Guards against a double-tap or reopening the ad firing a second reward.
+    if (busy || !canWatch || !status) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      // Resolves only once the ad was watched to completion; a skip/close/
+      // load failure rejects and no reward is requested below.
+      await showAdsgramAd(status.blockId);
+      const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number }>(
+        '/tasks/bonus-ads-watched',
+        {},
+      );
+      if (data.ok && data.coinsEarned) {
+        onCoinsEarned(data.coinsEarned);
+        setMsg({ ok: true, text: `✅ +${data.coinsEarned} MNX` });
+        notifyDataChange('balance', 'tasks');
+      } else {
+        setMsg({ ok: false, text: t('tasks_ads_limit_reached') });
+      }
+      await load();
+    } catch {
+      setMsg({ ok: false, text: t('tasks_ads_failed') });
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMsg(null), 3500);
+    }
+  };
+
+  if (!status?.enabled) return null;
+
+  return (
+    <TaskCard>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <TaskIconBox>
+            <PlayCircle className="w-6 h-6 text-primary" />
+          </TaskIconBox>
+          <div className="min-w-0">
+            <div className="font-bold text-sm text-foreground">{t('tasks_bonus_ad_title')}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{t('tasks_bonus_ad_desc')}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">
+              {t('tasks_ads_progress', {
+                watched: String(status.watchedToday),
+                limit: String(status.dailyLimit),
+              })}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={watch}
+          disabled={busy || !canWatch}
+          className="flex-shrink-0 px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5"
+          style={{
+            background: canWatch ? 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' : 'rgba(139,92,246,0.10)',
+            color: canWatch ? '#fff' : '#9a97ad',
+            cursor: busy || !canWatch ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {busy ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : !canWatch ? (
+            t('tasks_ads_limit_reached')
+          ) : (
+            t('tasks_bonus_ad_watch')
           )}
         </button>
       </div>
@@ -857,6 +996,20 @@ export default function Tasks() {
     return () => clearInterval(id);
   }, []);
 
+  // Admin-configurable gate: show an AdsGram ad before a task reward is
+  // claimed. Sourced from BonusAdCard's own status load (same settings,
+  // one fetch) rather than a second request for the same data.
+  const [adsgramConfig, setAdsgramConfig] = useState({ blockId: '43843', taskClaimAdEnabled: false });
+  const ensureClaimAd = useCallback(async (): Promise<boolean> => {
+    if (!adsgramConfig.taskClaimAdEnabled) return true;
+    try {
+      await showAdsgramAd(adsgramConfig.blockId);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [adsgramConfig]);
+
   const loadCompleted = useCallback(async () => {
     const initData = getInitData();
     if (!initData) return;
@@ -918,6 +1071,10 @@ export default function Tasks() {
         window.open(task.joinLink ?? `https://t.me/${handle}`, '_blank');
         return;
       }
+      if (!(await ensureClaimAd())) {
+        setFeedback({ id: task.id, msg: `❌ ${t('tasks_ads_failed')}`, ok: false });
+        return;
+      }
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/complete', { taskId: task.id });
       if (data.ok) markDone(task);
       else setFeedback({ id: task.id, msg: `❌ ${data.message ?? t('tasks_error')}`, ok: false });
@@ -933,6 +1090,10 @@ export default function Tasks() {
     if (completing !== null) return;
     setCompleting(task.id);
     try {
+      if (!(await ensureClaimAd())) {
+        setFeedback({ id: task.id, msg: `❌ ${t('tasks_ads_failed')}`, ok: false });
+        return;
+      }
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/verify-channel', { taskId: task.id });
       if (data.ok) markDone(task);
       else
@@ -954,6 +1115,7 @@ export default function Tasks() {
 
   const verifyTwitter = async (task: Task): Promise<string | null> => {
     try {
+      if (!(await ensureClaimAd())) return t('tasks_ads_failed');
       const data = await telegramApiPost<{ ok: boolean; message?: string }>('/tasks/verify-twitter', {
         taskId: task.id,
       });
@@ -1057,6 +1219,7 @@ export default function Tasks() {
           <>
             <DailyCheckInCard onCoinsEarned={(n) => addCoins(n)} />
             <WatchAdCard onCoinsEarned={(n) => addCoins(n)} />
+            <BonusAdCard onCoinsEarned={(n) => addCoins(n)} onConfig={setAdsgramConfig} />
             <PromoCodeCard />
           </>
         )}

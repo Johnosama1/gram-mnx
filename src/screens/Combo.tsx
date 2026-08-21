@@ -9,6 +9,7 @@ import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
 import { COMBO_ITEMS } from '@/lib/combo-items';
+import { showAdsgramAd } from '@/lib/adsgram';
 
 
 // Max allowed attempts per day
@@ -41,6 +42,8 @@ export default function Combo() {
   const [error, setError] = useState('');
   const [nextReset, setNextReset] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [adEnabled, setAdEnabled] = useState(false);
+  const [adsgramBlockId, setAdsgramBlockId] = useState('43843');
 
   // Tick the countdown every second while a reset time is known
   useEffect(() => {
@@ -63,6 +66,8 @@ export default function Combo() {
           setSelected(data.correctIds.map(Number));
         }
         if (data.nextResetAt) setNextReset(new Date(data.nextResetAt).getTime());
+        setAdEnabled(Boolean(data.adEnabled));
+        if (data.blockId) setAdsgramBlockId(String(data.blockId));
       })
       .catch((err: unknown) => {
         console.error('[combo] status load failed', err);
@@ -91,6 +96,17 @@ export default function Combo() {
     setSubmitting(true);
     setError('');
     try {
+      // Admin-configurable gate: must watch a full AdsGram ad before the
+      // combo can be submitted — a skip/close/load failure stops here and no
+      // submit request is sent, so today's one attempt is never consumed.
+      if (adEnabled) {
+        try {
+          await showAdsgramAd(adsgramBlockId);
+        } catch {
+          setError(t('tasks_ads_failed'));
+          return;
+        }
+      }
       // retries: 0 — this is a non-idempotent mutation (consumes today's one
       // attempt), so a stalled request must fail fast instead of silently
       // retrying and doubling how long "Checking..." sits on screen.

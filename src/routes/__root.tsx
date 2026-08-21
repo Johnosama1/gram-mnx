@@ -108,6 +108,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { src: "https://telegram.org/js/telegram-web-app.js", defer: true, 'data-telegram-web-app-sdk': 'true' },
       // Monetag rewarded-ad SDK (zone 11590639) for the "Watch & Earn" task.
       { src: "//libtl.com/sdk.js", async: true, 'data-zone': '11590639', 'data-sdk': 'show_11590639' },
+      // AdsGram rewarded-ad SDK, used for the Bonus Ad task, Daily Check-in,
+      // Daily Combo, and task-claim ad gates (block id is admin-configurable).
+      { src: "https://sad.adsgram.ai/js/sad.min.js", async: true },
     ],
   }),
   shellComponent: RootShell,

@@ -38,6 +38,8 @@ import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submi
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
 import { Route as ApiTasksAdsStatusRouteImport } from './routes/api/tasks/ads-status'
 import { Route as ApiTasksAdsWatchedRouteImport } from './routes/api/tasks/ads-watched'
+import { Route as ApiTasksBonusAdsStatusRouteImport } from './routes/api/tasks/bonus-ads-status'
+import { Route as ApiTasksBonusAdsWatchedRouteImport } from './routes/api/tasks/bonus-ads-watched'
 import { Route as ApiTasksCheckinRouteImport } from './routes/api/tasks/checkin'
 import { Route as ApiTasksCompleteRouteImport } from './routes/api/tasks/complete'
 import { Route as ApiTasksCompletedRouteImport } from './routes/api/tasks/completed'
@@ -220,6 +222,16 @@ const ApiTasksAdsStatusRoute = ApiTasksAdsStatusRouteImport.update({
 const ApiTasksAdsWatchedRoute = ApiTasksAdsWatchedRouteImport.update({
   id: '/api/tasks/ads-watched',
   path: '/api/tasks/ads-watched',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksBonusAdsStatusRoute = ApiTasksBonusAdsStatusRouteImport.update({
+  id: '/api/tasks/bonus-ads-status',
+  path: '/api/tasks/bonus-ads-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTasksBonusAdsWatchedRoute = ApiTasksBonusAdsWatchedRouteImport.update({
+  id: '/api/tasks/bonus-ads-watched',
+  path: '/api/tasks/bonus-ads-watched',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTasksCheckinRoute = ApiTasksCheckinRouteImport.update({
@@ -446,6 +458,8 @@ export interface FileRoutesByFullPath {
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
   '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
+  '/api/tasks/bonus-ads-status': typeof ApiTasksBonusAdsStatusRoute
+  '/api/tasks/bonus-ads-watched': typeof ApiTasksBonusAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -514,6 +528,8 @@ export interface FileRoutesByTo {
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
   '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
+  '/api/tasks/bonus-ads-status': typeof ApiTasksBonusAdsStatusRoute
+  '/api/tasks/bonus-ads-watched': typeof ApiTasksBonusAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -583,6 +599,8 @@ export interface FileRoutesById {
   '/api/support/submit': typeof ApiSupportSubmitRoute
   '/api/tasks/ads-status': typeof ApiTasksAdsStatusRoute
   '/api/tasks/ads-watched': typeof ApiTasksAdsWatchedRoute
+  '/api/tasks/bonus-ads-status': typeof ApiTasksBonusAdsStatusRoute
+  '/api/tasks/bonus-ads-watched': typeof ApiTasksBonusAdsWatchedRoute
   '/api/tasks/checkin': typeof ApiTasksCheckinRoute
   '/api/tasks/complete': typeof ApiTasksCompleteRoute
   '/api/tasks/completed': typeof ApiTasksCompletedRoute
@@ -653,6 +671,8 @@ export interface FileRouteTypes {
     | '/api/support/submit'
     | '/api/tasks/ads-status'
     | '/api/tasks/ads-watched'
+    | '/api/tasks/bonus-ads-status'
+    | '/api/tasks/bonus-ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -721,6 +741,8 @@ export interface FileRouteTypes {
     | '/api/support/submit'
     | '/api/tasks/ads-status'
     | '/api/tasks/ads-watched'
+    | '/api/tasks/bonus-ads-status'
+    | '/api/tasks/bonus-ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -789,6 +811,8 @@ export interface FileRouteTypes {
     | '/api/support/submit'
     | '/api/tasks/ads-status'
     | '/api/tasks/ads-watched'
+    | '/api/tasks/bonus-ads-status'
+    | '/api/tasks/bonus-ads-watched'
     | '/api/tasks/checkin'
     | '/api/tasks/complete'
     | '/api/tasks/completed'
@@ -858,6 +882,8 @@ export interface RootRouteChildren {
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
   ApiTasksAdsStatusRoute: typeof ApiTasksAdsStatusRoute
   ApiTasksAdsWatchedRoute: typeof ApiTasksAdsWatchedRoute
+  ApiTasksBonusAdsStatusRoute: typeof ApiTasksBonusAdsStatusRoute
+  ApiTasksBonusAdsWatchedRoute: typeof ApiTasksBonusAdsWatchedRoute
   ApiTasksCheckinRoute: typeof ApiTasksCheckinRoute
   ApiTasksCompleteRoute: typeof ApiTasksCompleteRoute
   ApiTasksCompletedRoute: typeof ApiTasksCompletedRoute
@@ -1095,6 +1121,20 @@ declare module '@tanstack/react-router' {
       path: '/api/tasks/ads-watched'
       fullPath: '/api/tasks/ads-watched'
       preLoaderRoute: typeof ApiTasksAdsWatchedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/bonus-ads-status': {
+      id: '/api/tasks/bonus-ads-status'
+      path: '/api/tasks/bonus-ads-status'
+      fullPath: '/api/tasks/bonus-ads-status'
+      preLoaderRoute: typeof ApiTasksBonusAdsStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tasks/bonus-ads-watched': {
+      id: '/api/tasks/bonus-ads-watched'
+      path: '/api/tasks/bonus-ads-watched'
+      fullPath: '/api/tasks/bonus-ads-watched'
+      preLoaderRoute: typeof ApiTasksBonusAdsWatchedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tasks/checkin': {
@@ -1451,6 +1491,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,
   ApiTasksAdsStatusRoute: ApiTasksAdsStatusRoute,
   ApiTasksAdsWatchedRoute: ApiTasksAdsWatchedRoute,
+  ApiTasksBonusAdsStatusRoute: ApiTasksBonusAdsStatusRoute,
+  ApiTasksBonusAdsWatchedRoute: ApiTasksBonusAdsWatchedRoute,
   ApiTasksCheckinRoute: ApiTasksCheckinRoute,
   ApiTasksCompleteRoute: ApiTasksCompleteRoute,
   ApiTasksCompletedRoute: ApiTasksCompletedRoute,

@@ -1,5 +1,6 @@
 import { json, getSetting, getBotToken } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { getAdsGramBlockId, isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
 
 const DAILY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
@@ -102,6 +103,22 @@ async function getAdQuota(db: any, telegramId: number) {
   const dayStart = currentUtcMidnight();
   const { count } = await db
     .from('gm_ad_views')
+    .select('id', { count: 'exact', head: true })
+    .eq('telegram_id', telegramId)
+    .gte('created_at', dayStart.toISOString());
+
+  return {
+    watched: Number(count ?? 0),
+    resetAt: nextUtcMidnight().toISOString() as string | null,
+  };
+}
+
+/** Quota for the second, AdsGram-backed "Bonus Ad" task — a separate ledger
+ *  (gm_bonus_ad_views) from the "Watch & Earn" Monetag task above. */
+async function getBonusAdQuota(db: any, telegramId: number) {
+  const dayStart = currentUtcMidnight();
+  const { count } = await db
+    .from('gm_bonus_ad_views')
     .select('id', { count: 'exact', head: true })
     .eq('telegram_id', telegramId)
     .gte('created_at', dayStart.toISOString());
@@ -482,7 +499,12 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
 
   // ── Daily check-in ─────────────────────────────────────────────────────────
   if (sub === 'checkin' && method === 'GET') {
-    return json(await getCheckinState(auth.id));
+    const [state, adEnabled, blockId] = await Promise.all([
+      getCheckinState(auth.id),
+      isCheckinAdEnabled(),
+      getAdsGramBlockId(),
+    ]);
+    return json({ ...state, adEnabled, blockId });
   }
 
   if (sub === 'checkin' && method === 'POST') {
@@ -555,6 +577,52 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     });
   }
 
+  // ── Bonus Ad task (second rewarded-ad card, AdsGram) ───────────────────────
+  if (sub === 'bonus-ads-status' && method === 'GET') {
+    const [rewardSetting, limitSetting, enabledSetting, quota, blockId, taskClaimAdEnabled] = await Promise.all([
+      getSetting('bonus_ad_reward_coins'),
+      getSetting('bonus_ad_daily_limit'),
+      getSetting('bonus_ad_task_enabled'),
+      getBonusAdQuota(db, auth.id),
+      getAdsGramBlockId(),
+      isTaskClaimAdEnabled(),
+    ]);
+    const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
+    const dailyLimit = Number(limitSetting ?? 20) || 20;
+    const enabled = enabledSetting !== 'false';
+    return json({
+      enabled,
+      watchedToday: quota.watched,
+      remainingToday: Math.max(0, dailyLimit - quota.watched),
+      resetAt: quota.resetAt,
+      rewardCoins,
+      dailyLimit,
+      blockId,
+      taskClaimAdEnabled,
+    });
+  }
+
+  if (sub === 'bonus-ads-watched' && method === 'POST') {
+    const [rewardSetting, limitSetting, quota] = await Promise.all([
+      getSetting('bonus_ad_reward_coins'),
+      getSetting('bonus_ad_daily_limit'),
+      getBonusAdQuota(db, auth.id),
+    ]);
+    const rewardCoins = Number(rewardSetting ?? 0.5) || 0.5;
+    const dailyLimit = Number(limitSetting ?? 20) || 20;
+    const watchedToday = quota.watched;
+    if (watchedToday >= dailyLimit)
+      return json({ ok: false, message: 'daily limit reached' }, 400);
+
+    await db.from('gm_bonus_ad_views').insert({ telegram_id: auth.id, coins: rewardCoins });
+    await addCoins(auth.id, rewardCoins);
+    return json({
+      ok: true,
+      coinsEarned: rewardCoins,
+      remainingToday: Math.max(0, dailyLimit - watchedToday - 1),
+      dailyLimit,
+    });
+  }
 
   return json({ error: 'Unsupported request' }, 400);
 }

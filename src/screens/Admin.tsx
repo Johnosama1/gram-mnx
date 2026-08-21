@@ -497,6 +497,115 @@ function AdsSection() {
   );
 }
 
+// ─── AdsGram (unified rewarded-ad placements) ─────────────────────────────
+function ToggleRow({
+  label, value, onChange,
+}: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between bg-secondary rounded-xl px-4 py-3">
+      <span className="text-foreground font-bold text-sm">{label}</span>
+      <button
+        onClick={() => onChange(!value)}
+        className={`w-12 h-6 rounded-full transition-colors relative ${value ? 'bg-primary' : 'bg-secondary'}`}
+      >
+        <div
+          className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${value ? 'right-1' : 'left-1'}`}
+        />
+      </button>
+    </div>
+  );
+}
+
+function AdsGramSection() {
+  const [blockId, setBlockId] = useState('43843');
+  const [bonusEnabled, setBonusEnabled] = useState(true);
+  const [bonusReward, setBonusReward] = useState('0.5');
+  const [bonusLimit, setBonusLimit] = useState('20');
+  const [checkinAdEnabled, setCheckinAdEnabled] = useState(true);
+  const [comboAdEnabled, setComboAdEnabled] = useState(false);
+  const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    api<Record<string, string>>('GET', '/admin/general?type=settings')
+      .then((s) => {
+        setBlockId(s['adsgram_block_id'] || '43843');
+        setBonusEnabled(s['bonus_ad_task_enabled'] !== 'false');
+        setBonusReward(s['bonus_ad_reward_coins'] ?? '0.5');
+        setBonusLimit(s['bonus_ad_daily_limit'] ?? '20');
+        setCheckinAdEnabled(s['checkin_ad_enabled'] !== 'false');
+        setComboAdEnabled(s['combo_ad_enabled'] === 'true');
+        setTaskClaimAdEnabled(s['task_claim_ad_enabled'] === 'true');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const save = async () => {
+    try {
+      await Promise.all([
+        api('POST', '/admin/general?type=settings', { key: 'adsgram_block_id', value: blockId.trim() || '43843' }),
+        api('POST', '/admin/general?type=settings', { key: 'bonus_ad_task_enabled', value: String(bonusEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'bonus_ad_reward_coins', value: bonusReward }),
+        api('POST', '/admin/general?type=settings', { key: 'bonus_ad_daily_limit', value: bonusLimit }),
+        api('POST', '/admin/general?type=settings', { key: 'checkin_ad_enabled', value: String(checkinAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'combo_ad_enabled', value: String(comboAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'task_claim_ad_enabled', value: String(taskClaimAdEnabled) }),
+      ]);
+      notifyDataChange('admin', 'tasks', 'combo');
+      setStatus('✅ تم الحفظ');
+    } catch {
+      setStatus('❌ فشل الحفظ');
+    }
+    setTimeout(() => setStatus(''), 2000);
+  };
+
+  if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
+
+  return (
+    <div className="space-y-3">
+      <label className="text-xs text-muted-foreground block">
+        AdsGram Block ID
+        <input
+          value={blockId}
+          onChange={(e) => setBlockId(e.target.value)}
+          dir="ltr"
+          className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
+        />
+      </label>
+
+      <ToggleRow label="بطاقة الإعلان الإضافي (Bonus Ad)" value={bonusEnabled} onChange={setBonusEnabled} />
+      <div className="grid grid-cols-2 gap-2">
+        <label className="text-xs text-muted-foreground">
+          مكافأة الإعلان الإضافي (MNX)
+          <input
+            value={bonusReward}
+            onChange={(e) => setBonusReward(e.target.value)}
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
+          />
+        </label>
+        <label className="text-xs text-muted-foreground">
+          الحد اليومي
+          <input
+            value={bonusLimit}
+            onChange={(e) => setBonusLimit(e.target.value)}
+            className="mt-1 w-full bg-secondary border border-violet-500/20 rounded-xl p-2 text-foreground text-sm"
+          />
+        </label>
+      </div>
+
+      <ToggleRow label="إعلان قبل التسجيل اليومي" value={checkinAdEnabled} onChange={setCheckinAdEnabled} />
+      <ToggleRow label="إعلان قبل الكومبو اليومي" value={comboAdEnabled} onChange={setComboAdEnabled} />
+      <ToggleRow label="إعلان عند استلام مكافأة مهمة" value={taskClaimAdEnabled} onChange={setTaskClaimAdEnabled} />
+
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+      <Btn onClick={save} className="w-full">
+        <Sparkles className="w-3.5 h-3.5" />حفظ إعدادات AdsGram
+      </Btn>
+    </div>
+  );
+}
+
 type GiftEntryMode = 'referral' | 'tasks' | 'ads';
 
 type GiftWinner = { id: number; name: string | null; chances: number | null };
@@ -3327,6 +3436,9 @@ export default function Admin() {
         </Section>
         <Section title="مهمة الإعلانات (Monetag)" icon={Sparkles}>
           <AdsSection />
+        </Section>
+        <Section title="إعلانات AdsGram (موحدة)" icon={Sparkles}>
+          <AdsGramSection />
         </Section>
         <Section title="قسم الهدايا (Gift)" icon={Sparkles}>
           <GiftSection />
