@@ -31,9 +31,9 @@ export async function isComboAdEnabled(): Promise<boolean> {
   return (await getSetting('combo_ad_enabled')) === 'true';
 }
 
-/** Task claims (Monetag) never required an ad before — opt-in, default off. */
+/** Task claims (Monetag) must trigger an ad on claim — default stays on. */
 export async function isTaskClaimAdEnabled(): Promise<boolean> {
-  return (await getSetting('task_claim_ad_enabled')) === 'true';
+  return (await getSetting('task_claim_ad_enabled')) !== 'false';
 }
 
 /** Gifts screen's "watch more ads" ad-watching (AdsGram) — default on. */

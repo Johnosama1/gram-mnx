@@ -998,7 +998,7 @@ export default function Tasks() {
   // Admin-configurable gate: show a Monetag ad before a task reward is
   // claimed. Sourced from BonusAdCard's own status load (same settings,
   // one fetch) rather than a second request for the same data.
-  const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(false);
+  const [taskClaimAdEnabled, setTaskClaimAdEnabled] = useState(true);
   const ensureClaimAd = useCallback(async (): Promise<boolean> => {
     if (!taskClaimAdEnabled) return true;
     try {
