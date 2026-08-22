@@ -9,7 +9,7 @@ import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
 import { COMBO_ITEMS } from '@/lib/combo-items';
-import { showAdsgramAd } from '@/lib/adsgram';
+import { showAdsgramAd, initAdsgram } from '@/lib/adsgram';
 
 
 // Max allowed attempts per day
@@ -68,6 +68,9 @@ export default function Combo() {
         if (data.nextResetAt) setNextReset(new Date(data.nextResetAt).getTime());
         setAdEnabled(Boolean(data.adEnabled));
         if (data.blockId) setAdsgramBlockId(String(data.blockId));
+        // Combo is an AdsGram-only placement: warm its controller up front.
+        if (data.adEnabled) initAdsgram(String(data.blockId ?? '43943'));
+
       })
       .catch((err: unknown) => {
         console.error('[combo] status load failed', err);
