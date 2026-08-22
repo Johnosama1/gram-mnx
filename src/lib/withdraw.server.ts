@@ -456,8 +456,3 @@ export async function handleWithdrawStatus(request: Request) {
     .limit(20);
   return json(data ?? []);
 }
-
-/** Exposed so other endpoints can keep IP records fresh. */
-export async function touchIpFromRequest(request: Request, telegramId: number) {
-  await recordUserIp(telegramId, getClientIp(request));
-}

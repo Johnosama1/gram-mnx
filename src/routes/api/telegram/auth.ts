@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { getAllAdminIds, getSetting, json } from '@/lib/admin.server';
-import { resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
-import { touchIpFromRequest } from '@/lib/withdraw.server';
+import { resolveTelegramUser, getDb } from '@/lib/telegram-user.server';
 import { userSessionCookieHeader } from '@/lib/telegram-auth.server';
 import { rateLimit, tooMany } from '@/lib/rate-limit.server';
 
@@ -25,10 +24,19 @@ export const Route = createFileRoute('/api/telegram/auth')({
         const { userExists } = await import('@/lib/telegram-user.server');
         const alreadyKnown = await userExists(user.id);
 
-        const row = await upsertUser(user);
-        await touchIpFromRequest(request, user.id);
-        const { recordUserDevice } = await import('@/lib/multi-account.server');
-        await recordUserDevice(user.id, request.headers.get('x-device-id'));
+        // telegramApiGuard (src/start.ts) already upserted this user's row
+        // (and ran IP/device recording + the multi-account limit check)
+        // before this handler started — that's what lets a newly-over-the-
+        // limit account get rejected on its very first request instead of
+        // the next one. A plain read here avoids re-running the same
+        // upsert a second time on every single call to this endpoint.
+        const db = await getDb();
+        const { data: userRow } = await db
+          .from('gm_users')
+          .select('balance, coins')
+          .eq('telegram_id', user.id)
+          .maybeSingle();
+        const row = { balance: userRow?.balance ?? 0, coins: userRow?.coins ?? 0 };
 
         // Register the invite immediately when the WebApp is opened from a
         // referral link — but only for a brand-new user. Anyone who already

@@ -62,20 +62,20 @@ async function reportMissingDevicesTable(error: unknown) {
  * the first 3 accounts a person ever made are permanently exempt no
  * matter how the cluster grows or who triggers the re-check, and every
  * account after that gets (re-)banned in the same pass — not just the one
- * that happened to trigger it. Admin accounts are excluded entirely (see
- * below) rather than relying on creation order to protect them.
+ * that happened to trigger it.
+ *
+ * Admin accounts are ranked and counted exactly like any other account —
+ * an admin's own account occupies a slot in the group of 3 like everyone
+ * else's — but is never itself flagged is_banned, no matter where it
+ * ranks: telegramApiGuard (src/start.ts) already lets admins through
+ * regardless of is_banned, so leaving that flag untouched on an admin row
+ * is purely for data hygiene, not what actually protects them.
  */
 export async function enforceMultiAccountBan(telegramId: number): Promise<void> {
   if (!(await isMultiAccountProtectionEnabled())) return;
   try {
-    // Admins test this very feature from shared devices/IPs and must never
-    // be able to lock themselves out of the panel they'd need to fix it
-    // from. Exempt entirely: never evaluated, never banned, and stripped
-    // out of anyone else's cluster below so an admin's account never
-    // inflates another person's linked-account count either.
     const { getAllAdminIds } = await import('@/lib/admin.server');
     const adminIds = new Set(await getAllAdminIds());
-    if (adminIds.has(telegramId)) return;
 
     const db = (await getDb()) as any;
     const [ipRes, deviceRes] = await Promise.all([
@@ -101,7 +101,6 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     const cluster = new Set<number>([telegramId]);
     for (const r of (ipPeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
     for (const r of (devicePeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
-    for (const id of adminIds) cluster.delete(id);
 
     if (cluster.size <= MAX_ACCOUNTS_PER_PERSON) return;
 
@@ -112,7 +111,9 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     const rows = (userRows ?? []) as { telegram_id: number; created_at: string; is_banned: boolean }[];
     rows.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-    const overLimit = rows.slice(MAX_ACCOUNTS_PER_PERSON).filter((r) => !r.is_banned);
+    const overLimit = rows
+      .slice(MAX_ACCOUNTS_PER_PERSON)
+      .filter((r) => !r.is_banned && !adminIds.has(Number(r.telegram_id)));
     if (overLimit.length === 0) return;
 
     const idsToBan = overLimit.map((r) => Number(r.telegram_id));
@@ -158,7 +159,15 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
       // accounts got banned" can be checked against the exact order and
       // timestamps the server actually used, instead of guessing.
       const rankLines = rows.map((r, i) => {
-        const mark = i < MAX_ACCOUNTS_PER_PERSON ? '✅ آمن' : r.is_banned ? '🚫 محظور (كان محظور بالفعل)' : '🚫 اتحظر الآن';
+        const isAdminRow = adminIds.has(Number(r.telegram_id));
+        const mark =
+          i < MAX_ACCOUNTS_PER_PERSON
+            ? '✅ آمن'
+            : isAdminRow
+              ? '🛡 أدمن (مش بيتحظر أبدًا)'
+              : r.is_banned
+                ? '🚫 محظور (كان محظور بالفعل)'
+                : '🚫 اتحظر الآن';
         return `${i + 1}. #${r.telegram_id} — ${r.created_at} — ${mark}`;
       });
       const text = [

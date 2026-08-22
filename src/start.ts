@@ -50,6 +50,23 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
   // hard floor independent of whatever any ban path (including the
   // multi-account protection) writes to is_banned.
   try {
+    // The multi-account limit must be enforced on this account's very
+    // first over-the-limit request, not the next one — recording the
+    // IP/device pairing and running the ban check have to happen here,
+    // ahead of the is_banned read below, so a ban applied by THIS request
+    // is already reflected by the time that read runs. /api/telegram/auth
+    // is the one endpoint every client calls first on every app open, so
+    // scoping this here (rather than every /api/* request) catches it
+    // immediately without adding a DB round-trip to every other endpoint.
+    if (path === "/api/telegram/auth") {
+      const { upsertUser } = await import("@/lib/telegram-user.server");
+      await upsertUser(user);
+      const { getClientIp, recordUserIp } = await import("@/lib/withdraw.server");
+      const { recordUserDevice } = await import("@/lib/multi-account.server");
+      await recordUserIp(user.id, getClientIp(request));
+      await recordUserDevice(user.id, request.headers.get("x-device-id"));
+    }
+
     const { getAllAdminIds } = await import("@/lib/admin.server");
     const adminIds = await getAllAdminIds();
     if (adminIds.includes(user.id)) return next();
