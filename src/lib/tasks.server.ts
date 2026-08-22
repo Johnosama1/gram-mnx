@@ -101,11 +101,12 @@ function currentUtcMidnight(now = Date.now()): Date {
 
 async function getAdQuota(db: any, telegramId: number) {
   const dayStart = currentUtcMidnight();
-  const { count } = await db
+  const { count, error } = await db
     .from('gm_ad_views')
     .select('id', { count: 'exact', head: true })
     .eq('telegram_id', telegramId)
     .gte('created_at', dayStart.toISOString());
+  if (error) console.error('[watch-ad] quota count failed', error);
 
   return {
     watched: Number(count ?? 0),
@@ -567,7 +568,13 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
     if (watchedToday >= dailyLimit)
       return json({ ok: false, message: 'daily limit reached' }, 400);
 
-    await db.from('gm_ad_views').insert({ telegram_id: auth.id, coins: credit ? rewardCoins : 0 });
+    const { error: insertError } = await db
+      .from('gm_ad_views')
+      .insert({ telegram_id: auth.id, coins: credit ? rewardCoins : 0 });
+    if (insertError) {
+      console.error('[watch-ad] view insert failed', insertError);
+      return json({ ok: false, message: 'ads_busy' }, 500);
+    }
     if (credit) await addCoins(auth.id, rewardCoins);
     return json({
       ok: true,

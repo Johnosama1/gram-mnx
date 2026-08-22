@@ -32,6 +32,59 @@ async function isPromoAdEnabled(): Promise<boolean> {
   return (await getSetting('promo_ad_enabled')) !== 'false';
 }
 
+type PromoRedeemResult = { status: string; reward_coins: number; code: string };
+
+/**
+ * Pre-atomic read-check-write sequence, kept only as a fallback for when
+ * gm_redeem_promo_code is unreachable (PostgREST reports PGRST202 when a
+ * migration that should have created it was never applied, or its schema
+ * cache hasn't picked it up yet). Without this fallback a missing migration
+ * would hard-fail every redemption with "server busy" instead of degrading
+ * to the same non-atomic behavior the app already ran on before that
+ * migration shipped — this loses the row lock's protection against two
+ * simultaneous redemptions of the very same code, an acceptable trade next
+ * to promo codes not working at all.
+ */
+async function redeemPromoCodeFallback(
+  db: any,
+  telegramId: number,
+  code: string,
+): Promise<PromoRedeemResult | undefined> {
+  const { data: row } = await db
+    .from('gm_promo_codes')
+    .select('*')
+    .eq('code', code.toUpperCase())
+    .maybeSingle();
+  if (!row) return { status: 'invalid', reward_coins: 0, code };
+
+  const maxUses = Number(row.max_uses ?? 0);
+  const currentUses = Number(row.current_uses ?? 0);
+  if (maxUses > 0 && currentUses >= maxUses) return { status: 'full', reward_coins: 0, code };
+  if (row.is_active === false) return { status: 'invalid', reward_coins: 0, code };
+
+  const { error: insertError } = await db
+    .from('gm_promo_redemptions')
+    .insert({ telegram_id: telegramId, code_id: row.id, reward_coins: row.reward_coins });
+  if (insertError) {
+    if (insertError.code === '23505') return { status: 'already_used', reward_coins: 0, code };
+    console.error('[promo] fallback insert failed', insertError);
+    return undefined;
+  }
+
+  await db
+    .from('gm_promo_codes')
+    .update({
+      current_uses: currentUses + 1,
+      is_active: maxUses > 0 && currentUses + 1 >= maxUses ? false : row.is_active,
+    })
+    .eq('id', row.id);
+
+  const rewardCoins = Number(row.reward_coins ?? 0);
+  if (rewardCoins > 0) await db.rpc('gm_add_coins', { _telegram_id: telegramId, _amount: rewardCoins });
+
+  return { status: 'ok', reward_coins: rewardCoins, code: row.code };
+}
+
 /**
  * User-facing promo API.
  *  GET  → { enabled }
@@ -116,18 +169,31 @@ export async function handlePromoApi(request: Request): Promise<Response> {
     _telegram_id: auth.id,
     _code: code,
   });
+
+  let settled: PromoRedeemResult | undefined;
   if (error) {
-    console.error('[promo] redeem failed', error);
-    return json({ ok: false, message: 'promo_busy' }, 500);
+    if (error.code === 'PGRST202') {
+      console.error(
+        '[promo] gm_redeem_promo_code not found — falling back to the non-atomic path; ' +
+          'run supabase/migrations/20260822070000_atomic_promo_redeem.sql',
+      );
+      settled = await redeemPromoCodeFallback(db, auth.id, code);
+    } else {
+      console.error('[promo] redeem failed', error);
+      return json({ ok: false, message: 'promo_busy' }, 500);
+    }
+  } else {
+    settled = Array.isArray(result) ? result[0] : result;
   }
-  const settled = Array.isArray(result) ? result[0] : result;
-  if (settled?.status === 'invalid') return json({ ok: false, message: 'promo_invalid' }, 400);
-  if (settled?.status === 'already_used') return json({ ok: false, message: 'promo_already_used' }, 400);
-  if (settled?.status === 'full') return json({ ok: false, message: 'promo_full' }, 400);
+
+  if (!settled) return json({ ok: false, message: 'promo_busy' }, 500);
+  if (settled.status === 'invalid') return json({ ok: false, message: 'promo_invalid' }, 400);
+  if (settled.status === 'already_used') return json({ ok: false, message: 'promo_already_used' }, 400);
+  if (settled.status === 'full') return json({ ok: false, message: 'promo_full' }, 400);
 
   return json({
     ok: true,
-    coinsEarned: Number(settled?.reward_coins ?? 0),
-    code: settled?.code ?? code,
+    coinsEarned: Number(settled.reward_coins ?? 0),
+    code: settled.code ?? code,
   });
 }
