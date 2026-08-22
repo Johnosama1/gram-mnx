@@ -7,8 +7,10 @@ import { toast } from 'sonner';
 
 import bookmarkSticker from '@/assets/bookmark-sticker.json.asset.json';
 import { telegramApiPost, getInitData, API_BASE } from '@/lib/telegramApi';
-import { showMonetagAd } from '@/lib/monetag';
-import { showAdsgramAd } from '@/lib/adsgram';
+import { showMonetagAd, initMonetag } from '@/lib/monetag';
+import { showAdsgramAd, initAdsgram } from '@/lib/adsgram';
+import { reportAdCompletion, AdRewardError } from '@/lib/adReward';
+
 import { useWallet } from '@/context/WalletContext';
 import { useCoins } from '@/context/CoinsContext';
 import { useLanguage } from '@/context/LanguageContext';
