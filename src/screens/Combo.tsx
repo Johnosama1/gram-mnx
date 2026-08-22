@@ -68,6 +68,9 @@ export default function Combo() {
         if (data.nextResetAt) setNextReset(new Date(data.nextResetAt).getTime());
         setAdEnabled(Boolean(data.adEnabled));
         if (data.blockId) setAdsgramBlockId(String(data.blockId));
+        // Combo is an AdsGram-only placement: warm its controller up front.
+        if (data.adEnabled) initAdsgram(String(data.blockId ?? '43943'));
+
       })
       .catch((err: unknown) => {
         console.error('[combo] status load failed', err);
