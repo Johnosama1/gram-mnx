@@ -534,7 +534,7 @@
   "tasks_ads_network": "❌ خطأ في الشبكة، من فضلك حاول مرة أخرى",
   "tasks_ads_unavailable": "❌ الإعلان غير متاح حاليًا، حاول لاحقًا",
   "tasks_bonus_ad_title": "شاهد واربح (إضافي)",
-  "tasks_bonus_ad_desc": "شاهد إعلان قصير عشان تربح MNX إضافية",
+  "tasks_bonus_ad_desc": "شاهد إعلان قصير عشان تربح {reward} MNX",
   "tasks_bonus_ad_watch": "شاهد إعلان",
   "tasks_x_account": "حساب X (تويتر)",
   "tasks_x_linked": "مربوط بالبوت: @{handle}",

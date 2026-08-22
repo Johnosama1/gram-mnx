@@ -534,7 +534,7 @@
   "tasks_ads_network": "❌ Network error, please try again",
   "tasks_ads_unavailable": "❌ Ad is not available right now, try again later",
   "tasks_bonus_ad_title": "Watch & Earn (Bonus)",
-  "tasks_bonus_ad_desc": "Watch a short ad to earn extra MNX",
+  "tasks_bonus_ad_desc": "Watch a short ad to earn {reward} MNX",
   "tasks_bonus_ad_watch": "Watch Ad",
   "tasks_x_account": "X (Twitter) account",
   "tasks_x_linked": "Linked: @{handle}",

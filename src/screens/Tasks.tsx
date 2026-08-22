@@ -447,7 +447,9 @@ function BonusAdCard({
           </TaskIconBox>
           <div className="min-w-0">
             <div className="font-bold text-sm text-foreground">{t('tasks_bonus_ad_title')}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">{t('tasks_bonus_ad_desc')}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t('tasks_bonus_ad_desc', { reward: String(status.rewardCoins) })}
+            </div>
             <div className="text-[10px] text-muted-foreground mt-0.5">
               {t('tasks_ads_progress', {
                 watched: String(status.watchedToday),

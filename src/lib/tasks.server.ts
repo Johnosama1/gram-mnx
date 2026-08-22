@@ -123,7 +123,16 @@ async function getBonusAdQuota(db: any, telegramId: number) {
     .select('id', { count: 'exact', head: true })
     .eq('telegram_id', telegramId)
     .gte('created_at', dayStart.toISOString());
-  if (error) console.error('[bonus-ad] quota count failed', error);
+  if (error) {
+    if (error.code === 'PGRST205' || error.code === '42P01') {
+      console.error(
+        '[bonus-ad] gm_bonus_ad_views table not found — run ' +
+          'supabase/migrations/20260824050000_bonus_ad_views.sql in Supabase SQL Editor',
+      );
+    } else {
+      console.error('[bonus-ad] quota count failed', error);
+    }
+  }
 
   return {
     watched: Number(count ?? 0),
@@ -625,7 +634,14 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
       .from('gm_bonus_ad_views')
       .insert({ telegram_id: auth.id, coins: rewardCoins });
     if (insertError) {
-      console.error('[bonus-ad] view insert failed', insertError);
+      if (insertError.code === 'PGRST205' || insertError.code === '42P01') {
+        console.error(
+          '[bonus-ad] gm_bonus_ad_views table not found — run ' +
+            'supabase/migrations/20260824050000_bonus_ad_views.sql in Supabase SQL Editor',
+        );
+      } else {
+        console.error('[bonus-ad] view insert failed', insertError);
+      }
       return json({ ok: false, message: 'bonus_ad_busy' }, 500);
     }
     await addCoins(auth.id, rewardCoins);

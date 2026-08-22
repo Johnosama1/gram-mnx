@@ -12,3 +12,5 @@ GRANT ALL ON public.gm_bonus_ad_views TO service_role;
 GRANT USAGE, SELECT ON SEQUENCE public.gm_bonus_ad_views_id_seq TO service_role;
 ALTER TABLE public.gm_bonus_ad_views ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role manages bonus ad views" ON public.gm_bonus_ad_views FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+NOTIFY pgrst, 'reload schema';
