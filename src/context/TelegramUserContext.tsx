@@ -107,13 +107,14 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
   const lastAuthAt = useRef(0);
 
   const doAuth = useCallback(async (initData: string) => {
+    const deviceId = await getDeviceId();
     const res = await fetch(`${API_BASE}/api/telegram/auth?t=${Date.now()}`, {
       method: 'POST',
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'x-device-id': getDeviceId(),
+        'x-device-id': deviceId,
       },
       credentials: 'include',
       body: JSON.stringify({ initData }),
