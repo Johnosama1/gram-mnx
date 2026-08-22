@@ -968,7 +968,7 @@ function GiftSection() {
                 <div className="text-[11px] font-bold text-primary space-y-0.5">
                   {g.winners.map((w) => (
                     <p key={w.id}>
-                      🏆 {w.name ?? `#${w.id}`} (×{w.chances ?? '?'} فرصة)
+                      🏆 {w.name ?? `#${w.id}`} (×{w.chances ?? '?'} تذكرة)
                     </p>
                   ))}
                 </div>

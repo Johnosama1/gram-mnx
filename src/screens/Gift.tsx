@@ -178,6 +178,140 @@ function getStartRef(): number | null {
 }
 
 
+type GiftLeaderboardRow = {
+  rank: number;
+  telegramId: number;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  tickets: number;
+  isMe: boolean;
+};
+
+type GiftLeaderboardData = {
+  rows: GiftLeaderboardRow[];
+  me: GiftLeaderboardRow | null;
+  totalParticipants: number;
+};
+
+const leaderboardAvatarFailed = new Set<number>();
+
+/** Real Telegram profile photo, falling back to an initial-letter avatar. */
+function LeaderboardAvatar({ telegramId, name }: { telegramId: number; name: string }) {
+  const [failed, setFailed] = useState(() => leaderboardAvatarFailed.has(telegramId));
+  const initial = name?.charAt(0)?.toUpperCase() || '?';
+  if (failed) {
+    return (
+      <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+        <span className="text-primary font-black text-xs">{initial}</span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={`${API_BASE}/api/telegram/avatar/${telegramId}`}
+      alt={name}
+      loading="lazy"
+      className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+      onError={() => {
+        leaderboardAvatarFailed.add(telegramId);
+        setFailed(true);
+      }}
+    />
+  );
+}
+
+function GiftLeaderboardRowView({ row }: { row: GiftLeaderboardRow }) {
+  const displayName = [row.firstName, row.lastName].filter(Boolean).join(' ') || `#${row.telegramId}`;
+  const medal = row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : null;
+  return (
+    <div
+      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 border"
+      style={{
+        backgroundColor: row.isMe ? 'rgba(139,92,246,0.12)' : 'transparent',
+        borderColor: row.isMe ? 'rgba(139,92,246,0.4)' : 'rgba(139,92,246,0.08)',
+      }}
+    >
+      <div className="w-6 text-center flex-shrink-0 text-xs font-black text-muted-foreground">
+        {medal ?? row.rank}
+      </div>
+      <LeaderboardAvatar telegramId={row.telegramId} name={displayName} />
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-bold text-foreground truncate">{displayName}</div>
+        {row.username && (
+          <div className="text-[10px] text-muted-foreground truncate">@{row.username}</div>
+        )}
+      </div>
+      <div className="text-xs font-black text-primary flex-shrink-0">×{row.tickets}</div>
+    </div>
+  );
+}
+
+/**
+ * Per-gift top-50 ticket leaderboard. Fetched separately from /api/gift/status
+ * (its own request, its own loading state) so a slow leaderboard query can
+ * never hold up the gift detail page rendering.
+ */
+function GiftLeaderboard({ giftId }: { giftId: number }) {
+  const { t } = useLanguage();
+  const [data, setData] = useState<GiftLeaderboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setData(null);
+    (async () => {
+      try {
+        const initData = getInitData();
+        const res = await fetch(`${API_BASE}/api/gift/leaderboard?giftId=${giftId}`, {
+          headers: initData ? { 'x-init-data': initData } : {},
+        });
+        if (!res.ok) return;
+        const json = (await res.json()) as GiftLeaderboardData;
+        if (alive) setData(json);
+      } catch {
+        /* best-effort — the section just stays empty on failure */
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [giftId]);
+
+  return (
+    <div className="mt-4 rounded-2xl border border-violet-500/15 bg-card shadow-[0_4px_18px_rgba(0,0,0,0.35)] p-4">
+      <p className="text-sm font-extrabold text-muted-foreground mb-3">
+        🏆 {t('gift_leaderboard_title')}
+      </p>
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : !data || data.rows.length === 0 ? (
+        <p className="text-xs text-muted-foreground text-center py-4">{t('gift_leaderboard_empty')}</p>
+      ) : (
+        <div className="space-y-1.5">
+          {data.rows.map((row) => (
+            <GiftLeaderboardRowView key={row.telegramId} row={row} />
+          ))}
+          {data.me && (
+            <>
+              <div className="border-t border-violet-500/10 my-2" />
+              <p className="text-[10px] text-muted-foreground px-1">
+                {t('gift_leaderboard_your_rank')}
+              </p>
+              <GiftLeaderboardRowView row={data.me} />
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function GiftScreen() {
   const { t } = useLanguage();
   const [state, setState] = useState<GiftStatus | null>(null);
@@ -359,6 +493,8 @@ export default function GiftScreen() {
             </div>
           </>
         )}
+
+        <GiftLeaderboard giftId={activeGift.id} />
       </div>
     );
   }

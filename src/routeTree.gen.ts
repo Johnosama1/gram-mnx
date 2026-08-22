@@ -32,6 +32,7 @@ import { Route as ApiAdminTasksRouteImport } from './routes/api/admin/tasks'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
 import { Route as ApiGiftAdsWatchRouteImport } from './routes/api/gift/ads-watch'
 import { Route as ApiGiftJoinRouteImport } from './routes/api/gift/join'
+import { Route as ApiGiftLeaderboardRouteImport } from './routes/api/gift/leaderboard'
 import { Route as ApiGiftStatusRouteImport } from './routes/api/gift/status'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiSupportSubmitRouteImport } from './routes/api/support/submit'
@@ -192,6 +193,11 @@ const ApiGiftAdsWatchRoute = ApiGiftAdsWatchRouteImport.update({
 const ApiGiftJoinRoute = ApiGiftJoinRouteImport.update({
   id: '/api/gift/join',
   path: '/api/gift/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGiftLeaderboardRoute = ApiGiftLeaderboardRouteImport.update({
+  id: '/api/gift/leaderboard',
+  path: '/api/gift/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGiftStatusRoute = ApiGiftStatusRouteImport.update({
@@ -453,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
+  '/api/gift/leaderboard': typeof ApiGiftLeaderboardRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -523,6 +530,7 @@ export interface FileRoutesByTo {
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
+  '/api/gift/leaderboard': typeof ApiGiftLeaderboardRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -594,6 +602,7 @@ export interface FileRoutesById {
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/gift/ads-watch': typeof ApiGiftAdsWatchRoute
   '/api/gift/join': typeof ApiGiftJoinRoute
+  '/api/gift/leaderboard': typeof ApiGiftLeaderboardRoute
   '/api/gift/status': typeof ApiGiftStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/support/submit': typeof ApiSupportSubmitRoute
@@ -666,6 +675,7 @@ export interface FileRouteTypes {
     | '/api/admin/users'
     | '/api/gift/ads-watch'
     | '/api/gift/join'
+    | '/api/gift/leaderboard'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -736,6 +746,7 @@ export interface FileRouteTypes {
     | '/api/admin/users'
     | '/api/gift/ads-watch'
     | '/api/gift/join'
+    | '/api/gift/leaderboard'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -806,6 +817,7 @@ export interface FileRouteTypes {
     | '/api/admin/users'
     | '/api/gift/ads-watch'
     | '/api/gift/join'
+    | '/api/gift/leaderboard'
     | '/api/gift/status'
     | '/api/public/health'
     | '/api/support/submit'
@@ -877,6 +889,7 @@ export interface RootRouteChildren {
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
   ApiGiftAdsWatchRoute: typeof ApiGiftAdsWatchRoute
   ApiGiftJoinRoute: typeof ApiGiftJoinRoute
+  ApiGiftLeaderboardRoute: typeof ApiGiftLeaderboardRoute
   ApiGiftStatusRoute: typeof ApiGiftStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiSupportSubmitRoute: typeof ApiSupportSubmitRoute
@@ -1079,6 +1092,13 @@ declare module '@tanstack/react-router' {
       path: '/api/gift/join'
       fullPath: '/api/gift/join'
       preLoaderRoute: typeof ApiGiftJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gift/leaderboard': {
+      id: '/api/gift/leaderboard'
+      path: '/api/gift/leaderboard'
+      fullPath: '/api/gift/leaderboard'
+      preLoaderRoute: typeof ApiGiftLeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gift/status': {
@@ -1486,6 +1506,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminUsersRoute: ApiAdminUsersRoute,
   ApiGiftAdsWatchRoute: ApiGiftAdsWatchRoute,
   ApiGiftJoinRoute: ApiGiftJoinRoute,
+  ApiGiftLeaderboardRoute: ApiGiftLeaderboardRoute,
   ApiGiftStatusRoute: ApiGiftStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiSupportSubmitRoute: ApiSupportSubmitRoute,

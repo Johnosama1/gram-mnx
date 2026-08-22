@@ -654,6 +654,98 @@ export async function handleGiftJoin(request: Request): Promise<Response> {
 }
 
 
+export type GiftLeaderboardRow = {
+  rank: number;
+  telegramId: number;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  tickets: number;
+  isMe: boolean;
+};
+
+/**
+ * Top 50 entrants of one specific contest, ranked by ticket count (the
+ * same weighting computeAllChances already uses to draw a winner — this is
+ * a read-only view of the same numbers, never a separate calculation). If
+ * the caller is a participant outside the top 50, `me` carries their real
+ * rank/ticket count so they can still find themselves.
+ */
+export async function handleGiftLeaderboard(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const giftId = Number(url.searchParams.get('giftId') ?? 0);
+  if (!giftId) return json({ error: 'Bad request' }, 400);
+
+  const initData =
+    request.headers.get('x-init-data') ?? request.headers.get('x-telegram-initdata');
+  const auth = resolveTelegramUser(initData);
+
+  const cfg = await getGiftConfig();
+  const gift = cfg.gifts.find((g) => g.id === giftId);
+  if (!gift) return json({ error: 'Not found' }, 404);
+
+  const db = (await getDb()) as any;
+  const chances = await computeAllChances(db, gift);
+  const sorted = [...chances.entries()]
+    .filter(([, tickets]) => tickets > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  const top = sorted.slice(0, 50);
+  const meId = auth?.id ?? null;
+  const meIdx = meId ? sorted.findIndex(([tid]) => tid === meId) : -1;
+  const meInTop = meIdx !== -1 && meIdx < 50;
+
+  const idsToFetch = new Set(top.map(([tid]) => tid));
+  if (meId && meIdx !== -1 && !meInTop) idsToFetch.add(meId);
+
+  const { data: userRows } = idsToFetch.size
+    ? await db
+        .from('gm_users')
+        .select('telegram_id, first_name, last_name, username')
+        .in('telegram_id', [...idsToFetch])
+    : { data: [] };
+  const byId = new Map<
+    number,
+    { first_name: string | null; last_name: string | null; username: string | null }
+  >(
+    ((userRows ?? []) as Array<{
+      telegram_id: number;
+      first_name: string | null;
+      last_name: string | null;
+      username: string | null;
+    }>).map((u) => [Number(u.telegram_id), u]),
+  );
+
+  const rows: GiftLeaderboardRow[] = top.map(([tid, tickets], i) => {
+    const u = byId.get(tid);
+    return {
+      rank: i + 1,
+      telegramId: tid,
+      firstName: u?.first_name ?? null,
+      lastName: u?.last_name ?? null,
+      username: u?.username ?? null,
+      tickets,
+      isMe: tid === meId,
+    };
+  });
+
+  let me: GiftLeaderboardRow | null = null;
+  if (meId && meIdx !== -1 && !meInTop) {
+    const u = byId.get(meId);
+    me = {
+      rank: meIdx + 1,
+      telegramId: meId,
+      firstName: u?.first_name ?? null,
+      lastName: u?.last_name ?? null,
+      username: u?.username ?? null,
+      tickets: sorted[meIdx][1],
+      isMe: true,
+    };
+  }
+
+  return json({ rows, me, totalParticipants: sorted.length });
+}
+
 /** Serves an uploaded gift media file (private bucket) through our own origin. */
 export async function handleGiftMedia(name: string): Promise<Response> {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
