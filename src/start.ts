@@ -44,8 +44,16 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
       { status: 401, headers: { "content-type": "application/json" } },
     );
   }
-  // Banned accounts are cut off from every API before any handler runs.
+  // Banned accounts are cut off from every API before any handler runs —
+  // except admins, who can never be locked out of the very panel they'd
+  // need to fix a false ban from (their own or anyone else's). This is a
+  // hard floor independent of whatever any ban path (including the
+  // multi-account protection) writes to is_banned.
   try {
+    const { getAllAdminIds } = await import("@/lib/admin.server");
+    const adminIds = await getAllAdminIds();
+    if (adminIds.includes(user.id)) return next();
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("gm_users")
