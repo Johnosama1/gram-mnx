@@ -9,7 +9,7 @@ import { ApiError, telegramApiFetch } from '@/lib/telegramApi';
 import StickerBadge from '@/components/StickerBadge';
 import sparksSticker from '@/assets/sparks-sticker.json.asset.json';
 import { COMBO_ITEMS } from '@/lib/combo-items';
-import { showAdsgramAd } from '@/lib/adsgram';
+import { showAdsgramAd, initAdsgram } from '@/lib/adsgram';
 
 
 // Max allowed attempts per day
