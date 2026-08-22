@@ -121,10 +121,19 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     try {
       const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
       const admins = await getAllAdminIds();
+      // Full ranking, not just who got banned — so a report of "the wrong
+      // accounts got banned" can be checked against the exact order and
+      // timestamps the server actually used, instead of guessing.
+      const rankLines = rows.map((r, i) => {
+        const mark = i < MAX_ACCOUNTS_PER_PERSON ? '✅ آمن' : r.is_banned ? '🚫 محظور (كان محظور بالفعل)' : '🚫 اتحظر الآن';
+        return `${i + 1}. #${r.telegram_id} — ${r.created_at} — ${mark}`;
+      });
       const text = [
         '🚫 حظر تلقائي — تعدد حسابات',
-        `الحسابات دي فوق حد الـ${MAX_ACCOUNTS_PER_PERSON} حسابات لنفس الشخص (أول ${MAX_ACCOUNTS_PER_PERSON} حسابات بترتيب تاريخ الإنشاء بيفضلوا شغالين دايمًا):`,
-        idsToBan.map((id) => `#${id}`).join(', '),
+        `تم حظر: ${idsToBan.map((id) => `#${id}`).join(', ')}`,
+        '',
+        `ترتيب المجموعة كاملة (الأقدم أولًا، أول ${MAX_ACCOUNTS_PER_PERSON} آمنين دايمًا):`,
+        ...rankLines,
       ].join('\n');
       await Promise.all(admins.map((id) => notifyUser(id, text).catch(() => undefined)));
     } catch {
