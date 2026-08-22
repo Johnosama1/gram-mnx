@@ -531,6 +531,7 @@
   "tasks_ads_progress": "تمت مشاهدة {watched}/{limit}",
   "tasks_ads_limit_reached": "وصلت للحد اليومي",
   "tasks_ads_failed": "❌ لم تكتمل مشاهدة الإعلان، لم يتم صرف مكافأة",
+  "tasks_ads_network": "❌ خطأ في الشبكة، من فضلك حاول مرة أخرى",
   "tasks_ads_unavailable": "❌ الإعلان غير متاح حاليًا، حاول لاحقًا",
   "tasks_bonus_ad_title": "شاهد واربح (إضافي)",
   "tasks_bonus_ad_desc": "شاهد إعلان قصير عشان تربح MNX إضافية",
@@ -615,5 +616,5 @@
   "promo_full": "تم استهلاك الكود بالكامل!",
   "promo_watch_full_ad": "شاهد الإعلان كاملاً للحصول على المكافأة",
   "promo_success": "تم استبدال الكود! حصلت على {amount} كوين!",
-  "promo_busy": "السيرفر مزحوم حاليًا، حاول تاني بعد شوية"
+  "promo_busy": "خطأ في الشبكة، من فضلك حاول مرة أخرى"
 }

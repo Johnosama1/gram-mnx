@@ -54,7 +54,16 @@ async function getController(blockId: string): Promise<AdsgramController> {
  */
 const SAFETY_TIMEOUT_MS = 10 * 60_000;
 
+/**
+ * Warms up the AdsGram controller for a block id (separate from the Monetag
+ * initialization — the two providers are never interchangeable). Never throws.
+ */
+export function initAdsgram(blockId: string): void {
+  getController(blockId).catch(() => undefined);
+}
+
 export async function showAdsgramAd(blockId: string): Promise<void> {
+
   const controller = await getController(blockId);
 
   let settled = false;

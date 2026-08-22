@@ -38,8 +38,18 @@ function waitForMonetagFn(timeoutMs = 8000): Promise<() => Promise<unknown>> {
  */
 const SAFETY_TIMEOUT_MS = 10 * 60_000;
 
+/**
+ * Warms up the Monetag SDK (kept deliberately separate from the AdsGram
+ * initialization so the two providers never share state). Call it when a
+ * screen that can show a Monetag ad mounts; it never throws.
+ */
+export function initMonetag(): void {
+  waitForMonetagFn(15_000).catch(() => undefined);
+}
+
 export async function showMonetagAd(): Promise<void> {
   const show = await waitForMonetagFn();
+
 
   let settled = false;
   const adPromise = Promise.resolve(show()).then(() => {

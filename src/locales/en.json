@@ -531,6 +531,7 @@
   "tasks_ads_progress": "Watched {watched}/{limit}",
   "tasks_ads_limit_reached": "Daily limit reached",
   "tasks_ads_failed": "❌ Ad was not completed, no reward given",
+  "tasks_ads_network": "❌ Network error, please try again",
   "tasks_ads_unavailable": "❌ Ad is not available right now, try again later",
   "tasks_bonus_ad_title": "Watch & Earn (Bonus)",
   "tasks_bonus_ad_desc": "Watch a short ad to earn extra MNX",
@@ -615,5 +616,5 @@
   "promo_full": "Code fully claimed!",
   "promo_watch_full_ad": "Watch the full ad to redeem your reward",
   "promo_success": "Code Redeemed! You received {amount} MNX!",
-  "promo_busy": "Server is busy right now, please try again in a moment"
+  "promo_busy": "Network error, please try again"
 }
