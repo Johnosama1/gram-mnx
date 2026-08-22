@@ -99,10 +99,33 @@ export default function Combo() {
     setSubmitting(true);
     setError('');
     try {
-      // Admin-configurable gate: must watch a full AdsGram ad before the
-      // combo can be submitted — a skip/close/load failure stops here and no
-      // submit request is sent, so today's one attempt is never consumed.
+      // Admin-configurable gate: a CORRECT combo must clear a full AdsGram ad
+      // before it's submitted for real. Correctness is previewed read-only
+      // first (no attempt spent, no ad) so a wrong guess keeps behaving
+      // exactly as before — ad-free, straight to the real submit below —
+      // and a skip/close/load ad failure stops here without ever calling
+      // submit, so today's one attempt is never consumed.
+      let mustWatchAd = false;
       if (adEnabled) {
+        try {
+          const checkRes = await telegramApiFetch(
+            '/tasks?type=combo&action=check',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ selectedIds: selected }),
+            },
+            { retries: 0 },
+          );
+          const checkData = await checkRes.json();
+          mustWatchAd = Boolean(checkData.correct);
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setError(msg || t('combo_error'));
+          return;
+        }
+      }
+      if (mustWatchAd) {
         try {
           await showAdsgramAd(adsgramBlockId);
         } catch {

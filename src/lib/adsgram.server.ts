@@ -26,9 +26,9 @@ export async function isCheckinAdEnabled(): Promise<boolean> {
   return (await getSetting('checkin_ad_enabled')) !== 'false';
 }
 
-/** Combo (AdsGram) never required an ad before — opt-in, default stays off. */
+/** Combo (AdsGram) must show an ad before a correct combo is credited. */
 export async function isComboAdEnabled(): Promise<boolean> {
-  return (await getSetting('combo_ad_enabled')) === 'true';
+  return (await getSetting('combo_ad_enabled')) !== 'false';
 }
 
 /** Task claims (Monetag) must trigger an ad on claim — default stays on. */

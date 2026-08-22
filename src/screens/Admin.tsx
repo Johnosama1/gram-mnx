@@ -538,7 +538,7 @@ function AdsGramSection() {
         setBonusLimit(s['bonus_ad_daily_limit'] ?? '10');
         setCheckinAdEnabled(s['checkin_ad_enabled'] !== 'false');
         setTaskClaimAdEnabled(s['task_claim_ad_enabled'] !== 'false');
-        setComboAdEnabled(s['combo_ad_enabled'] === 'true');
+        setComboAdEnabled(s['combo_ad_enabled'] !== 'false');
         setGiftAdEnabled(s['gift_ad_enabled'] !== 'false');
         setPromoAdEnabled(s['promo_ad_enabled'] !== 'false');
       })

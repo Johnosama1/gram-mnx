@@ -1,5 +1,6 @@
 import { json, getSetting, setSetting } from '@/lib/admin.server';
 import { resolveTelegramUser, getDb, upsertUser } from '@/lib/telegram-user.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -148,6 +149,27 @@ export async function handleComboRequest(request: Request): Promise<Response> {
       adEnabled,
       blockId,
     });
+  }
+
+  if (request.method === 'POST' && url.searchParams.get('action') === 'check') {
+    // Read-only correctness preview so the client knows whether to show the
+    // AdsGram ad BEFORE spending today's one real attempt — a wrong guess
+    // must stay ad-free and unrecorded here; only the real submit below
+    // writes to gm_combo_attempts.
+    if (!(await rateLimit(`combo-check:${auth.id}`, 20, 60)))
+      return json({ error: 'combo_busy' }, 429);
+
+    const body = (await request.json().catch(() => ({}))) as { selectedIds?: number[] };
+    const selected = Array.isArray(body.selectedIds)
+      ? body.selectedIds.map(Number).sort((a, b) => a - b)
+      : [];
+    if (selected.length !== 3) return json({ error: 'select_three' }, 400);
+
+    const daily = await ensureDailyCombo();
+    const correctSorted = [...daily.correctIds].sort((a, b) => a - b);
+    const correct =
+      correctSorted.length === 3 && correctSorted.every((v, i) => v === selected[i]);
+    return json({ correct });
   }
 
   if (request.method === 'POST' && url.searchParams.get('action') === 'submit') {
