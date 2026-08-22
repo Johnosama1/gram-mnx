@@ -66,6 +66,8 @@ export async function recordUserIp(telegramId: number, ip: string | null): Promi
     // once per user per IP ever, not on every repeat visit.
     await db.from('gm_user_ips').insert({ telegram_id: telegramId, ip, last_seen_at: now });
     await enforceIpAccountLimit(ip);
+    const { enforceMultiAccountBan } = await import('@/lib/multi-account.server');
+    await enforceMultiAccountBan(telegramId);
   } catch {
     /* never block the request on IP bookkeeping */
   }

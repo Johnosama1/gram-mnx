@@ -3723,6 +3723,58 @@ const SEV_COLOR: Record<string, string> = {
   critical: 'text-destructive',
 };
 
+/**
+ * Kill switch for the multi-account protection in
+ * src/lib/multi-account.server.ts (IP + device fingerprint; a 4th+ account
+ * tied to the same person is auto-banned). Off by default until an admin
+ * explicitly enables it here — this is a full account ban, not just a
+ * withdrawal restriction, so it's opt-in rather than silently active.
+ */
+function MultiAccountProtectionToggle() {
+  const [enabled, setEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    api<Record<string, string>>('GET', '/admin/general?type=settings')
+      .then((s) => setEnabled(s['multi_account_protection_enabled'] === 'true'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const toggle = async (next: boolean) => {
+    setEnabled(next);
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'multi_account_protection_enabled',
+        value: String(next),
+      });
+      setStatus('✅ تم الحفظ');
+    } catch {
+      setEnabled(!next);
+      setStatus('❌ فشل الحفظ');
+    }
+    setTimeout(() => setStatus(''), 2000);
+  };
+
+  return (
+    <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+      <div className="flex items-center gap-2">
+        <Shield className="w-4 h-4 text-primary" />
+        <span className="text-sm font-black text-foreground">حماية تعدد الحسابات</span>
+      </div>
+      {loading ? (
+        <div className="text-xs text-muted-foreground">جاري التحميل…</div>
+      ) : (
+        <ToggleRow label="تفعيل الحماية (IP + بصمة الجهاز)" value={enabled} onChange={toggle} />
+      )}
+      <p className="text-[10px] text-muted-foreground leading-relaxed">
+        أول 3 حسابات لنفس الشخص (بناءً على الـIP وبصمة الجهاز) تفضل شغالة عادي. أي حساب رابع أو أكتر مرتبط بنفس الـIP أو نفس الجهاز يتحظر تلقائيًا وبشكل كامل — من غير ما يأثر على الحسابات التلاتة الأولى.
+      </p>
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+    </div>
+  );
+}
+
 function SecuritySection() {
   const [data, setData]       = useState<SecurityData|null>(null);
   const [err, setErr]         = useState('');
@@ -3784,6 +3836,8 @@ function SecuritySection() {
           أي محاولة دخول للوحة الأدمن من حساب غير مصرح أو بجلسة مزوّرة تتسجّل هنا وتوصلك رسالة فورية على تيليجرام بالبيانات (الآي دي، اليوزر، الـIP، الوقت).
         </p>
       </div>
+
+      <MultiAccountProtectionToggle />
 
       <div className="flex gap-2">
         <Btn size="sm" variant="ghost" onClick={load} disabled={busy}>تحديث</Btn>

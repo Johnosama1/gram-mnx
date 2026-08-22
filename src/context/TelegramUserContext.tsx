@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { API_BASE } from '@/lib/telegramApi';
 import { onDataChange } from '@/lib/apiCache';
 import { initializeTelegramWebApp } from '@/lib/telegram-bootstrap';
+import { getDeviceId } from '@/lib/device-fingerprint';
 
 
 type TelegramUser = {
@@ -109,7 +110,11 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
     const res = await fetch(`${API_BASE}/api/telegram/auth?t=${Date.now()}`, {
       method: 'POST',
       cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'x-device-id': getDeviceId(),
+      },
       credentials: 'include',
       body: JSON.stringify({ initData }),
     });

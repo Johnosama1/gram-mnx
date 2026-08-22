@@ -27,6 +27,8 @@ export const Route = createFileRoute('/api/telegram/auth')({
 
         const row = await upsertUser(user);
         await touchIpFromRequest(request, user.id);
+        const { recordUserDevice } = await import('@/lib/multi-account.server');
+        await recordUserDevice(user.id, request.headers.get('x-device-id'));
 
         // Register the invite immediately when the WebApp is opened from a
         // referral link — but only for a brand-new user. Anyone who already
