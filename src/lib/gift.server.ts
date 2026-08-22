@@ -247,7 +247,26 @@ async function loadEntryStats(gifts: GiftItem[], telegramId: number | null) {
   return { counts, mine };
 }
 
-/** Every entrant's chances for one contest — same weighting rules as loadEntryStats, but for all participants, not just one caller. Used only to draw a weighted winner. */
+/**
+ * All-time ad-view counts for a batch of users in one query, instead of one
+ * COUNT query per user (see computeAllChances below for why that matters).
+ */
+async function getGiftAdsWatchedBulk(telegramIds: number[], db?: any): Promise<Map<number, number>> {
+  const counts = new Map<number, number>();
+  if (telegramIds.length === 0) return counts;
+  const client = db ?? ((await getDb()) as any);
+  const { data } = await client
+    .from('gm_gift_ad_views')
+    .select('telegram_id')
+    .in('telegram_id', telegramIds);
+  for (const row of (data ?? []) as { telegram_id: number }[]) {
+    const tid = Number(row.telegram_id);
+    counts.set(tid, (counts.get(tid) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Every entrant's chances for one contest — same weighting rules as loadEntryStats, but for all participants, not just one caller. Used to draw a weighted winner and to build the public leaderboard. */
 async function computeAllChances(db: any, gift: GiftItem): Promise<Map<number, number>> {
   const { data } = await db
     .from('gm_gift_entries')
@@ -257,13 +276,18 @@ async function computeAllChances(db: any, gift: GiftItem): Promise<Map<number, n
   const chances = new Map<number, number>();
 
   if (gift.entryMode === 'ads') {
-    await Promise.all(
-      rows.map(async (r) => {
-        const tid = Number(r.telegram_id);
-        const watched = await getGiftAdsWatched(tid, db);
-        chances.set(tid, 1 + Math.floor(watched / GIFT_AD_CHANCE_STEP));
-      }),
-    );
+    // One batched query for every participant's ad-view count instead of a
+    // COUNT query per participant — with no join barrier, an 'ads' contest
+    // routinely has far more entrants than a referral one, and firing that
+    // many concurrent Supabase round-trips from a single Worker request is
+    // exactly what stalls it past any reasonable client timeout.
+    const ids = rows.map((r) => Number(r.telegram_id));
+    const watchedCounts = await getGiftAdsWatchedBulk(ids, db);
+    for (const r of rows) {
+      const tid = Number(r.telegram_id);
+      const watched = watchedCounts.get(tid) ?? 0;
+      chances.set(tid, 1 + Math.floor(watched / GIFT_AD_CHANCE_STEP));
+    }
   } else {
     for (const r of rows) {
       const tid = Number(r.telegram_id);
