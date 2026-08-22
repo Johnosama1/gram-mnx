@@ -94,7 +94,7 @@ export async function reportAdCompletion(
       /* non-JSON body — handled by the status checks below */
     }
 
-    if (res.ok) return payload;
+    if (res.ok) return { ok: payload.ok !== false, ...payload };
 
     if (res.status === 400 && /limit/i.test(payload.message ?? '')) {
       throw new AdRewardError('limit', payload.message ?? 'daily limit reached', res.status);
