@@ -62,11 +62,21 @@ async function reportMissingDevicesTable(error: unknown) {
  * the first 3 accounts a person ever made are permanently exempt no
  * matter how the cluster grows or who triggers the re-check, and every
  * account after that gets (re-)banned in the same pass — not just the one
- * that happened to trigger it.
+ * that happened to trigger it. Admin accounts are excluded entirely (see
+ * below) rather than relying on creation order to protect them.
  */
 export async function enforceMultiAccountBan(telegramId: number): Promise<void> {
   if (!(await isMultiAccountProtectionEnabled())) return;
   try {
+    // Admins test this very feature from shared devices/IPs and must never
+    // be able to lock themselves out of the panel they'd need to fix it
+    // from. Exempt entirely: never evaluated, never banned, and stripped
+    // out of anyone else's cluster below so an admin's account never
+    // inflates another person's linked-account count either.
+    const { getAllAdminIds } = await import('@/lib/admin.server');
+    const adminIds = new Set(await getAllAdminIds());
+    if (adminIds.has(telegramId)) return;
+
     const db = (await getDb()) as any;
     const [ipRes, deviceRes] = await Promise.all([
       db.from('gm_user_ips').select('ip').eq('telegram_id', telegramId),
@@ -91,6 +101,7 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     const cluster = new Set<number>([telegramId]);
     for (const r of (ipPeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
     for (const r of (devicePeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
+    for (const id of adminIds) cluster.delete(id);
 
     if (cluster.size <= MAX_ACCOUNTS_PER_PERSON) return;
 
