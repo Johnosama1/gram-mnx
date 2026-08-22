@@ -49,11 +49,20 @@ async function reportMissingDevicesTable(error: unknown) {
 }
 
 /**
- * Bans `telegramId` if it is the 4th (or later) distinct account tied to
- * the same IP or device fingerprint. Called only right after a genuinely
- * new (user, ip) or (user, device) pairing is recorded — the set of linked
- * accounts can't have grown on a repeat visit, so there's nothing new to
- * catch otherwise.
+ * Bans every account beyond the earliest MAX_ACCOUNTS_PER_PERSON in a
+ * IP/device cluster — ranked by account creation date, not by which one
+ * happens to trigger this check. That distinction matters: this runs
+ * whenever ANY account in the cluster records a new IP or device pairing,
+ * which for an already-established account can happen long after it
+ * joined (a new wifi network, a cleared app cache regenerating the device
+ * id). Banning "whoever triggered the check once 3+ others are linked"
+ * would eventually catch a genuinely first-in, innocent account the
+ * moment it happened to touch a new IP/device after enough newer accounts
+ * had piled up on the same cluster. Ranking by creation date instead means
+ * the first 3 accounts a person ever made are permanently exempt no
+ * matter how the cluster grows or who triggers the re-check, and every
+ * account after that gets (re-)banned in the same pass — not just the one
+ * that happened to trigger it.
  */
 export async function enforceMultiAccountBan(telegramId: number): Promise<void> {
   if (!(await isMultiAccountProtectionEnabled())) return;
@@ -79,28 +88,32 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
         ? db.from('gm_user_devices').select('telegram_id').in('device_id', deviceIds)
         : { data: [] },
     ]);
-    const linked = new Set<number>();
-    for (const r of (ipPeers.data ?? []) as { telegram_id: number }[]) linked.add(Number(r.telegram_id));
-    for (const r of (devicePeers.data ?? []) as { telegram_id: number }[]) linked.add(Number(r.telegram_id));
-    linked.delete(telegramId);
+    const cluster = new Set<number>([telegramId]);
+    for (const r of (ipPeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
+    for (const r of (devicePeers.data ?? []) as { telegram_id: number }[]) cluster.add(Number(r.telegram_id));
 
-    if (linked.size < MAX_ACCOUNTS_PER_PERSON) return;
+    if (cluster.size <= MAX_ACCOUNTS_PER_PERSON) return;
 
-    const { data: current } = await db
+    const { data: userRows } = await db
       .from('gm_users')
-      .select('is_banned')
-      .eq('telegram_id', telegramId)
-      .maybeSingle();
-    if (current?.is_banned) return;
+      .select('telegram_id, created_at, is_banned')
+      .in('telegram_id', [...cluster]);
+    const rows = (userRows ?? []) as { telegram_id: number; created_at: string; is_banned: boolean }[];
+    rows.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-    await db.from('gm_users').update({ is_banned: true }).eq('telegram_id', telegramId);
+    const overLimit = rows.slice(MAX_ACCOUNTS_PER_PERSON).filter((r) => !r.is_banned);
+    if (overLimit.length === 0) return;
+
+    const idsToBan = overLimit.map((r) => Number(r.telegram_id));
+    await db.from('gm_users').update({ is_banned: true }).in('telegram_id', idsToBan);
 
     try {
       const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
       const admins = await getAllAdminIds();
       const text = [
         '🚫 حظر تلقائي — تعدد حسابات',
-        `الحساب #${telegramId} اتحظر لأنه مرتبط بـ ${linked.size} حساب تاني على نفس الـ IP أو الجهاز (الحد الأقصى ${MAX_ACCOUNTS_PER_PERSON} حسابات للشخص الواحد).`,
+        `الحسابات دي فوق حد الـ${MAX_ACCOUNTS_PER_PERSON} حسابات لنفس الشخص (أول ${MAX_ACCOUNTS_PER_PERSON} حسابات بترتيب تاريخ الإنشاء بيفضلوا شغالين دايمًا):`,
+        idsToBan.map((id) => `#${id}`).join(', '),
       ].join('\n');
       await Promise.all(admins.map((id) => notifyUser(id, text).catch(() => undefined)));
     } catch {
