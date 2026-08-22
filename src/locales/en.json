@@ -354,6 +354,7 @@
   "admin_ban_user": "Ban User",
   "admin_unban_user": "Unban User",
   "banned_screen_message": "Your account has been banned by the administrators.",
+  "loading_verifying_device": "Verifying your account…",
   "admin_banned": "Banned",
   "admin_unbanned": "Unbanned",
   "admin_banned_done": "User banned",

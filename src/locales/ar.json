@@ -354,6 +354,7 @@
   "admin_ban_user": "حظر المستخدم",
   "admin_unban_user": "رفع الحظر",
   "banned_screen_message": "تم حظر حسابك من قبل الإدارة.",
+  "loading_verifying_device": "جارٍ التحقق من حسابك…",
   "admin_banned": "محظور",
   "admin_unbanned": "تم رفع الحظر",
   "admin_banned_done": "تم حظر المستخدم",

@@ -3726,18 +3726,17 @@ const SEV_COLOR: Record<string, string> = {
 /**
  * Kill switch for the multi-account protection in
  * src/lib/multi-account.server.ts (IP + device fingerprint; a 4th+ account
- * tied to the same person is auto-banned). Off by default until an admin
- * explicitly enables it here — this is a full account ban, not just a
- * withdrawal restriction, so it's opt-in rather than silently active.
+ * tied to the same person is auto-banned). On by default — turn it off
+ * here if it needs to be paused.
  */
 function MultiAccountProtectionToggle() {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
 
   useEffect(() => {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
-      .then((s) => setEnabled(s['multi_account_protection_enabled'] === 'true'))
+      .then((s) => setEnabled(s['multi_account_protection_enabled'] !== 'false'))
       .finally(() => setLoading(false));
   }, []);
 

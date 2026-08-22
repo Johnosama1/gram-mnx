@@ -85,7 +85,7 @@ function AppWithLanguage({ children }: { children: React.ReactNode }) {
   return <LanguageProvider userId={user?.id}>{children}</LanguageProvider>;
 }
 
-export function LoadingScreen() {
+export function LoadingScreen({ message }: { message?: string } = {}) {
   return (
     <div
       className="flex flex-col items-center justify-center h-full w-full min-h-screen gap-4"
@@ -93,6 +93,7 @@ export function LoadingScreen() {
     >
       <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
       <span className="text-primary font-bold text-lg tracking-widest animate-pulse">GRAM MNX</span>
+      {message && <span className="text-muted-foreground text-xs">{message}</span>}
     </div>
   );
 }
@@ -254,6 +255,7 @@ function useHasTelegramInitData(): { has: boolean | null; retry: () => void } {
 function Shell() {
   const { isAdmin, isVerified, isBanned, isLoading, notJoinedChannels, maintenance, maintenanceMessage } =
     useTelegramUser();
+  const { t } = useLanguage();
   const { has: hasInitData, retry: retryTelegram } = useHasTelegramInitData();
   const router = useRouter();
   const routeKey = useRouterState({ select: (st) => st.location.pathname });
@@ -365,7 +367,7 @@ function Shell() {
       ) : hasInitData === false || (hasInitData === true && !isLoading && !isVerified) ? (
         <OutsideTelegramScreen onRetry={retryTelegram} />
       ) : isLoading || hasInitData === null ? (
-        <LoadingScreen />
+        <LoadingScreen message={t('loading_verifying_device')} />
 
       ) : maintenance && !isAdmin ? (
         <MaintenanceScreen

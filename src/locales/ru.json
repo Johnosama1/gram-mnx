@@ -354,6 +354,7 @@
   "admin_ban_user": "Заблокировать",
   "admin_unban_user": "Разблокировать",
   "banned_screen_message": "Ваш аккаунт заблокирован администрацией.",
+  "loading_verifying_device": "Проверка вашего аккаунта…",
   "admin_banned": "Заблокирован",
   "admin_unbanned": "Разблокирован",
   "admin_banned_done": "Пользователь заблокирован",

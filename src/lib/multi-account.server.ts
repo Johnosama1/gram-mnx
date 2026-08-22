@@ -17,9 +17,35 @@ import { rateLimit } from '@/lib/rate-limit.server';
  */
 export const MAX_ACCOUNTS_PER_PERSON = 3;
 
-/** Admin-panel kill switch — off by default until explicitly enabled. */
+/** Admin-panel kill switch — on by default, can be turned off from Security. */
 export async function isMultiAccountProtectionEnabled(): Promise<boolean> {
-  return (await getSetting('multi_account_protection_enabled')) === 'true';
+  return (await getSetting('multi_account_protection_enabled')) !== 'false';
+}
+
+/** PostgREST's "relation not found in schema cache" — the migration that creates gm_user_devices was never applied. */
+function isMissingTableError(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code;
+  return code === 'PGRST205' || code === '42P01';
+}
+
+let reportedMissingTable = false;
+
+/** Surfaces a missing gm_user_devices table to admins over Telegram — Worker logs aren't reachable from the admin panel. */
+async function reportMissingDevicesTable(error: unknown) {
+  console.error('[multi-account] gm_user_devices not found', error);
+  if (reportedMissingTable) return; // once per warm isolate is enough to get the point across
+  reportedMissingTable = true;
+  try {
+    const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
+    const admins = await getAllAdminIds();
+    const text =
+      '⚠️ حماية تعدد الحسابات مش شغالة\n' +
+      'جدول gm_user_devices مش موجود في قاعدة البيانات. ' +
+      'نفّذ الملف supabase/migrations/20260825060000_multi_account_devices.sql في Supabase SQL Editor عشان الحماية تشتغل.';
+    await Promise.all(admins.map((id) => notifyUser(id, text).catch(() => undefined)));
+  } catch {
+    /* best-effort */
+  }
 }
 
 /**
@@ -33,13 +59,17 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
   if (!(await isMultiAccountProtectionEnabled())) return;
   try {
     const db = (await getDb()) as any;
-    const [{ data: myIps }, { data: myDevices }] = await Promise.all([
+    const [ipRes, deviceRes] = await Promise.all([
       db.from('gm_user_ips').select('ip').eq('telegram_id', telegramId),
       db.from('gm_user_devices').select('device_id').eq('telegram_id', telegramId),
     ]);
-    const ips = Array.from(new Set(((myIps ?? []) as { ip: string }[]).map((r) => r.ip)));
+    if (deviceRes.error) {
+      if (isMissingTableError(deviceRes.error)) await reportMissingDevicesTable(deviceRes.error);
+      else console.error('[multi-account] failed to read my devices', deviceRes.error);
+    }
+    const ips = Array.from(new Set(((ipRes.data ?? []) as { ip: string }[]).map((r) => r.ip)));
     const deviceIds = Array.from(
-      new Set(((myDevices ?? []) as { device_id: string }[]).map((r) => r.device_id)),
+      new Set(((deviceRes.data ?? []) as { device_id: string }[]).map((r) => r.device_id)),
     );
     if (!ips.length && !deviceIds.length) return;
 
@@ -76,8 +106,8 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     } catch {
       /* notification is best-effort — the ban itself already happened */
     }
-  } catch {
-    /* never block the request on this bookkeeping */
+  } catch (err) {
+    console.error('[multi-account] enforceMultiAccountBan failed', err);
   }
 }
 
@@ -92,21 +122,31 @@ export async function recordUserDevice(telegramId: number, deviceId: string | nu
   try {
     const db = (await getDb()) as any;
     const now = new Date().toISOString();
-    const { data: existing } = await db
+    const { data: existing, error: selectError } = await db
       .from('gm_user_devices')
       .select('id')
       .eq('telegram_id', telegramId)
       .eq('device_id', deviceId)
       .maybeSingle();
+    if (selectError) {
+      if (isMissingTableError(selectError)) await reportMissingDevicesTable(selectError);
+      else console.error('[multi-account] device lookup failed', selectError);
+      return;
+    }
     if (existing) {
       await db.from('gm_user_devices').update({ last_seen_at: now }).eq('id', existing.id);
       return;
     }
-    await db
+    const { error: insertError } = await db
       .from('gm_user_devices')
       .insert({ telegram_id: telegramId, device_id: deviceId, last_seen_at: now });
+    if (insertError) {
+      if (isMissingTableError(insertError)) await reportMissingDevicesTable(insertError);
+      else console.error('[multi-account] device insert failed', insertError);
+      return;
+    }
     await enforceMultiAccountBan(telegramId);
-  } catch {
-    /* never block the request on device bookkeeping */
+  } catch (err) {
+    console.error('[multi-account] recordUserDevice failed', err);
   }
 }
