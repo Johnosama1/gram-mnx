@@ -86,9 +86,10 @@ export async function reportAdCompletion(
     }
 
     const text = await res.text().catch(() => '');
-    let payload: AdCompletionResult = {};
+    let payload: Partial<AdCompletionResult> = {};
     try {
-      payload = text ? (JSON.parse(text) as AdCompletionResult) : {};
+      payload = text ? (JSON.parse(text) as Partial<AdCompletionResult>) : {};
+
     } catch {
       /* non-JSON body — handled by the status checks below */
     }
