@@ -362,13 +362,15 @@ function BonusAdCard({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
     const initData = getInitData();
     if (!initData) return;
     try {
-      const res = await cachedFetch(`${API_BASE}/api/tasks/bonus-ads-status`, {
-        headers: { 'x-init-data': initData },
-      });
+      const res = await cachedFetch(
+        `${API_BASE}/api/tasks/bonus-ads-status`,
+        { headers: { 'x-init-data': initData } },
+        { force },
+      );
       if (res.ok) {
         const data = (await res.json()) as BonusAdStatus;
         setStatus(data);
@@ -384,7 +386,27 @@ function BonusAdCard({
     load();
   }, [load]);
 
+  // AdsGram-only placement: initialize its controller for the configured
+  // block id as soon as it is known (separate from the Monetag SDK).
+  useEffect(() => {
+    if (status?.blockId) initAdsgram(status.blockId);
+  }, [status?.blockId]);
+
   const canWatch = !!status?.enabled && status.remainingToday > 0;
+
+  // Dedicated AdsGram completion handler: credits the view, then immediately
+  // refetches the server-side count so the x/10 counter updates right away.
+  const onAdsgramAdCompleted = async () => {
+    const data = await reportAdCompletion('/tasks/bonus-ads-watched', 'watch_bonus', 'adsgram');
+    if (data.ok && data.coinsEarned) {
+      onCoinsEarned(data.coinsEarned);
+      setMsg({ ok: true, text: `✅ +${data.coinsEarned} MNX` });
+      notifyDataChange('balance', 'tasks');
+    } else {
+      setMsg({ ok: false, text: t('tasks_ads_limit_reached') });
+    }
+    await load(true);
+  };
 
   const watch = async () => {
     // Guards against a double-tap or reopening the ad firing a second reward.
@@ -395,18 +417,16 @@ function BonusAdCard({
       // Resolves only once the ad was watched to completion; a skip/close/
       // load failure rejects and no reward is requested below.
       await showAdsgramAd(status.blockId);
-      const data = await telegramApiPost<{ ok: boolean; coinsEarned?: number }>(
-        '/tasks/bonus-ads-watched',
-        {},
-      );
-      if (data.ok && data.coinsEarned) {
-        onCoinsEarned(data.coinsEarned);
-        setMsg({ ok: true, text: `✅ +${data.coinsEarned} MNX` });
-        notifyDataChange('balance', 'tasks');
-      } else {
-        setMsg({ ok: false, text: t('tasks_ads_limit_reached') });
+      try {
+        await onAdsgramAdCompleted();
+      } catch (e) {
+        if (e instanceof AdRewardError && e.reason === 'limit') {
+          setMsg({ ok: false, text: t('tasks_ads_limit_reached') });
+        } else {
+          setMsg({ ok: false, text: t('tasks_ads_network') });
+        }
+        await load(true);
       }
-      await load();
     } catch {
       setMsg({ ok: false, text: t('tasks_ads_failed') });
     } finally {
@@ -414,6 +434,7 @@ function BonusAdCard({
       setTimeout(() => setMsg(null), 3500);
     }
   };
+
 
   if (!status?.enabled) return null;
 
