@@ -116,7 +116,40 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
     if (overLimit.length === 0) return;
 
     const idsToBan = overLimit.map((r) => Number(r.telegram_id));
-    await db.from('gm_users').update({ is_banned: true }).in('telegram_id', idsToBan);
+    // .select() after .update() so the response echoes back the rows
+    // Postgres actually wrote — the notification below only ever claims a
+    // ban succeeded once the database itself confirms is_banned is true,
+    // instead of trusting a call that could fail (or silently match zero
+    // rows) without ever throwing.
+    const { data: writeResult, error: banError } = await db
+      .from('gm_users')
+      .update({ is_banned: true })
+      .in('telegram_id', idsToBan)
+      .select('telegram_id, is_banned');
+
+    if (banError) {
+      console.error('[multi-account] ban update failed', banError);
+      try {
+        const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
+        const admins = await getAllAdminIds();
+        const text = [
+          '⚠️ فشل تنفيذ حظر تعدد الحسابات فعليًا',
+          `الحسابات المفروض تتحظر: ${idsToBan.map((id) => `#${id}`).join(', ')}`,
+          `سبب الفشل: ${banError.message ?? String(banError)}`,
+        ].join('\n');
+        await Promise.all(admins.map((id) => notifyUser(id, text).catch(() => undefined)));
+      } catch {
+        /* best-effort */
+      }
+      return;
+    }
+
+    const confirmedBanned = new Set(
+      ((writeResult ?? []) as { telegram_id: number; is_banned: boolean }[])
+        .filter((r) => r.is_banned)
+        .map((r) => Number(r.telegram_id)),
+    );
+    const notConfirmed = idsToBan.filter((id) => !confirmedBanned.has(id));
 
     try {
       const { notifyUser, getAllAdminIds } = await import('@/lib/admin.server');
@@ -130,7 +163,10 @@ export async function enforceMultiAccountBan(telegramId: number): Promise<void> 
       });
       const text = [
         '🚫 حظر تلقائي — تعدد حسابات',
-        `تم حظر: ${idsToBan.map((id) => `#${id}`).join(', ')}`,
+        `تم حظر فعليًا (مؤكد من قاعدة البيانات): ${confirmedBanned.size ? [...confirmedBanned].map((id) => `#${id}`).join(', ') : 'لا حساب'}`,
+        ...(notConfirmed.length
+          ? [`⚠️ مطلوب حظرهم لكن قاعدة البيانات ما أكدتش الحظر: ${notConfirmed.map((id) => `#${id}`).join(', ')}`]
+          : []),
         '',
         `ترتيب المجموعة كاملة (الأقدم أولًا، أول ${MAX_ACCOUNTS_PER_PERSON} آمنين دايمًا):`,
         ...rankLines,
