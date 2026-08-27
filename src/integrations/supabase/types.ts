@@ -35,6 +35,27 @@ export type Database = {
         }
         Relationships: []
       }
+      gm_bonus_ad_views: {
+        Row: {
+          coins: number
+          created_at: string
+          id: number
+          telegram_id: number
+        }
+        Insert: {
+          coins?: number
+          created_at?: string
+          id?: number
+          telegram_id: number
+        }
+        Update: {
+          coins?: number
+          created_at?: string
+          id?: number
+          telegram_id?: number
+        }
+        Relationships: []
+      }
       gm_channels: {
         Row: {
           channel_name: string | null
@@ -694,6 +715,30 @@ export type Database = {
           title?: string
           top_n?: number
           tournament_type?: string
+        }
+        Relationships: []
+      }
+      gm_user_devices: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: number
+          last_seen_at: string
+          telegram_id: number
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: number
+          last_seen_at?: string
+          telegram_id: number
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: number
+          last_seen_at?: string
+          telegram_id?: number
         }
         Relationships: []
       }
