@@ -86,7 +86,7 @@ interface Task  { id: number; title: string; description: string; reward: number
 interface Withdrawal { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Deposit { id: number; telegram_id: number; first_name: string | null; username: string | null; wallet_address: string | null; amount: number; status: string; created_at: string; tx_hash: string | null; rejection_reason: string | null }
 interface Channel { id: number; channelUsername: string; channelName: string }
-interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; blockedBot: boolean; ips?: string[]; referralCount?: number; ipSiblingCount?: number; ipSiblings?: number[] }
+interface User { id: number; telegramId: number; username: string|null; firstName: string|null; lastName: string|null; balance: number; coins: number; isBanned: boolean; restrictWithdrawal: boolean; withdrawalUnlocked: boolean; blockedBot: boolean; ips?: string[]; referralCount?: number; ipSiblingCount?: number; ipSiblings?: number[] }
 interface UserDetails extends User {
   walletAddress: string|null; referredBy: number|null; language: string|null;
   createdAt: string|null; lastActiveAt: string|null;
@@ -3476,11 +3476,112 @@ export default function Admin() {
         <Section title="تصفير كل الأرصدة (Gram)" icon={Wallet}>
           <ResetGramSection />
         </Section>
+        <Section title="🔓 إدارة السحب (Manage Withdrawals)" icon={Wallet}>
+          <WithdrawGateSection />
+        </Section>
         <Section title="الأمان ومفاتيح المحفظة" icon={Shield}>
           <SecuritySection />
         </Section>
       </div>
 
+    </div>
+  );
+}
+
+/**
+ * Withdrawal-unlock gate lookup/override. Every account starts locked
+ * (withdrawal_unlocked defaults to false) and only unlocks once a deposit
+ * is confirmed after the gate went live (see finalizeDeposit in
+ * deposit-scan.server.ts) — this section lets an admin look up any single
+ * account by Telegram ID and unlock or re-lock it manually, independent of
+ * deposit history.
+ */
+function WithdrawGateSection() {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [found, setFound] = useState<User | null>(null);
+  const [status, setStatus] = useState('');
+
+  const search = async () => {
+    const id = query.trim();
+    if (!id) return;
+    setLoading(true);
+    setStatus('');
+    setFound(null);
+    try {
+      const users = await api<User[]>('GET', `/admin/users?action=search&q=${encodeURIComponent(id)}`);
+      if (users.length) setFound(users[0]);
+      else setStatus('❌ الحساب غير موجود');
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setGate = async (unlocked: boolean) => {
+    if (!found) return;
+    try {
+      await api('POST', `/admin/users?action=withdraw_gate&id=${found.telegramId}`, { unlocked });
+      setFound({ ...found, withdrawalUnlocked: unlocked });
+      setStatus(unlocked ? '✅ تم فتح السحب' : '✅ تم قفل السحب');
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && search()}
+          placeholder="Telegram User ID"
+          dir="ltr"
+        />
+        <button
+          onClick={search}
+          disabled={loading}
+          className="flex-shrink-0 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm flex items-center gap-1 disabled:opacity-60"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+      </div>
+
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+
+      {found && (
+        <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+          <div>
+            <div className="font-bold text-foreground text-sm">{found.firstName ?? found.username ?? 'مستخدم'}</div>
+            <div className="text-xs text-muted-foreground font-mono">
+              ID: {found.telegramId} {found.username && `· @${found.username}`}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">الحالة:</span>
+            <span
+              className={`text-xs font-black px-2 py-0.5 rounded-full ${
+                found.withdrawalUnlocked
+                  ? 'bg-success/20 text-success'
+                  : 'bg-destructive/20 text-destructive'
+              }`}
+            >
+              {found.withdrawalUnlocked ? '✅ Unlocked' : '🔒 Locked'}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Btn variant="success" size="sm" onClick={() => setGate(true)} disabled={found.withdrawalUnlocked}>
+              <Check className="w-3.5 h-3.5" />فتح السحب
+            </Btn>
+            <Btn variant="danger" size="sm" onClick={() => setGate(false)} disabled={!found.withdrawalUnlocked}>
+              <Ban className="w-3.5 h-3.5" />قفل السحب
+            </Btn>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

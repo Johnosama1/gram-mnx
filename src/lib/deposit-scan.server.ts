@@ -94,6 +94,16 @@ async function finalizeDeposit(db: any, req: PendingRequest, input: SettleInput)
   // Atomic credit: a plain read-modify-write could lose a concurrent update.
   await db.rpc('gm_add_coins', { _telegram_id: req.telegram_id, _amount: input.coins });
 
+  // A confirmed deposit is what unlocks withdrawals under the withdrawal-
+  // gate system — a past deposit that predates this column never reaches
+  // this line again, so it can never retroactively count; only a deposit
+  // credited from here on out does.
+  const { error: unlockError } = await db
+    .from('gm_users')
+    .update({ withdrawal_unlocked: true })
+    .eq('telegram_id', req.telegram_id);
+  if (unlockError) console.error('[deposit] failed to unlock withdrawal', unlockError);
+
   await notifyUser(
     req.telegram_id,
     `<tg-emoji emoji-id="5316653334688446735">✅</tg-emoji> Your deposit was received.\n<tg-emoji emoji-id="5258204546391351475">💰</tg-emoji> <b>${input.coins} MNX</b> was added to your balance.`,

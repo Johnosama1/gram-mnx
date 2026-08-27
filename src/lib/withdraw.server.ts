@@ -180,13 +180,17 @@ export async function handleWithdraw(request: Request) {
   const db = (await getDb()) as any;
   const { data: row } = await db
     .from('gm_users')
-    .select('balance, wallet_address, is_banned, restrict_withdrawal')
+    .select('balance, wallet_address, is_banned, restrict_withdrawal, withdrawal_unlocked')
     .eq('telegram_id', user.id)
     .maybeSingle();
 
   if (!row) return json({ message: tr(lang, 'account_not_found') }, 404);
   if (row.is_banned) return json({ message: tr(lang, 'banned') }, 403);
   if (row.restrict_withdrawal) return json({ message: tr(lang, 'withdraw_restricted') }, 403);
+  // Withdrawal-gate system: locked for everyone until a deposit confirmed
+  // after the gate went live unlocks it (see finalizeDeposit in
+  // deposit-scan.server.ts), or an admin unlocks it manually from the panel.
+  if (!row.withdrawal_unlocked) return json({ message: tr(lang, 'withdraw_needs_deposit') }, 403);
   if (!row.wallet_address) return json({ message: tr(lang, 'withdraw_link_wallet') }, 400);
 
   // One active request at a time: blocks duplicate submissions from a

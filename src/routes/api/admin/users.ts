@@ -168,6 +168,16 @@ async function handle({ request }: { request: Request }): Promise<Response> {
       return json({ ok: true });
     }
 
+    // Manual override for the withdrawal-unlock gate — lets an admin open
+    // (or re-lock) withdrawals for one user regardless of deposit history.
+    if (method === 'POST' && action === 'withdraw_gate' && id) {
+      await db
+        .from('gm_users')
+        .update({ withdrawal_unlocked: Boolean(body.unlocked) })
+        .eq('telegram_id', id);
+      return json({ ok: true });
+    }
+
     if (method === 'POST' && action === 'balance' && id) {
       const raw = Number(body.amount);
       if (!Number.isFinite(raw)) return json({ error: 'Invalid amount' }, 400);

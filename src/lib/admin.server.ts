@@ -222,6 +222,7 @@ export const mapUser = (u: Record<string, unknown>) => ({
   coins: Number(u.coins ?? 0),
   isBanned: Boolean(u.is_banned),
   restrictWithdrawal: Boolean(u.restrict_withdrawal),
+  withdrawalUnlocked: Boolean(u.withdrawal_unlocked),
   blockedBot: Boolean(u.blocked_bot),
 });
 

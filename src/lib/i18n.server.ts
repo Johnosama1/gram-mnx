@@ -136,6 +136,11 @@ const MESSAGES = {
     ar: 'اربط محفظتك أولاً',
     ru: 'Сначала привяжите кошелёк',
   },
+  withdraw_needs_deposit: {
+    en: 'Make a deposit first to unlock withdrawals on your account',
+    ar: 'اعمل إيداع الأول عشان يتفتح السحب على حسابك',
+    ru: 'Сначала сделайте депозит, чтобы разблокировать вывод средств',
+  },
   withdraw_multi_account: {
     en: 'Withdrawal rejected: {shared} accounts registered from the same network address (limit {limit}).',
     ar: 'تم رفض السحب: تم تسجيل {shared} حساب من نفس عنوان الشبكة (الحد المسموح {limit}).',
