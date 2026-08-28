@@ -280,14 +280,15 @@ async function handle({ request }: { request: Request }): Promise<Response> {
       if (error || !updated) return json({ error: 'Balance changed, please try again' }, 409);
 
       const balance = Number(updated.balance);
-      await db.from('gm_balance_deductions').insert({
+      const { error: logError } = await db.from('gm_balance_deductions').insert({
         telegram_id: id,
         amount,
         admin_id: guard.user.id,
         reason,
       });
+      if (logError) console.error('[admin] failed to log balance deduction', logError);
       await notifyBalanceChange(id, 'gram', 'delta', -amount, balance).catch(() => undefined);
-      return json({ ok: true, balance });
+      return json({ ok: true, balance, logFailed: Boolean(logError) });
     }
 
     // Recent deduction history for one user, shown alongside the deduct button.

@@ -3564,7 +3564,7 @@ function TopUsersSection() {
     }
     setBusy(true);
     try {
-      const res = await api<{ ok: boolean; balance: number }>(
+      const res = await api<{ ok: boolean; balance: number; logFailed?: boolean }>(
         'POST',
         `/admin/users?action=deduct_balance&id=${u.telegramId}`,
         { amount: raw, reason: reason.trim() || undefined },
@@ -3572,7 +3572,11 @@ function TopUsersSection() {
       setUsers((prev) =>
         prev.map((x) => (x.telegramId === u.telegramId ? { ...x, balance: res.balance } : x)),
       );
-      setStatus('✅ تم الخصم');
+      setStatus(
+        res.logFailed
+          ? '✅ تم الخصم، لكن فشل تسجيله في السجل (راجع الـ logs)'
+          : '✅ تم الخصم',
+      );
       setAmount('');
       setReason('');
       setConfirming(false);
