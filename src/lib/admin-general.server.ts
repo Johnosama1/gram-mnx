@@ -4,6 +4,7 @@ import {
   getAdminDb,
   getBotToken,
   getSetting,
+  invalidateAdminIdsCache,
   json,
   mapChannel,
   mapTask,
@@ -402,6 +403,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           });
         }
         await setSetting('sub_admins', JSON.stringify(admins));
+        invalidateAdminIdsCache();
         return json({ ok: true });
       }
       if (method === 'DELETE' && id) {
@@ -409,6 +411,7 @@ export async function handleAdminGeneral(request: Request, forcedType?: string):
           'sub_admins',
           JSON.stringify(admins.filter((a) => a.telegramId !== id)),
         );
+        invalidateAdminIdsCache();
         return json({ ok: true });
       }
       return json({ error: 'Invalid method or missing id' }, 400);

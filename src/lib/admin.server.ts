@@ -24,8 +24,23 @@ export function getAdminIds(): number[] {
   return [...new Set([...base, ...fromEnv])];
 }
 
+// getAllAdminIds() is on the hot path of every single API request (the
+// global guard in start.ts calls it before any handler runs), so an
+// uncached DB round-trip here added real, felt latency to every page/tab
+// load across the whole app. Sub-admins only ever change from the admin
+// panel, so a short cache is safe — invalidateAdminIdsCache() below clears
+// it immediately when that happens, and everyone else just rides the TTL.
+let adminIdsCache: { ids: number[]; expiresAt: number } | null = null;
+const ADMIN_IDS_TTL_MS = 30_000;
+
+export function invalidateAdminIdsCache(): void {
+  adminIdsCache = null;
+}
+
 /** Returns owners plus every admin added from the admin panel. */
 export async function getAllAdminIds(): Promise<number[]> {
+  if (adminIdsCache && adminIdsCache.expiresAt > Date.now()) return adminIdsCache.ids;
+
   const ids = new Set(getAdminIds());
   try {
     const raw = await getSetting('sub_admins');
@@ -37,7 +52,9 @@ export async function getAllAdminIds(): Promise<number[]> {
   } catch {
     // Keep the configured owner IDs available if settings cannot be read.
   }
-  return [...ids];
+  const result = [...ids];
+  adminIdsCache = { ids: result, expiresAt: Date.now() + ADMIN_IDS_TTL_MS };
+  return result;
 }
 
 export const json = (data: unknown, status = 200) =>

@@ -28,6 +28,29 @@ const PUBLIC_API_PREFIXES = [
   "/api/gift/media/", // gift artwork used by the Mini App shell
 ];
 
+// Cuts the per-request is_banned lookup that used to run on every single
+// non-admin API call (every tab/page load fires several) — only the "not
+// banned" result is cached, and only briefly, so a fresh ban still takes
+// effect for that user within a few seconds rather than being trusted
+// indefinitely.
+const notBannedCache = new Map<number, number>();
+const NOT_BANNED_TTL_MS = 10_000;
+
+function isCachedNotBanned(id: number): boolean {
+  const expiresAt = notBannedCache.get(id);
+  return expiresAt != null && expiresAt > Date.now();
+}
+
+function cacheNotBanned(id: number): void {
+  if (notBannedCache.size > 5_000) {
+    const now = Date.now();
+    for (const [cachedId, expiresAt] of notBannedCache) {
+      if (expiresAt <= now) notBannedCache.delete(cachedId);
+    }
+  }
+  notBannedCache.set(id, Date.now() + NOT_BANNED_TTL_MS);
+}
+
 const telegramApiGuard = createMiddleware().server(async ({ next, request }) => {
   const path = new URL(request.url).pathname;
   if (!path.startsWith("/api/")) return next();
@@ -82,20 +105,23 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
     const adminIds = await getAllAdminIds();
     if (adminIds.includes(user.id)) return next();
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("gm_users")
-      .select("is_banned")
-      .eq("telegram_id", user.id)
-      .maybeSingle();
-    if (data?.is_banned) {
-      return new Response(
-        JSON.stringify({
-          error: "BANNED",
-          message: "Your account has been banned by the administrators.",
-        }),
-        { status: 403, headers: { "content-type": "application/json" } },
-      );
+    if (!isCachedNotBanned(user.id)) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin
+        .from("gm_users")
+        .select("is_banned")
+        .eq("telegram_id", user.id)
+        .maybeSingle();
+      if (data?.is_banned) {
+        return new Response(
+          JSON.stringify({
+            error: "BANNED",
+            message: "Your account has been banned by the administrators.",
+          }),
+          { status: 403, headers: { "content-type": "application/json" } },
+        );
+      }
+      cacheNotBanned(user.id);
     }
   } catch {
     /* never lock everyone out on a transient database error */
