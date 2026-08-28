@@ -679,6 +679,69 @@ async function trackUser(from: TgUser | undefined) {
   }
 }
 
+/**
+ * Admin-only /withdraw command: lists every withdrawal still 'pending'
+ * (i.e. no admin has approved/rejected it yet — 'processing' rows are
+ * already being handled by someone and are deliberately excluded), each as
+ * its own message with the same Approve/Reject buttons the automatic
+ * notification sends, so an admin can act straight from the list.
+ */
+async function handleListPendingWithdrawals(chatId: number) {
+  const db = await getDb();
+  const { data } = await db
+    .from('gm_withdrawals')
+    .select('id, telegram_id, amount, wallet_address, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true })
+    .limit(30);
+  const rows = (data ?? []) as Array<{
+    id: number;
+    telegram_id: number;
+    amount: number;
+    wallet_address: string;
+    created_at: string;
+  }>;
+
+  if (!rows.length) {
+    await send(chatId, '✅ مفيش سحوبات معلّقة دلوقتي — كل الطلبات اتعمل لها موافقة أو رفض.');
+    return;
+  }
+
+  const ids = [...new Set(rows.map((r) => Number(r.telegram_id)))];
+  const { data: users } = await db
+    .from('gm_users')
+    .select('telegram_id, first_name, username')
+    .in('telegram_id', ids);
+  const names = new Map<number, { first_name?: string | null; username?: string | null }>();
+  for (const u of (users ?? []) as any[]) names.set(Number(u.telegram_id), u);
+
+  await send(chatId, `📋 <b>فاضل ${rows.length} طلب سحب لسه محدش وقف عليه</b>`);
+
+  for (const w of rows) {
+    const u = names.get(Number(w.telegram_id));
+    const tag = u?.username ? `@${u.username}` : (u?.first_name ?? String(w.telegram_id));
+    const when = new Date(w.created_at).toLocaleString('ar-EG');
+    const lines = [
+      `🧾 <b>طلب سحب #${w.id}</b>`,
+      '',
+      `👤 ${tag}`,
+      `🪪 <code>${w.telegram_id}</code>`,
+      `💎 ${Number(w.amount)} GRAM`,
+      `👛 <code>${w.wallet_address}</code>`,
+      `🕒 ${when}`,
+    ];
+    const reply_markup: Kb = {
+      inline_keyboard: [
+        [
+          btn('✅ Approve & send', { callback_data: `wd:approve:${w.id}` }, 'success'),
+          btn('❌ Reject', { callback_data: `wd:reject:${w.id}` }, 'danger'),
+        ],
+      ],
+    };
+    await send(chatId, lines.join('\n'), reply_markup);
+  }
+}
+
 /** Single entry point for every Telegram update; all state lives in the DB. */
 export async function handleUpdate(update: TgUpdate) {
   if (update.callback_query) {
@@ -744,6 +807,14 @@ export async function handleUpdate(update: TgUpdate) {
       return;
     }
     await send(chatId, '🛠 <b>GRAM MNX admin panel</b>', adminMenu);
+    return;
+  }
+  if (text === '/withdraw') {
+    if (!(await isAdmin(from.id))) {
+      await send(chatId, '⛔ This command is for admins only.');
+      return;
+    }
+    await handleListPendingWithdrawals(chatId);
     return;
   }
   if ((await isAdmin(from.id)) && !text.startsWith('/')) {
