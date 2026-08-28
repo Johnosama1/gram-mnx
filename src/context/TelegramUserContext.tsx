@@ -108,17 +108,29 @@ export function TelegramUserProvider({ children }: { children: React.ReactNode }
 
   const doAuth = useCallback(async (initData: string) => {
     const deviceId = await getDeviceId();
-    const res = await fetch(`${API_BASE}/api/telegram/auth?t=${Date.now()}`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'x-device-id': deviceId,
-      },
-      credentials: 'include',
-      body: JSON.stringify({ initData }),
-    });
+    // Bounded so a stuck/slow server response can never leave the app
+    // frozen on "Verifying your account..." forever — this rejects,
+    // isLoading still resolves via the existing catch/finally below, and
+    // the next poll (or a manual reopen) gets another chance.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE}/api/telegram/auth?t=${Date.now()}`, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'x-device-id': deviceId,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ initData }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
     if (res.status === 403) {
       setIsBanned(true);
       setIsVerified(false);

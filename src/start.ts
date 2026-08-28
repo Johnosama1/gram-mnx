@@ -50,21 +50,32 @@ const telegramApiGuard = createMiddleware().server(async ({ next, request }) => 
   // hard floor independent of whatever any ban path (including the
   // multi-account protection) writes to is_banned.
   try {
-    // The multi-account limit must be enforced on this account's very
-    // first over-the-limit request, not the next one — recording the
-    // IP/device pairing and running the ban check have to happen here,
-    // ahead of the is_banned read below, so a ban applied by THIS request
-    // is already reflected by the time that read runs. /api/telegram/auth
-    // is the one endpoint every client calls first on every app open, so
-    // scoping this here (rather than every /api/* request) catches it
-    // immediately without adding a DB round-trip to every other endpoint.
     if (path === "/api/telegram/auth") {
+      // upsertUser must finish before the handler reads this user's row.
       const { upsertUser } = await import("@/lib/telegram-user.server");
       await upsertUser(user);
-      const { getClientIp, recordUserIp } = await import("@/lib/withdraw.server");
-      const { recordUserDevice } = await import("@/lib/multi-account.server");
-      await recordUserIp(user.id, getClientIp(request));
-      await recordUserDevice(user.id, request.headers.get("x-device-id"));
+
+      // IP/device recording + the multi-account limit check run detached
+      // (Cloudflare's waitUntil, not blocking this response) — awaiting
+      // them here serialized ~10 extra DB round-trips onto the app's single
+      // hottest endpoint (polled every 15-20s by every open session) ahead
+      // of every response, which was enough added latency under load to
+      // make the app look hung. The trade-off is a newly-over-the-limit
+      // account is now caught on its *next* request rather than this exact
+      // one — an acceptable cost next to blocking every user's auth call
+      // on it. recordUserIp/recordUserDevice/enforceMultiAccountBan already
+      // tolerate running after the response independently of each other.
+      const { runDetached } = await import("@/lib/withdraw-sweep.server");
+      runDetached(
+        "multi-account check",
+        async () => {
+          const { getClientIp, recordUserIp } = await import("@/lib/withdraw.server");
+          const { recordUserDevice } = await import("@/lib/multi-account.server");
+          await recordUserIp(user.id, getClientIp(request));
+          await recordUserDevice(user.id, request.headers.get("x-device-id"));
+        },
+        request,
+      );
     }
 
     const { getAllAdminIds } = await import("@/lib/admin.server");
