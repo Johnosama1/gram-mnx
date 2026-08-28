@@ -3751,6 +3751,29 @@ function WithdrawGateSection() {
   const [loading, setLoading] = useState(false);
   const [found, setFound] = useState<User | null>(null);
   const [status, setStatus] = useState('');
+  const [gateEnabled, setGateEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api<Record<string, string>>('GET', '/admin/general?type=settings')
+      .then((s) => setGateEnabled(s['withdraw_gate_enabled'] !== 'false'))
+      .catch(() => setGateEnabled(true));
+  }, []);
+
+  const toggleGateEnabled = async (enabled: boolean) => {
+    const prev = gateEnabled;
+    setGateEnabled(enabled);
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'withdraw_gate_enabled',
+        value: String(enabled),
+      });
+      setStatus(enabled ? '✅ شرط قفل السحب مفعّل' : '✅ شرط قفل السحب متوقف — السحب شغال للجميع');
+    } catch (e: any) {
+      setGateEnabled(prev);
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
 
   const search = async () => {
     const id = query.trim();
@@ -3783,6 +3806,30 @@ function WithdrawGateSection() {
 
   return (
     <div className="space-y-3">
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-bold text-foreground">شرط "إيداع جديد لفتح السحب"</span>
+          <span
+            className={`text-xs font-black px-2 py-0.5 rounded-full ${
+              gateEnabled ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+            }`}
+          >
+            {gateEnabled === null ? '...' : gateEnabled ? '✅ مفعّل' : '⛔ متوقف'}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          لما يكون متوقف، السحب بيشتغل عادي للجميع من غير ما يحتاجوا إيداع جديد بعد التفعيل.
+        </p>
+        <div className="flex gap-2">
+          <Btn variant="success" size="sm" onClick={() => toggleGateEnabled(true)} disabled={gateEnabled === true}>
+            <Check className="w-3.5 h-3.5" />تفعيل الشرط
+          </Btn>
+          <Btn variant="danger" size="sm" onClick={() => toggleGateEnabled(false)} disabled={gateEnabled === false}>
+            <Ban className="w-3.5 h-3.5" />إيقاف الشرط
+          </Btn>
+        </div>
+      </div>
+
       <div className="flex gap-2">
         <Input
           value={query}

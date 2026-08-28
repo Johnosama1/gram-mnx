@@ -7,6 +7,16 @@ const DEFAULT_MAX_ACCOUNTS_PER_IP = 10;
 const DEFAULT_MAX_ACCOUNTS_PER_WALLET = 1;
 const DEFAULT_MIN_WITHDRAW = 0.1;
 
+/**
+ * Admin on/off switch for the withdrawal-unlock gate (the "make a new
+ * deposit to unlock withdrawals" condition). Defaults to enabled — unset
+ * means the gate behaves exactly as it does today — so an admin has to
+ * explicitly turn it off from the panel to bypass it for everyone.
+ */
+export async function isWithdrawGateEnabled(): Promise<boolean> {
+  return (await getSetting('withdraw_gate_enabled')) !== 'false';
+}
+
 /** Minimum withdrawal in gram (admin-configurable). */
 export async function getMinWithdraw(): Promise<number> {
   for (const key of ['min_withdrawal', 'min_withdraw']) {
@@ -197,7 +207,11 @@ export async function handleWithdraw(request: Request) {
   // Withdrawal-gate system: locked for everyone until a deposit confirmed
   // after the gate went live unlocks it (see finalizeDeposit in
   // deposit-scan.server.ts), or an admin unlocks it manually from the panel.
-  if (!row.withdrawal_unlocked) return json({ message: tr(lang, 'withdraw_needs_deposit') }, 403);
+  // An admin can also turn the whole condition off from the panel, in which
+  // case withdrawal_unlocked is simply never checked.
+  if ((await isWithdrawGateEnabled()) && !row.withdrawal_unlocked) {
+    return json({ message: tr(lang, 'withdraw_needs_deposit') }, 403);
+  }
   if (!row.wallet_address) return json({ message: tr(lang, 'withdraw_link_wallet') }, 400);
 
   // One active request at a time: blocks duplicate submissions from a
