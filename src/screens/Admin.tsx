@@ -3479,11 +3479,257 @@ export default function Admin() {
         <Section title="🔓 إدارة السحب (Manage Withdrawals)" icon={Wallet}>
           <WithdrawGateSection />
         </Section>
+        <Section title="أعلى المستخدمين (Top Users)" icon={Trophy}>
+          <TopUsersSection />
+        </Section>
         <Section title="الأمان ومفاتيح المحفظة" icon={Shield}>
           <SecuritySection />
         </Section>
       </div>
 
+    </div>
+  );
+}
+
+interface TopUser {
+  telegramId: number;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  balance: number;
+  totalDeposits: number;
+  totalWithdrawals: number;
+  depositRatePct: number;
+  withdrawRatePct: number;
+  lastDepositAt: string | null;
+  lastWithdrawalAt: string | null;
+}
+
+interface DeductionLogRow {
+  id: number;
+  amount: number;
+  admin_id: number;
+  reason: string | null;
+  created_at: string;
+}
+
+/**
+ * Top 100 users by balance, with deposit/withdrawal totals and a manual
+ * balance-deduction tool. The deduction always re-reads the user's real
+ * current balance server-side and is hard-floored there (see the
+ * deduct_balance action in routes/api/admin/users.ts) — the client-side
+ * checks here are only for a fast, friendly error before the confirm step,
+ * never the actual enforcement.
+ */
+function TopUsersSection() {
+  const [users, setUsers] = useState<TopUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [amount, setAmount] = useState('');
+  const [reason, setReason] = useState('');
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [log, setLog] = useState<DeductionLogRow[]>([]);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    api<TopUser[]>('GET', '/admin/users?action=top')
+      .then(setUsers)
+      .catch((e: any) => setStatus(`❌ ${e.message}`))
+      .finally(() => setLoading(false));
+  }, []);
+  useEffect(load, [load]);
+
+  const toggleExpand = (u: TopUser) => {
+    if (expandedId === u.telegramId) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(u.telegramId);
+    setAmount('');
+    setReason('');
+    setConfirming(false);
+    setLog([]);
+    api<DeductionLogRow[]>('GET', `/admin/users?action=deduction_log&id=${u.telegramId}`)
+      .then(setLog)
+      .catch(() => {});
+  };
+
+  const submitDeduction = async (u: TopUser) => {
+    const raw = Number(amount);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      setStatus('❌ اكتب كمية صحيحة');
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await api<{ ok: boolean; balance: number }>(
+        'POST',
+        `/admin/users?action=deduct_balance&id=${u.telegramId}`,
+        { amount: raw, reason: reason.trim() || undefined },
+      );
+      setUsers((prev) =>
+        prev.map((x) => (x.telegramId === u.telegramId ? { ...x, balance: res.balance } : x)),
+      );
+      setStatus('✅ تم الخصم');
+      setAmount('');
+      setReason('');
+      setConfirming(false);
+      setExpandedId(null);
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    } finally {
+      setBusy(false);
+      setTimeout(() => setStatus(''), 3000);
+    }
+  };
+
+  const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString('ar-EG') : '—');
+  const nameOf = (u: TopUser) => u.firstName ?? u.username ?? `#${u.telegramId}`;
+
+  if (loading) return <div className="text-muted-foreground text-sm">جاري التحميل…</div>;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">أعلى {users.length} مستخدم حسب الرصيد الحالي</span>
+        <Btn size="sm" variant="ghost" onClick={load}>تحديث</Btn>
+      </div>
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+
+      <div className="space-y-2 max-h-[32rem] overflow-y-auto">
+        {users.map((u, i) => (
+          <div key={u.telegramId} className="bg-secondary rounded-xl p-3 border border-violet-500/20">
+            <button className="w-full text-left" onClick={() => toggleExpand(u)}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-bold text-foreground text-sm truncate">
+                    #{i + 1} · {nameOf(u)}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-mono">
+                    ID: {u.telegramId}
+                    {u.username && ` · @${u.username}`}
+                  </div>
+                </div>
+                <div className="text-left flex-shrink-0">
+                  <div className="text-sm font-black text-primary">{u.balance.toFixed(4)}</div>
+                  <div className="text-[10px] text-muted-foreground">gram</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 mt-2 text-[10px]">
+                <div className="bg-background/40 rounded-lg px-2 py-1">
+                  <span className="text-muted-foreground">إجمالي الإيداعات: </span>
+                  <span className="text-success font-bold">{u.totalDeposits.toFixed(2)}</span>
+                </div>
+                <div className="bg-background/40 rounded-lg px-2 py-1">
+                  <span className="text-muted-foreground">إجمالي السحوبات: </span>
+                  <span className="text-destructive font-bold">{u.totalWithdrawals.toFixed(2)}</span>
+                </div>
+                <div className="bg-background/40 rounded-lg px-2 py-1">
+                  <span className="text-muted-foreground">نسبة الإيداع: </span>
+                  <span className="font-bold text-foreground">{u.depositRatePct}%</span>
+                </div>
+                <div className="bg-background/40 rounded-lg px-2 py-1">
+                  <span className="text-muted-foreground">نسبة السحب: </span>
+                  <span className="font-bold text-foreground">{u.withdrawRatePct}%</span>
+                </div>
+                <div className="bg-background/40 rounded-lg px-2 py-1 col-span-2">
+                  <span className="text-muted-foreground">آخر إيداع: </span>
+                  {fmtDate(u.lastDepositAt)}
+                </div>
+                <div className="bg-background/40 rounded-lg px-2 py-1 col-span-2">
+                  <span className="text-muted-foreground">آخر سحب: </span>
+                  {fmtDate(u.lastWithdrawalAt)}
+                </div>
+              </div>
+            </button>
+
+            {expandedId === u.telegramId && (
+              <div className="mt-3 pt-3 border-t border-violet-500/15 space-y-2">
+                {!confirming ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="الكمية المراد خصمها"
+                        dir="ltr"
+                      />
+                      <Input
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        placeholder="السبب (اختياري)"
+                      />
+                    </div>
+                    <Btn
+                      variant="danger"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        const raw = Number(amount);
+                        if (!Number.isFinite(raw) || raw <= 0) {
+                          setStatus('❌ اكتب كمية صحيحة');
+                          return;
+                        }
+                        if (raw > u.balance) {
+                          setStatus('❌ المبلغ أكبر من رصيد المستخدم');
+                          return;
+                        }
+                        setConfirming(true);
+                      }}
+                    >
+                      <Ban className="w-3.5 h-3.5" />خصم من الرصيد
+                    </Btn>
+                  </>
+                ) : (
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 space-y-2">
+                    <p className="text-xs font-bold text-foreground">تأكيد الخصم</p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>
+                        الرصيد الحالي: <span className="font-bold text-foreground">{u.balance.toFixed(4)}</span>
+                      </div>
+                      <div>
+                        المبلغ المراد خصمه:{' '}
+                        <span className="font-bold text-destructive">{Number(amount).toFixed(4)}</span>
+                      </div>
+                      <div>
+                        الرصيد بعد الخصم:{' '}
+                        <span className="font-bold text-foreground">
+                          {(u.balance - Number(amount)).toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Btn variant="danger" size="sm" onClick={() => submitDeduction(u)} disabled={busy}>
+                        تأكيد الخصم
+                      </Btn>
+                      <Btn variant="ghost" size="sm" onClick={() => setConfirming(false)} disabled={busy}>
+                        إلغاء
+                      </Btn>
+                    </div>
+                  </div>
+                )}
+
+                {log.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">آخر عمليات الخصم</p>
+                    {log.map((l) => (
+                      <div
+                        key={l.id}
+                        className="text-[10px] text-muted-foreground bg-background/40 rounded-lg px-2 py-1"
+                      >
+                        -{l.amount.toFixed(4)} · أدمن #{l.admin_id} · {new Date(l.created_at).toLocaleString('ar-EG')}
+                        {l.reason && ` · ${l.reason}`}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

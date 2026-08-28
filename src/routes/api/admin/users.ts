@@ -178,6 +178,129 @@ async function handle({ request }: { request: Request }): Promise<Response> {
       return json({ ok: true });
     }
 
+    // Top 100 users by current balance, with deposit/withdrawal totals and
+    // last-activity timestamps folded in for the admin panel's "Top Users"
+    // section. Deposit/withdrawal rows for just these 100 ids are fetched
+    // and aggregated here (sum + max) rather than via a DB-side GROUP BY,
+    // matching how enrich() above already aggregates IP/referral data —
+    // no new RPC needed, and it's an admin-only, infrequently-run report,
+    // not a hot path.
+    if (method === 'GET' && action === 'top') {
+      const { data: topRows } = await db
+        .from('gm_users')
+        .select('telegram_id, username, first_name, last_name, balance')
+        .order('balance', { ascending: false })
+        .limit(100);
+      const rows = (topRows ?? []) as any[];
+      const ids = rows.map((r) => Number(r.telegram_id));
+      if (!ids.length) return json([]);
+
+      const [{ data: deposits }, { data: withdrawals }] = await Promise.all([
+        db
+          .from('gm_deposits')
+          .select('telegram_id, amount, credited_at')
+          .eq('status', 'confirmed')
+          .in('telegram_id', ids),
+        db
+          .from('gm_withdrawals')
+          .select('telegram_id, amount, processed_at')
+          .eq('status', 'approved')
+          .in('telegram_id', ids),
+      ]);
+
+      type Stat = { total: number; last: string | null };
+      const depositStats = new Map<number, Stat>();
+      for (const d of (deposits ?? []) as any[]) {
+        const tid = Number(d.telegram_id);
+        const cur = depositStats.get(tid) ?? { total: 0, last: null };
+        cur.total += Number(d.amount ?? 0);
+        if (d.credited_at && (!cur.last || d.credited_at > cur.last)) cur.last = d.credited_at;
+        depositStats.set(tid, cur);
+      }
+      const withdrawStats = new Map<number, Stat>();
+      for (const w of (withdrawals ?? []) as any[]) {
+        const tid = Number(w.telegram_id);
+        const cur = withdrawStats.get(tid) ?? { total: 0, last: null };
+        cur.total += Number(w.amount ?? 0);
+        if (w.processed_at && (!cur.last || w.processed_at > cur.last)) cur.last = w.processed_at;
+        withdrawStats.set(tid, cur);
+      }
+
+      return json(
+        rows.map((r) => {
+          const tid = Number(r.telegram_id);
+          const dep = depositStats.get(tid) ?? { total: 0, last: null };
+          const wd = withdrawStats.get(tid) ?? { total: 0, last: null };
+          const flow = dep.total + wd.total;
+          return {
+            telegramId: tid,
+            username: r.username ?? null,
+            firstName: r.first_name ?? null,
+            lastName: r.last_name ?? null,
+            balance: Number(r.balance ?? 0),
+            totalDeposits: dep.total,
+            totalWithdrawals: wd.total,
+            // % share of this user's total money movement (deposits +
+            // withdrawals) that each side accounts for — the two always
+            // sum to 100 when there's any activity at all.
+            depositRatePct: flow > 0 ? Math.round((dep.total / flow) * 1000) / 10 : 0,
+            withdrawRatePct: flow > 0 ? Math.round((wd.total / flow) * 1000) / 10 : 0,
+            lastDepositAt: dep.last,
+            lastWithdrawalAt: wd.last,
+          };
+        }),
+      );
+    }
+
+    // Manual balance deduction for the "Top Users" section: hard-floored at
+    // the user's current balance (never goes negative), logged to
+    // gm_balance_deductions with the acting admin and an optional reason,
+    // and guarded against a concurrent balance change with the .eq('balance', ...)
+    // filter below (the update simply matches zero rows if the balance moved
+    // between the read and the write, which the caller can retry).
+    if (method === 'POST' && action === 'deduct_balance' && id) {
+      const raw = Number(body.amount);
+      if (!Number.isFinite(raw) || raw <= 0) return json({ error: 'Invalid amount' }, 400);
+      const amount = Math.round(raw * 1_000_000) / 1_000_000;
+      const reason = typeof body.reason === 'string' && body.reason.trim() ? body.reason.trim().slice(0, 300) : null;
+
+      const { data: u } = await db.from('gm_users').select('balance').eq('telegram_id', id).maybeSingle();
+      if (!u) return json({ error: 'User not found' }, 404);
+      const current = Number(u.balance ?? 0);
+      if (amount > current + 1e-9) return json({ error: 'Amount exceeds current balance' }, 400);
+
+      const next = Math.round((current - amount) * 1_000_000) / 1_000_000;
+      const { data: updated, error } = await db
+        .from('gm_users')
+        .update({ balance: next })
+        .eq('telegram_id', id)
+        .eq('balance', current)
+        .select('balance')
+        .maybeSingle();
+      if (error || !updated) return json({ error: 'Balance changed, please try again' }, 409);
+
+      const balance = Number(updated.balance);
+      await db.from('gm_balance_deductions').insert({
+        telegram_id: id,
+        amount,
+        admin_id: guard.user.id,
+        reason,
+      });
+      await notifyBalanceChange(id, 'gram', 'delta', -amount, balance).catch(() => undefined);
+      return json({ ok: true, balance });
+    }
+
+    // Recent deduction history for one user, shown alongside the deduct button.
+    if (method === 'GET' && action === 'deduction_log' && id) {
+      const { data } = await db
+        .from('gm_balance_deductions')
+        .select('id, amount, admin_id, reason, created_at')
+        .eq('telegram_id', id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      return json(data ?? []);
+    }
+
     if (method === 'POST' && action === 'balance' && id) {
       const raw = Number(body.amount);
       if (!Number.isFinite(raw)) return json({ error: 'Invalid amount' }, 400);
