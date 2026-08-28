@@ -171,10 +171,14 @@ async function handle({ request }: { request: Request }): Promise<Response> {
     // Manual override for the withdrawal-unlock gate — lets an admin open
     // (or re-lock) withdrawals for one user regardless of deposit history.
     if (method === 'POST' && action === 'withdraw_gate' && id) {
-      await db
+      const { error } = await db
         .from('gm_users')
         .update({ withdrawal_unlocked: Boolean(body.unlocked) })
         .eq('telegram_id', id);
+      if (error) {
+        console.error('[admin] failed to update withdrawal_unlocked', error);
+        return json({ error: 'Update failed' }, 500);
+      }
       return json({ ok: true });
     }
 

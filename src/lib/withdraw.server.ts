@@ -178,12 +178,19 @@ export async function handleWithdraw(request: Request) {
   await Promise.all([upsertUser(user), recordUserIp(user.id, ip)]);
 
   const db = (await getDb()) as any;
-  const { data: row } = await db
+  const { data: row, error: rowError } = await db
     .from('gm_users')
     .select('balance, wallet_address, is_banned, restrict_withdrawal, withdrawal_unlocked')
     .eq('telegram_id', user.id)
     .maybeSingle();
 
+  // A query failure (e.g. a column missing because a migration hasn't run
+  // yet) must never be reported as "account not found" — that hides a real
+  // schema/DB problem behind a message that looks like a user-side issue.
+  if (rowError) {
+    console.error('[withdraw] failed to load user row', rowError);
+    return json({ message: tr(lang, 'request_failed', { status: 'DB' }) }, 500);
+  }
   if (!row) return json({ message: tr(lang, 'account_not_found') }, 404);
   if (row.is_banned) return json({ message: tr(lang, 'banned') }, 403);
   if (row.restrict_withdrawal) return json({ message: tr(lang, 'withdraw_restricted') }, 403);
