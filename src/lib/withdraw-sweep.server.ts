@@ -50,10 +50,15 @@ export function runDetached<T>(
 }
 
 /**
- * One pass of withdrawal maintenance:
- *  1. recover requests stuck in `processing`/`recovering` (checks the chain
- *     first, so an already-sent payout is recorded instead of resent),
- *  2. drain the `pending` queue with the normal payout path.
+ * One pass of withdrawal maintenance: recovers requests stuck in
+ * `processing`/`recovering` (checks the chain first, so an already-sent
+ * payout is recorded instead of resent).
+ *
+ * This does NOT auto-approve anything still `pending` — every withdrawal
+ * requires an explicit admin approval (bot inline button or admin panel),
+ * which is the only path that calls sendTonPayout. This sweep only
+ * reconciles transfers an admin already started and that got interrupted
+ * (e.g. the server process was killed mid-flight).
  *
  * Guarded by a short DB rate-limit window so concurrent requests can't run
  * overlapping sweeps.
@@ -63,12 +68,8 @@ export async function sweepWithdrawals(staleMinutes = 2) {
   // one sweep per 30s across the whole deployment
   if (!(await rateLimit('withdraw-sweep', 1, 30))) return null;
 
-  const { recoverStaleWithdrawals, processPendingWithdrawals } = await import(
-    '@/lib/withdraw-review.server'
-  );
-  const recovery = await recoverStaleWithdrawals(staleMinutes);
-  const queue = await processPendingWithdrawals(25);
-  return { ...recovery, ...queue };
+  const { recoverStaleWithdrawals } = await import('@/lib/withdraw-review.server');
+  return recoverStaleWithdrawals(staleMinutes);
 }
 
 /** Fire-and-forget sweep for use on ordinary user endpoints. */

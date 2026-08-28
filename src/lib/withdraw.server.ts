@@ -322,113 +322,12 @@ export async function handleWithdraw(request: Request) {
   // No channel post while the request is pending — the withdrawal is only
   // announced in the channel after the payout actually succeeds.
 
-
-
-  // Automatic payout: when a payout wallet is configured the funds are sent
-  // immediately and the admins only receive a notification (no approval step).
-  const { hasPayoutWallet } = await import('@/lib/ton.server');
+  // Every withdrawal waits for a human: no auto-payout here. The request
+  // stays 'pending' and every admin gets a Telegram message with inline
+  // Approve/Reject buttons (also actionable from the admin panel) — funds
+  // only move once reviewWithdrawal() runs an actual approval, which is the
+  // one place that calls sendTonPayout.
   const review = await import('@/lib/withdraw-review.server');
-  // The payout helper itself picks the correct wallet version (V5R1/V4/V3R2)
-  // and only sends from a funded wallet, so no address match gate is needed.
-  const autoPayoutReady = await hasPayoutWallet();
-  if (autoPayoutReady) {
-    // The payout runs detached from this HTTP request: if the user closes the
-    // withdraw screen or the bot mid-flight, the platform keeps the task alive
-    // (waitUntil) instead of cancelling it and leaving the row in
-    // `processing`. Behaviour and messages below are unchanged.
-    const { runDetached } = await import('@/lib/withdraw-sweep.server');
-    const result = await runDetached(
-      'auto payout',
-      () =>
-        review.reviewWithdrawal(Number(req.id), 'approve', undefined, {
-          id: null,
-          name: 'Auto payout',
-        }),
-      request,
-    );
-
-    if (!result) {
-      // The payout task threw before returning a verdict. Never refund or
-      // reject here — the transfer may already be on-chain. The background
-      // sweep checks the chain and settles the row (approved or requeued).
-      return json({
-        ok: true,
-        message: tr(lang, 'withdraw_pending_admin'),
-        balance: newBalance,
-      });
-    }
-
-    if (result.ok) {
-      return json({
-        ok: true,
-        message: tr(lang, 'withdraw_sent'),
-        balance: newBalance,
-      });
-    }
-
-    // Payout wallet out of funds → do NOT tell the user "no funds". Keep the
-    // request pending, notify the admins, and show a normal "under review"
-    // message. The amount stays reserved (already deducted) so the admin can
-    // approve it later once the payout wallet is topped up.
-    const rawMsg = String(result.message ?? '');
-    const isInsufficientFunds =
-      rawMsg.toLowerCase().includes('too low') ||
-      rawMsg.toLowerCase().includes('insufficient') ||
-      rawMsg.toLowerCase().includes('not enough');
-
-    if (isInsufficientFunds) {
-      await db
-        .from('gm_withdrawals')
-        .update({ status: 'pending', rejection_reason: null })
-        .eq('id', Number(req.id));
-      await review.notifyAdminsPendingWithdraw({
-        requestId: Number(req.id),
-        telegramId: user.id,
-        username: user.username ?? null,
-        amount,
-        wallet: row.wallet_address,
-        note: `⚠️ Payout wallet balance is too low — the request is waiting for manual review. (${rawMsg})`,
-      });
-      return json({
-        ok: true,
-        message: tr(lang, 'withdraw_pending_admin'),
-        balance: newBalance,
-      });
-    }
-
-    // Any other payout failure: refund immediately so the user's money is not
-    // stuck reserved on a request that can never be retried automatically.
-    const failureReason = `Automatic GRAM transfer failed: ${result.message}`;
-    await db
-      .from('gm_withdrawals')
-      .update({
-        status: 'rejected',
-        rejection_reason: failureReason,
-        processed_at: new Date().toISOString(),
-      })
-      .eq('id', Number(req.id))
-      .eq('status', 'pending');
-    await db.rpc('gm_add_balance', { _telegram_id: user.id, _amount: amount });
-    await review.notifyAdminsPendingWithdraw({
-      requestId: Number(req.id),
-      telegramId: user.id,
-      username: user.username ?? null,
-      amount,
-      wallet: row.wallet_address,
-      note: `${failureReason} — the amount was returned to the user's balance.`,
-    });
-    return json(
-      {
-        message: tr(lang, 'withdraw_auto_failed', { reason: String(result.message ?? '') }),
-        balance,
-      },
-      400,
-    );
-
-  }
-
-  // Missing or mismatched payout wallet → never broadcast from the wrong wallet.
-  // (autoPayoutReady is already false here, so there is no payout-wallet key configured.)
   await review.notifyAdminsPendingWithdraw({
     requestId: Number(req.id),
     telegramId: user.id,
