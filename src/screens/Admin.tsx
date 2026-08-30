@@ -526,6 +526,7 @@ function AdsGramSection() {
   const [comboAdEnabled, setComboAdEnabled] = useState(false);
   const [giftAdEnabled, setGiftAdEnabled] = useState(true);
   const [promoAdEnabled, setPromoAdEnabled] = useState(true);
+  const [miningClaimAdEnabled, setMiningClaimAdEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
 
@@ -541,6 +542,7 @@ function AdsGramSection() {
         setComboAdEnabled(s['combo_ad_enabled'] !== 'false');
         setGiftAdEnabled(s['gift_ad_enabled'] !== 'false');
         setPromoAdEnabled(s['promo_ad_enabled'] !== 'false');
+        setMiningClaimAdEnabled(s['mining_claim_ad_enabled'] !== 'false');
       })
       .finally(() => setLoading(false));
   }, []);
@@ -557,6 +559,7 @@ function AdsGramSection() {
         api('POST', '/admin/general?type=settings', { key: 'combo_ad_enabled', value: String(comboAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'gift_ad_enabled', value: String(giftAdEnabled) }),
         api('POST', '/admin/general?type=settings', { key: 'promo_ad_enabled', value: String(promoAdEnabled) }),
+        api('POST', '/admin/general?type=settings', { key: 'mining_claim_ad_enabled', value: String(miningClaimAdEnabled) }),
       ]);
       notifyDataChange('admin', 'tasks', 'combo');
       setStatus('✅ تم الحفظ');
@@ -571,7 +574,7 @@ function AdsGramSection() {
   return (
     <div className="space-y-3">
       <label className="text-xs text-muted-foreground block">
-        AdsGram Block ID (الكومبو، الهدايا، الإعلان الإضافي، كود الخصم)
+        AdsGram Block ID (الكومبو، الهدايا، الإعلان الإضافي، كود الخصم، زر الاستلام)
         <input
           value={blockId}
           onChange={(e) => setBlockId(e.target.value)}
@@ -607,6 +610,7 @@ function AdsGramSection() {
       <ToggleRow label="إعلان قبل الكومبو اليومي" value={comboAdEnabled} onChange={setComboAdEnabled} />
       <ToggleRow label="مشاهدة الإعلانات في قسم الهدايا" value={giftAdEnabled} onChange={setGiftAdEnabled} />
       <ToggleRow label="إعلان قبل استرداد كود الخصم" value={promoAdEnabled} onChange={setPromoAdEnabled} />
+      <ToggleRow label="إعلان قبل زر استلام التعدين (Claim)" value={miningClaimAdEnabled} onChange={setMiningClaimAdEnabled} />
 
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
       <Btn onClick={save} className="w-full">

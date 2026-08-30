@@ -53,6 +53,7 @@
   "dashboard_holding_wallet": "КОШЕЛЁК",
   "dashboard_claim": "ЗАБРАТЬ",
   "dashboard_claim_failed": "Не удалось сохранить. Попробуйте снова.",
+  "dashboard_claim_ad_failed": "❌ Реклама не была досмотрена, начисление не выполнено",
   "dashboard_24h_label": "ЗА 24 Ч",
   "miners_title": "УЛУЧШЕНИЯ",
   "miners_level": "УР.",

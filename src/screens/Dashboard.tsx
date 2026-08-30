@@ -183,7 +183,11 @@ export default function Dashboard() {
       <div className="shrink-0 px-3 pb-3 bg-gradient-to-t from-background via-background to-transparent">
         {claimError && (
           <div className="mb-2 rounded-xl border border-destructive/30 bg-card px-3 py-2 text-center text-xs font-bold text-destructive shadow-lg">
-            {claimError === 'MIN_CLAIM' ? t('dashboard_min_claim') : t('dashboard_claim_failed')}
+            {claimError === 'MIN_CLAIM'
+              ? t('dashboard_min_claim')
+              : claimError === 'AD_FAILED'
+                ? t('dashboard_claim_ad_failed')
+                : t('dashboard_claim_failed')}
           </div>
         )}
         {/* min-h reserves this row's space up front so the Claim button below

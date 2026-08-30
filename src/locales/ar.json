@@ -53,6 +53,7 @@
   "dashboard_holding_wallet": "محفظة التوفير",
   "dashboard_claim": "استلام",
   "dashboard_claim_failed": "تعذر حفظ رصيدك، حاول مرة أخرى.",
+  "dashboard_claim_ad_failed": "❌ لم تكتمل مشاهدة الإعلان، لم يتم استلام الرصيد",
   "dashboard_24h_label": "ربح 24 ساعة",
   "miners_title": "الترقيات",
   "miners_level": "مستوى",

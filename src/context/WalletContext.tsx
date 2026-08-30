@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { notifyDataChange, onDataChange } from '@/lib/apiCache';
 import { telegramApiFetch, telegramApiPost } from '@/lib/telegramApi';
+import { initAdsgram, showAdsgramAd } from '@/lib/adsgram';
 import { useTelegramUser } from './TelegramUserContext';
 
 type WalletContextType = {
@@ -202,6 +203,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const serverCoinsRef = useRef(0);
   const serverMiningRateRef = useRef(0);
   const hasServerMiningBaselineRef = useRef(false);
+  // Admin-configurable AdsGram gate on the Claim button, refreshed alongside
+  // the rest of the mining status so claimEarnings always reads the latest.
+  const claimAdEnabledRef = useRef(false);
+  const claimAdBlockIdRef = useRef('43943');
 
   // Pull the server-authoritative accrued value. This captures earnings while
   // the app is closed and also re-syncs when Telegram restores a kept-alive WebView.
@@ -221,7 +226,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         coins?: number;
         miningRate?: number;
         miningDailyPct?: number;
+        claimAdEnabled?: boolean;
+        claimAdBlockId?: string;
       };
+      claimAdEnabledRef.current = Boolean(data?.claimAdEnabled);
+      if (data?.claimAdBlockId) claimAdBlockIdRef.current = String(data.claimAdBlockId);
+      // Warm the controller up front so the first tap on Claim doesn't eat a
+      // cold-start delay — same convention as Combo/Gift/Tasks.
+      if (claimAdEnabledRef.current) initAdsgram(claimAdBlockIdRef.current);
       const accrued = Number(data?.accrued);
       const elapsed = Number(data?.elapsedSeconds);
       const serverCoins = Number(data?.coins);
@@ -324,7 +336,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
    * On success we set sessionEarnings=0, reset the local elapsed counter, and
    * adopt the server's authoritative balance.
    */
-  const claimEarnings = useCallback(() => {
+  const claimEarnings = useCallback(async () => {
     if (isSavingRef.current) return;
     // Nothing to claim if there are no session earnings and no pool balance.
     // Keep enough precision for low mining rates. At 6 decimals an amount like
@@ -334,6 +346,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     isSavingRef.current = true;
     setIsClaiming(true);
     setClaimError(null);
+
+    // Admin-configurable gate: a full AdsGram ad must clear before the claim
+    // is sent — a skip/close/load failure stops here without ever calling
+    // the claim endpoint, so no earnings are consumed on a failed ad.
+    if (claimAdEnabledRef.current) {
+      try {
+        await showAdsgramAd(claimAdBlockIdRef.current);
+      } catch {
+        setClaimError('AD_FAILED');
+        isSavingRef.current = false;
+        setIsClaiming(false);
+        return;
+      }
+    }
 
     // Sending `amount` is harmless (server ignores it) — kept for backwards compat.
     telegramApiPost<{ balance: number; claimed?: number }>('/telegram/claim', {

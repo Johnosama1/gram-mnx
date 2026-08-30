@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { json } from '@/lib/admin.server';
 import { computeAccrued, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
+import { getAdsGramBlockId, isMiningClaimAdEnabled } from '@/lib/adsgram.server';
 
 export const Route = createFileRoute('/api/telegram/mining/accrued')({
   server: {
@@ -11,7 +12,12 @@ export const Route = createFileRoute('/api/telegram/mining/accrued')({
         const user = resolveTelegramUser(initData);
         if (!user) return json({ error: 'Invalid initData' }, 401);
         await upsertUser(user);
-        return json(await computeAccrued(user.id));
+        const [accrued, claimAdEnabled, claimAdBlockId] = await Promise.all([
+          computeAccrued(user.id),
+          isMiningClaimAdEnabled(),
+          getAdsGramBlockId(),
+        ]);
+        return json({ ...accrued, claimAdEnabled, claimAdBlockId });
       },
     },
   },

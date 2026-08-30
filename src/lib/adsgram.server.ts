@@ -10,7 +10,8 @@ import { getSetting } from '@/lib/admin.server';
  *  - Monetag: the "Watch & Earn" task, Daily Check-in, and the task-claim
  *    gate (channels/Twitter/etc. task completions) — see src/lib/monetag.ts.
  *  - AdsGram (this block id): Daily Combo, the Gifts screen's ad-watching,
- *    the Bonus Ad task, and Promo Code redemption — see src/lib/adsgram.ts.
+ *    the Bonus Ad task, Promo Code redemption, and the mining Claim button
+ *    — see src/lib/adsgram.ts.
  */
 export const DEFAULT_ADSGRAM_BLOCK_ID = '43943';
 
@@ -39,4 +40,9 @@ export async function isTaskClaimAdEnabled(): Promise<boolean> {
 /** Gifts screen's "watch more ads" ad-watching (AdsGram) — default on. */
 export async function isGiftAdEnabled(): Promise<boolean> {
   return (await getSetting('gift_ad_enabled')) !== 'false';
+}
+
+/** Mining Claim button (AdsGram) must show an ad before a claim is credited — default on. */
+export async function isMiningClaimAdEnabled(): Promise<boolean> {
+  return (await getSetting('mining_claim_ad_enabled')) !== 'false';
 }
