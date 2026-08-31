@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { getAdminDb, getBotToken, json, mapUser, notifyUser, requireAdmin } from '@/lib/admin.server';
+import { getAdminDb, getBotToken, getSetting, json, mapUser, notifyUser, requireAdmin } from '@/lib/admin.server';
 
 const fmt = (n: number) => (Math.round(n * 1_000_000) / 1_000_000).toString();
 
@@ -138,6 +138,44 @@ async function handle({ request }: { request: Request }): Promise<Response> {
         depositsCount: deposits ?? 0,
         tasksCompleted: tasksDone ?? 0,
         siblings,
+      });
+    }
+
+    // Financial audit dossier for one Telegram ID: identity, full deposit
+    // and withdrawal history (each with its own timestamp), current coin
+    // balance, and the daily GRAM amount that balance is supposed to mine
+    // (same formula the client uses: coins/700 * daily% ).
+    if (method === 'GET' && action === 'financial_audit' && id) {
+      const { data: userRow } = await db.from('gm_users').select('*').eq('telegram_id', id).maybeSingle();
+      if (!userRow) return json({ error: 'User not found' }, 404);
+
+      const [{ data: withdrawals }, { data: deposits }, dailyPctRaw] = await Promise.all([
+        db
+          .from('gm_withdrawals')
+          .select('id, amount, status, wallet_address, created_at, processed_at, rejection_reason')
+          .eq('telegram_id', id)
+          .order('created_at', { ascending: false })
+          .limit(200),
+        db
+          .from('gm_deposits')
+          .select('id, amount, status, wallet_address, created_at, credited_at')
+          .eq('telegram_id', id)
+          .order('created_at', { ascending: false })
+          .limit(200),
+        getSetting('mining_daily_pct'),
+      ]);
+
+      const parsedPct = Number(dailyPctRaw);
+      const miningDailyPct = Number.isFinite(parsedPct) && parsedPct >= 0 ? parsedPct : 5;
+      const coins = Number(userRow.coins ?? 0);
+      const expectedDailyMining = Math.round((coins / 700) * (miningDailyPct / 100) * 1_000_000) / 1_000_000;
+
+      return json({
+        user: mapUser(userRow),
+        miningDailyPct,
+        expectedDailyMining,
+        withdrawals: withdrawals ?? [],
+        deposits: deposits ?? [],
       });
     }
 

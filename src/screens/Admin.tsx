@@ -4,7 +4,7 @@ import {
   Users, Plus, Trash2, Eye, EyeOff, Ban, Coins, AlertTriangle,
   ChevronDown, ChevronUp, Send, Wrench, Settings, Pickaxe, ArrowDownUp,
   UserPlus, Search, Check, X, ArrowUp, Sparkles, Trophy, Clock, Flame,
-  ShoppingBag, Wallet, Ticket, MessageCircle,
+  ShoppingBag, Wallet, Ticket, MessageCircle, FileSearch,
 } from 'lucide-react';
 import arTranslations from '@/locales/ar.json';
 import { notifyDataChange } from '@/lib/apiCache';
@@ -3486,6 +3486,9 @@ export default function Admin() {
         <Section title="أعلى المستخدمين (Top Users)" icon={Trophy}>
           <TopUsersSection />
         </Section>
+        <Section title="🧾 تدقيق مالي للمستخدم" icon={FileSearch}>
+          <FinancialAuditSection />
+        </Section>
         <Section title="الأمان ومفاتيح المحفظة" icon={Shield}>
           <SecuritySection />
         </Section>
@@ -4172,6 +4175,172 @@ function MultiAccountProtectionToggle() {
         أول 3 حسابات لنفس الشخص (بناءً على الـIP وبصمة الجهاز) تفضل شغالة عادي. أي حساب رابع أو أكتر مرتبط بنفس الـIP أو نفس الجهاز يتحظر تلقائيًا وبشكل كامل — من غير ما يأثر على الحسابات التلاتة الأولى.
       </p>
       <StatusMsg msg={status} isError={status.startsWith('❌')} />
+    </div>
+  );
+}
+
+// ─── Financial Audit ────────────────────────────────────────────────────────
+type AuditWithdrawal = {
+  id: number;
+  amount: number;
+  status: string;
+  wallet_address: string | null;
+  created_at: string;
+  processed_at: string | null;
+  rejection_reason: string | null;
+};
+type AuditDeposit = {
+  id: number;
+  amount: number;
+  status: string;
+  wallet_address: string | null;
+  created_at: string;
+  credited_at: string | null;
+};
+type AuditData = {
+  user: User;
+  miningDailyPct: number;
+  expectedDailyMining: number;
+  withdrawals: AuditWithdrawal[];
+  deposits: AuditDeposit[];
+};
+
+const AUDIT_STATUS_STYLE: Record<string, string> = {
+  approved: 'bg-success/20 text-success',
+  confirmed: 'bg-success/20 text-success',
+  pending: 'bg-yellow-500/20 text-yellow-500',
+  processing: 'bg-yellow-500/20 text-yellow-500',
+  rejected: 'bg-destructive/20 text-destructive',
+};
+
+/** Search any user, then see their identity, deposit/withdrawal history (with
+ * timestamps), current coin balance, and the daily GRAM amount that balance
+ * is supposed to mine — a one-screen financial audit for support/disputes. */
+function FinancialAuditSection() {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<AuditData | null>(null);
+  const [status, setStatus] = useState('');
+
+  const search = async () => {
+    const q = query.trim();
+    if (!q) return;
+    setLoading(true);
+    setStatus('');
+    setData(null);
+    try {
+      const users = await api<User[]>('GET', `/admin/users?action=search&q=${encodeURIComponent(q)}`);
+      if (!users.length) {
+        setStatus('❌ الحساب غير موجود');
+        return;
+      }
+      const result = await api<AuditData>(
+        'GET',
+        `/admin/users?action=financial_audit&id=${users[0].telegramId}`,
+      );
+      setData(result);
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString('ar-EG') : '—');
+  const badgeClass = (s: string) => AUDIT_STATUS_STYLE[s] ?? 'bg-muted text-muted-foreground';
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && search()}
+          placeholder="Telegram ID أو يوزر"
+          dir="ltr"
+        />
+        <button
+          onClick={search}
+          disabled={loading}
+          className="flex-shrink-0 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-black text-sm flex items-center gap-1 disabled:opacity-60"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+      </div>
+
+      <StatusMsg msg={status} isError={status.startsWith('❌')} />
+
+      {data && (
+        <div className="space-y-3">
+          <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+            <div>
+              <div className="font-bold text-foreground text-sm">
+                {data.user.firstName ?? data.user.username ?? 'مستخدم'}
+                {data.user.username && ` · @${data.user.username}`}
+              </div>
+              <div className="text-xs text-muted-foreground font-mono">ID: {data.user.telegramId}</div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-card rounded-lg p-2 text-center">
+                <div className="text-[10px] text-muted-foreground">الرصيد (GRAM)</div>
+                <div className="font-black text-primary">{data.user.balance.toFixed(4)}</div>
+              </div>
+              <div className="bg-card rounded-lg p-2 text-center">
+                <div className="text-[10px] text-muted-foreground">العملات (Coins)</div>
+                <div className="font-black text-foreground">{data.user.coins.toFixed(2)}</div>
+              </div>
+              <div className="bg-card rounded-lg p-2 text-center col-span-2">
+                <div className="text-[10px] text-muted-foreground">المفروض يعدّن يوميًا (بنسبة {data.miningDailyPct}%)</div>
+                <div className="font-black text-success">{data.expectedDailyMining.toFixed(4)} GRAM / يوم</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs font-black text-foreground mb-1.5">
+              سجل السحوبات ({data.withdrawals.length})
+            </div>
+            <div className="space-y-1.5 max-h-64 overflow-y-auto">
+              {data.withdrawals.length === 0 && (
+                <div className="text-xs text-muted-foreground">لا يوجد سحوبات</div>
+              )}
+              {data.withdrawals.map((w) => (
+                <div key={w.id} className="bg-secondary rounded-lg p-2 flex items-center justify-between text-xs gap-2">
+                  <div className="min-w-0">
+                    <div className="font-bold text-foreground">{Number(w.amount).toFixed(4)} GRAM</div>
+                    <div className="text-muted-foreground">{fmtDate(w.created_at)}</div>
+                  </div>
+                  <span className={`shrink-0 px-2 py-0.5 rounded-full font-black text-[10px] ${badgeClass(w.status)}`}>
+                    {w.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs font-black text-foreground mb-1.5">
+              سجل الإيداعات ({data.deposits.length})
+            </div>
+            <div className="space-y-1.5 max-h-64 overflow-y-auto">
+              {data.deposits.length === 0 && (
+                <div className="text-xs text-muted-foreground">لا يوجد إيداعات</div>
+              )}
+              {data.deposits.map((d) => (
+                <div key={d.id} className="bg-secondary rounded-lg p-2 flex items-center justify-between text-xs gap-2">
+                  <div className="min-w-0">
+                    <div className="font-bold text-foreground">{Number(d.amount).toFixed(4)} GRAM</div>
+                    <div className="text-muted-foreground">{fmtDate(d.credited_at ?? d.created_at)}</div>
+                  </div>
+                  <span className={`shrink-0 px-2 py-0.5 rounded-full font-black text-[10px] ${badgeClass(d.status)}`}>
+                    {d.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
