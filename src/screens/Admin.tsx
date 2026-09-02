@@ -3759,12 +3759,52 @@ function WithdrawGateSection() {
   const [found, setFound] = useState<User | null>(null);
   const [status, setStatus] = useState('');
   const [gateEnabled, setGateEnabled] = useState<boolean | null>(null);
+  const [adsEnabled, setAdsEnabled] = useState<boolean | null>(null);
+  const [adsRequired, setAdsRequired] = useState('10');
 
   useEffect(() => {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
-      .then((s) => setGateEnabled(s['withdraw_gate_enabled'] !== 'false'))
-      .catch(() => setGateEnabled(true));
+      .then((s) => {
+        setGateEnabled(s['withdraw_gate_enabled'] !== 'false');
+        setAdsEnabled(s['withdraw_ads_enabled'] !== 'false');
+        setAdsRequired(String(s['withdraw_ads_required'] ?? '10'));
+      })
+      .catch(() => {
+        setGateEnabled(true);
+        setAdsEnabled(true);
+      });
   }, []);
+
+  const toggleAdsEnabled = async (enabled: boolean) => {
+    const prev = adsEnabled;
+    setAdsEnabled(enabled);
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'withdraw_ads_enabled',
+        value: String(enabled),
+      });
+      setStatus(enabled ? '✅ شرط مشاهدة الإعلانات للسحب مفعّل' : '✅ شرط الإعلانات متوقف');
+    } catch (e: any) {
+      setAdsEnabled(prev);
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
+
+  const saveAdsRequired = async () => {
+    const n = Math.max(0, Math.floor(Number(adsRequired) || 0));
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'withdraw_ads_required',
+        value: String(n),
+      });
+      setAdsRequired(String(n));
+      setStatus(`✅ عدد الإعلانات المطلوبة يوميًا: ${n}`);
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
 
   const toggleGateEnabled = async (enabled: boolean) => {
     const prev = gateEnabled;
