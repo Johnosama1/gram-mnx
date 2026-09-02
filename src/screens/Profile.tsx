@@ -754,6 +754,57 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
       .catch(() => {});
   }, []);
 
+  // ── Withdrawal ad gate (AdsGram; the same views count for the daily task) ──
+  type AdGate = { required: number; watched: number; remaining: number; unlocked: boolean; blockId: string };
+  const [adGate, setAdGate] = useState<AdGate | null>(null);
+  const [adBusy, setAdBusy] = useState(false);
+  const [adMsg, setAdMsg] = useState('');
+
+  const loadAdGate = async (force = false) => {
+    const initData = getInitData();
+    if (!initData) return;
+    try {
+      const r = await cachedFetch(
+        `${API_BASE}/api/telegram/withdraw/ads-status`,
+        { headers: { 'x-init-data': initData } },
+        force ? { force: true } : undefined,
+      );
+      if (!r.ok) return;
+      const d = (await r.json()) as AdGate;
+      setAdGate(d);
+      if (d.blockId) initAdsgram(d.blockId);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  useEffect(() => {
+    void loadAdGate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const watchGateAd = async () => {
+    if (!adGate || adBusy) return;
+    setAdBusy(true);
+    setAdMsg('');
+    try {
+      await showAdsgramAd(adGate.blockId);
+      // credit:false — the withdrawal gate doesn't pay coins, but the view is
+      // written to the shared ledger so it also counts in the Tasks quota.
+      await reportAdCompletion('/tasks/ads-watched', 'withdraw_gate', 'adsgram', { credit: false });
+      invalidateApi('/api/telegram/withdraw/ads-status');
+      invalidateApi('/api/tasks/ads-status');
+      notifyDataChange('tasks');
+      await loadAdGate(true);
+    } catch {
+      setAdMsg(lang === 'ar' ? '❌ الإعلان لم يكتمل، حاول تاني' : '❌ Ad not completed, try again');
+    } finally {
+      setAdBusy(false);
+    }
+  };
+
+
+
   const submit = async () => {
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return;
