@@ -34,7 +34,13 @@ export async function getMinWithdraw(): Promise<number> {
  */
 const DEFAULT_WITHDRAW_ADS_REQUIRED = 10;
 
+/** Admin switch: turn the whole withdrawal ad requirement on/off. */
+export async function isWithdrawAdsEnabled(): Promise<boolean> {
+  return (await getSetting('withdraw_ads_enabled')) !== 'false';
+}
+
 export async function getWithdrawAdsRequired(): Promise<number> {
+  if (!(await isWithdrawAdsEnabled())) return 0;
   const n = Number(await getSetting('withdraw_ads_required'));
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_WITHDRAW_ADS_REQUIRED;
 }
