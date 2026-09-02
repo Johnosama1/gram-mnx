@@ -26,6 +26,55 @@ export async function getMinWithdraw(): Promise<number> {
   return DEFAULT_MIN_WITHDRAW;
 }
 
+/**
+ * Withdrawal ad-gate: a user must watch N rewarded ads (AdsGram) before a
+ * withdrawal request is accepted. The views are written to the SAME ledger
+ * used by the "Watch & Earn" task (gm_ad_views), so the 10 ads also count
+ * toward the daily task quota — one watch, both counters.
+ */
+const DEFAULT_WITHDRAW_ADS_REQUIRED = 10;
+
+export async function getWithdrawAdsRequired(): Promise<number> {
+  const n = Number(await getSetting('withdraw_ads_required'));
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_WITHDRAW_ADS_REQUIRED;
+}
+
+function utcDayStart(): string {
+  const d = new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).toISOString();
+}
+
+/** Ads the user watched since 00:00 UTC (same window as the tasks quota). */
+export async function countAdsWatchedToday(telegramId: number): Promise<number> {
+  const db = (await getDb()) as any;
+  const { count } = await db
+    .from('gm_ad_views')
+    .select('id', { count: 'exact', head: true })
+    .eq('telegram_id', telegramId)
+    .gte('created_at', utcDayStart());
+  return Number(count ?? 0);
+}
+
+/** GET /api/telegram/withdraw/ads-status */
+export async function handleWithdrawAdsStatus(request: Request): Promise<Response> {
+  const user = resolveTelegramUser(getInitData(request));
+  if (!user) return json({ message: 'Invalid initData' }, 401);
+  const { getAdsGramBlockId } = await import('@/lib/adsgram.server');
+  const [required, watched, blockId] = await Promise.all([
+    getWithdrawAdsRequired(),
+    countAdsWatchedToday(user.id),
+    getAdsGramBlockId(),
+  ]);
+  return json({
+    required,
+    watched,
+    remaining: Math.max(0, required - watched),
+    unlocked: watched >= required,
+    blockId,
+  });
+}
+
+
 function getInitData(request: Request, body?: { initData?: string }) {
   return (
     body?.initData ??
