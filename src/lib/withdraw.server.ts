@@ -42,7 +42,8 @@ const DEFAULT_WITHDRAW_ADS_REQUIRED = 10;
  * panel; publishing this code alone never starts blocking withdrawals.
  */
 export async function isWithdrawAdsEnabled(): Promise<boolean> {
-  return (await getSetting('withdraw_ads_enabled')) === 'true';
+  const raw = await getSetting('withdraw_ads_enabled');
+  return (raw ?? '').trim().toLowerCase() === 'true';
 }
 
 export async function getWithdrawAdsRequired(): Promise<number> {

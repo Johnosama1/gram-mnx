@@ -901,6 +901,14 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
             <div className="text-xs text-primary/70 font-bold">{t('min_label')} {minWithdraw} GRAM</div>
             <div className="text-xs text-muted-foreground font-bold">{t('withdraw_max')}: {holdingWallet.toFixed(4)} GRAM</div>
           </div>
+          {adGate && adGate.required > 0 && (
+            <div className="flex items-center justify-between pt-1 border-t border-violet-500/10">
+              <div className="text-xs text-sky-400 font-bold uppercase">ADS</div>
+              <div className={`text-xs font-black ${adGate.unlocked ? 'text-green-400' : 'text-sky-400'}`}>
+                {Math.min(adGate.watched, adGate.required)}/{adGate.required}{adGate.unlocked ? ' ✅' : ''}
+              </div>
+            </div>
+          )}
 
         </div>
 
