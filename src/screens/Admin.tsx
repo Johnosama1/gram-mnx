@@ -3766,12 +3766,12 @@ function WithdrawGateSection() {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
       .then((s) => {
         setGateEnabled(s['withdraw_gate_enabled'] !== 'false');
-        setAdsEnabled(s['withdraw_ads_enabled'] !== 'false');
+        setAdsEnabled(s['withdraw_ads_enabled'] === 'true');
         setAdsRequired(String(s['withdraw_ads_required'] ?? '10'));
       })
       .catch(() => {
         setGateEnabled(true);
-        setAdsEnabled(true);
+        setAdsEnabled(false);
       });
   }, []);
 
@@ -3911,6 +3911,9 @@ function WithdrawGateSection() {
             <Ban className="w-3.5 h-3.5" />إيقاف الشرط
           </Btn>
         </div>
+        <p className="text-[10px] text-muted-foreground leading-relaxed">
+          ⚠️ العدد ده لازم يكون مساوي أو أقل من "الحد اليومي" بتاع مهمة "شاهد واربح" (Watch & Earn) في قسم إعدادات الإعلانات، وإلا المستخدم مش هيقدر يوصل للعدد المطلوب.
+        </p>
       </div>
 
 

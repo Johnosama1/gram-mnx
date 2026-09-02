@@ -1,6 +1,7 @@
 import { json, getSetting, getBotToken } from '@/lib/admin.server';
 import { getDb, resolveTelegramUser, upsertUser } from '@/lib/telegram-user.server';
 import { getAdsGramBlockId, isCheckinAdEnabled, isTaskClaimAdEnabled } from '@/lib/adsgram.server';
+import { rateLimit } from '@/lib/rate-limit.server';
 
 const DAILY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
@@ -562,6 +563,14 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
   }
 
   if (sub === 'ads-watched' && method === 'POST') {
+    // This ledger now also backs the Daily Withdrawal Ads Requirement (not
+    // just the Watch & Earn coin reward), so a network-retry or deliberate
+    // resend of the same "ad watched" call must never insert a second row
+    // for one watch. A real ad takes far longer than this window to
+    // complete, so a genuine second watch is never blocked by it.
+    if (!(await rateLimit(`ad-watch:${auth.id}`, 1, 4))) {
+      return json({ ok: false, message: 'ads_busy' }, 429);
+    }
     // Only the explicit "Watch & Earn" task credits coins (credit: true).
     // The request body was already read above, so reuse it here; reading the
     // stream a second time returns an empty object and incorrectly credits 0.

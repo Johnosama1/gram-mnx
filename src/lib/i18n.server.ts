@@ -141,6 +141,11 @@ const MESSAGES = {
     ar: 'اعمل إيداع الأول عشان يتفتح السحب على حسابك',
     ru: 'Сначала сделайте депозит, чтобы разблокировать вывод средств',
   },
+  withdraw_ads_required: {
+    en: "You can't withdraw yet ❌\n\nYou need to watch {required} ads today before you can withdraw.\n\nViews: {watched}/{required}",
+    ar: 'لا يمكنك السحب الآن ❌\n\nيجب عليك مشاهدة {required} إعلانات اليوم أولًا حتى تتمكن من السحب.\n\nالمشاهدات: {watched}/{required}',
+    ru: 'Вывод пока недоступен ❌\n\nСначала нужно посмотреть {required} рекламы сегодня, чтобы вывести средства.\n\nПросмотрено: {watched}/{required}',
+  },
   withdraw_multi_account: {
     en: 'Withdrawal rejected: {shared} accounts registered from the same network address (limit {limit}).',
     ar: 'تم رفض السحب: تم تسجيل {shared} حساب من نفس عنوان الشبكة (الحد المسموح {limit}).',

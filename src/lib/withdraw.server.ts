@@ -34,9 +34,15 @@ export async function getMinWithdraw(): Promise<number> {
  */
 const DEFAULT_WITHDRAW_ADS_REQUIRED = 10;
 
-/** Admin switch: turn the whole withdrawal ad requirement on/off. */
+/**
+ * Admin switch: turn the whole withdrawal ad requirement on/off. This is a
+ * brand-new precondition nobody has agreed to yet, so — unlike the other
+ * withdrawal toggles above, which preserve pre-existing behavior when
+ * unset — this one defaults OFF. An admin must explicitly opt in from the
+ * panel; publishing this code alone never starts blocking withdrawals.
+ */
 export async function isWithdrawAdsEnabled(): Promise<boolean> {
-  return (await getSetting('withdraw_ads_enabled')) !== 'false';
+  return (await getSetting('withdraw_ads_enabled')) === 'true';
 }
 
 export async function getWithdrawAdsRequired(): Promise<number> {
@@ -281,10 +287,7 @@ export async function handleWithdraw(request: Request) {
           required: adsRequired,
           watched: adsWatched,
           remaining,
-          message:
-            lang === 'ar'
-              ? `لازم تشاهد ${adsRequired} إعلانات قبل السحب (باقي ${remaining})`
-              : `Watch ${adsRequired} ads before withdrawing (${remaining} left)`,
+          message: tr(lang, 'withdraw_ads_required', { watched: adsWatched, required: adsRequired }),
         },
         403,
       );
