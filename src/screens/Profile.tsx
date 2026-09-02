@@ -915,14 +915,51 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
           </div>
         )}
 
+        {/* Ad gate */}
+        {adGate && adGate.required > 0 && (
+          <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground font-bold uppercase">
+                {lang === 'ar' ? 'شاهد الإعلانات لفتح السحب' : 'Watch ads to unlock withdrawal'}
+              </div>
+              <div className="text-sm font-black text-primary">
+                {Math.min(adGate.watched, adGate.required)}/{adGate.required}
+              </div>
+            </div>
+            <div className="h-2 rounded-full bg-secondary overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${Math.min(100, (adGate.watched / adGate.required) * 100)}%` }}
+              />
+            </div>
+            {adGate.unlocked ? (
+              <div className="text-xs font-bold text-green-400">
+                {lang === 'ar' ? '✅ السحب مفتوح' : '✅ Withdrawal unlocked'}
+              </div>
+            ) : (
+              <button
+                onClick={watchGateAd}
+                disabled={adBusy}
+                className="w-full py-3 rounded-xl bg-primary/20 border border-primary/40 text-primary font-black text-sm disabled:opacity-50 active:scale-95 transition-all"
+              >
+                {adBusy
+                  ? lang === 'ar' ? 'جاري تشغيل الإعلان…' : 'Loading ad…'
+                  : lang === 'ar' ? `شاهد إعلان (باقي ${adGate.remaining})` : `Watch ad (${adGate.remaining} left)`}
+              </button>
+            )}
+            {adMsg && <div className="text-xs text-red-400 font-medium text-center">{adMsg}</div>}
+          </div>
+        )}
+
         {/* Submit */}
         <button
           onClick={submit}
-          disabled={status.type === 'loading' || !walletAddress || !amount}
+          disabled={status.type === 'loading' || !walletAddress || !amount || (adGate ? !adGate.unlocked : false)}
           className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading' ? t('withdraw_sending') : t('withdraw_request_btn')}
         </button>
+
 
         {/* History */}
         {history.length > 0 && (
