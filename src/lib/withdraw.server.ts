@@ -263,6 +263,29 @@ export async function handleWithdraw(request: Request) {
   }
   if (!row.wallet_address) return json({ message: tr(lang, 'withdraw_link_wallet') }, 400);
 
+  // Ad gate: N rewarded ads (AdsGram) must be watched before withdrawing.
+  const adsRequired = await getWithdrawAdsRequired();
+  if (adsRequired > 0) {
+    const adsWatched = await countAdsWatchedToday(user.id);
+    if (adsWatched < adsRequired) {
+      const remaining = adsRequired - adsWatched;
+      return json(
+        {
+          error: 'ads_required',
+          required: adsRequired,
+          watched: adsWatched,
+          remaining,
+          message:
+            lang === 'ar'
+              ? `لازم تشاهد ${adsRequired} إعلانات قبل السحب (باقي ${remaining})`
+              : `Watch ${adsRequired} ads before withdrawing (${remaining} left)`,
+        },
+        403,
+      );
+    }
+  }
+
+
   // One active request at a time: blocks duplicate submissions from a
   // double-tap or from closing and reopening the withdraw screen while an
   // earlier request is still pending/processing.
