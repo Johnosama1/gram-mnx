@@ -3759,12 +3759,52 @@ function WithdrawGateSection() {
   const [found, setFound] = useState<User | null>(null);
   const [status, setStatus] = useState('');
   const [gateEnabled, setGateEnabled] = useState<boolean | null>(null);
+  const [adsEnabled, setAdsEnabled] = useState<boolean | null>(null);
+  const [adsRequired, setAdsRequired] = useState('10');
 
   useEffect(() => {
     api<Record<string, string>>('GET', '/admin/general?type=settings')
-      .then((s) => setGateEnabled(s['withdraw_gate_enabled'] !== 'false'))
-      .catch(() => setGateEnabled(true));
+      .then((s) => {
+        setGateEnabled(s['withdraw_gate_enabled'] !== 'false');
+        setAdsEnabled(s['withdraw_ads_enabled'] !== 'false');
+        setAdsRequired(String(s['withdraw_ads_required'] ?? '10'));
+      })
+      .catch(() => {
+        setGateEnabled(true);
+        setAdsEnabled(true);
+      });
   }, []);
+
+  const toggleAdsEnabled = async (enabled: boolean) => {
+    const prev = adsEnabled;
+    setAdsEnabled(enabled);
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'withdraw_ads_enabled',
+        value: String(enabled),
+      });
+      setStatus(enabled ? '✅ شرط مشاهدة الإعلانات للسحب مفعّل' : '✅ شرط الإعلانات متوقف');
+    } catch (e: any) {
+      setAdsEnabled(prev);
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
+
+  const saveAdsRequired = async () => {
+    const n = Math.max(0, Math.floor(Number(adsRequired) || 0));
+    try {
+      await api('POST', '/admin/general?type=settings', {
+        key: 'withdraw_ads_required',
+        value: String(n),
+      });
+      setAdsRequired(String(n));
+      setStatus(`✅ عدد الإعلانات المطلوبة يوميًا: ${n}`);
+    } catch (e: any) {
+      setStatus(`❌ ${e.message}`);
+    }
+    setTimeout(() => setStatus(''), 2500);
+  };
 
   const toggleGateEnabled = async (enabled: boolean) => {
     const prev = gateEnabled;
@@ -3836,6 +3876,44 @@ function WithdrawGateSection() {
           </Btn>
         </div>
       </div>
+
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-bold text-foreground">شرط مشاهدة إعلانات يومية للسحب</span>
+          <span
+            className={`text-xs font-black px-2 py-0.5 rounded-full ${
+              adsEnabled ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+            }`}
+          >
+            {adsEnabled === null ? '...' : adsEnabled ? '✅ مفعّل' : '⛔ متوقف'}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          المستخدم لازم يشاهد العدد ده من الإعلانات كل يوم (من 00:00 UTC) قبل ما يقدر يسحب، والإعلانات دي بتتحسب
+          كمان في مهمة "شاهد واربح".
+        </p>
+        <div className="flex gap-2 items-center">
+          <Input
+            value={adsRequired}
+            onChange={(e) => setAdsRequired(e.target.value)}
+            placeholder="عدد الإعلانات"
+            dir="ltr"
+          />
+          <Btn variant="success" size="sm" onClick={saveAdsRequired}>
+            <Check className="w-3.5 h-3.5" />حفظ
+          </Btn>
+        </div>
+        <div className="flex gap-2">
+          <Btn variant="success" size="sm" onClick={() => toggleAdsEnabled(true)} disabled={adsEnabled === true}>
+            <Check className="w-3.5 h-3.5" />تفعيل الشرط
+          </Btn>
+          <Btn variant="danger" size="sm" onClick={() => toggleAdsEnabled(false)} disabled={adsEnabled === false}>
+            <Ban className="w-3.5 h-3.5" />إيقاف الشرط
+          </Btn>
+        </div>
+      </div>
+
+
 
       <div className="flex gap-2">
         <Input
