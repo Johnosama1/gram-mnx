@@ -277,8 +277,10 @@ export async function handleWithdraw(request: Request) {
 
   // Ad gate: N rewarded ads (AdsGram) must be watched before withdrawing.
   const adsRequired = await getWithdrawAdsRequired();
+  console.log(`[withdraw] ads-gate check for ${user.id}: required=${adsRequired}`);
   if (adsRequired > 0) {
     const adsWatched = await countAdsWatchedToday(user.id);
+    console.log(`[withdraw] ads-gate for ${user.id}: watched=${adsWatched} required=${adsRequired}`);
     if (adsWatched < adsRequired) {
       const remaining = adsRequired - adsWatched;
       return json(
