@@ -3877,6 +3877,44 @@ function WithdrawGateSection() {
         </div>
       </div>
 
+      <div className="bg-secondary rounded-xl p-3 border border-violet-500/20 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-bold text-foreground">شرط مشاهدة إعلانات يومية للسحب</span>
+          <span
+            className={`text-xs font-black px-2 py-0.5 rounded-full ${
+              adsEnabled ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+            }`}
+          >
+            {adsEnabled === null ? '...' : adsEnabled ? '✅ مفعّل' : '⛔ متوقف'}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          المستخدم لازم يشاهد العدد ده من الإعلانات كل يوم (من 00:00 UTC) قبل ما يقدر يسحب، والإعلانات دي بتتحسب
+          كمان في مهمة "شاهد واربح".
+        </p>
+        <div className="flex gap-2 items-center">
+          <Input
+            value={adsRequired}
+            onChange={(e) => setAdsRequired(e.target.value)}
+            placeholder="عدد الإعلانات"
+            dir="ltr"
+          />
+          <Btn variant="success" size="sm" onClick={saveAdsRequired}>
+            <Check className="w-3.5 h-3.5" />حفظ
+          </Btn>
+        </div>
+        <div className="flex gap-2">
+          <Btn variant="success" size="sm" onClick={() => toggleAdsEnabled(true)} disabled={adsEnabled === true}>
+            <Check className="w-3.5 h-3.5" />تفعيل الشرط
+          </Btn>
+          <Btn variant="danger" size="sm" onClick={() => toggleAdsEnabled(false)} disabled={adsEnabled === false}>
+            <Ban className="w-3.5 h-3.5" />إيقاف الشرط
+          </Btn>
+        </div>
+      </div>
+
+
+
       <div className="flex gap-2">
         <Input
           value={query}
