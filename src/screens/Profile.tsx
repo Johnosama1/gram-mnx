@@ -22,6 +22,9 @@ import downloadSticker from '@/assets/download-sticker.json.asset.json';
 import supportBalloonSticker from '@/assets/support-balloon.json.asset.json';
 import capWingsSticker from '@/assets/cap-wings.json.asset.json';
 import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { showAdsgramAd, initAdsgram } from '@/lib/adsgram';
+import { reportAdCompletion } from '@/lib/adReward';
+
 
 
 // ─── Swap Panel (Gram ⇄ Coin, both directions) ────────────────────────────────
