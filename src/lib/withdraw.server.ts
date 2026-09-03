@@ -28,9 +28,10 @@ export async function getMinWithdraw(): Promise<number> {
 
 /**
  * Withdrawal ad-gate: a user must watch N rewarded ads (AdsGram) before a
- * withdrawal request is accepted. The views are written to the SAME ledger
- * used by the "Watch & Earn" task (gm_ad_views), so the 10 ads also count
- * toward the daily task quota — one watch, both counters.
+ * withdrawal request is accepted. Counted from gm_bonus_ad_views — the
+ * SAME ledger as the "Watch & Earn (Bonus)" task card (AdsGram) — not the
+ * plain "Watch & earn" card, which runs Monetag ads and would let a user
+ * satisfy this gate without ever watching an AdsGram ad.
  */
 const DEFAULT_WITHDRAW_ADS_REQUIRED = 10;
 
@@ -52,20 +53,16 @@ export async function getWithdrawAdsRequired(): Promise<number> {
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_WITHDRAW_ADS_REQUIRED;
 }
 
-function utcDayStart(): string {
-  const d = new Date();
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).toISOString();
-}
-
-/** Ads the user watched since 00:00 UTC (same window as the tasks quota). */
+/**
+ * Bonus (AdsGram) ads the user watched since 00:00 UTC — reuses the exact
+ * quota function the "Watch & Earn (Bonus)" task card itself uses, so this
+ * gate and that task's own counter can never drift apart.
+ */
 export async function countAdsWatchedToday(telegramId: number): Promise<number> {
+  const { getBonusAdQuota } = await import('@/lib/tasks.server');
   const db = (await getDb()) as any;
-  const { count } = await db
-    .from('gm_ad_views')
-    .select('id', { count: 'exact', head: true })
-    .eq('telegram_id', telegramId)
-    .gte('created_at', utcDayStart());
-  return Number(count ?? 0);
+  const { watched } = await getBonusAdQuota(db, telegramId);
+  return watched;
 }
 
 /** GET /api/telegram/withdraw/ads-status */

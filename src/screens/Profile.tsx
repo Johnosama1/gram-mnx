@@ -789,11 +789,13 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
     setAdMsg('');
     try {
       await showAdsgramAd(adGate.blockId);
-      // credit:false — the withdrawal gate doesn't pay coins, but the view is
-      // written to the shared ledger so it also counts in the Tasks quota.
-      await reportAdCompletion('/tasks/ads-watched', 'withdraw_gate', 'adsgram', { credit: false });
+      // Writes to gm_bonus_ad_views — the same ledger as the "Watch & Earn
+      // (Bonus)" task card (AdsGram) — so a watch from here also counts
+      // there and pays that task's normal reward. Watching from the plain
+      // "Watch & earn" card (Monetag) never counts toward this gate.
+      await reportAdCompletion('/tasks/bonus-ads-watched', 'withdraw_gate', 'adsgram');
       invalidateApi('/api/telegram/withdraw/ads-status');
-      invalidateApi('/api/tasks/ads-status');
+      invalidateApi('/api/tasks/bonus-ads-status');
       notifyDataChange('tasks');
       await loadAdGate(true);
     } catch {

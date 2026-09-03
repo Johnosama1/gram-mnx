@@ -116,8 +116,11 @@ async function getAdQuota(db: any, telegramId: number) {
 }
 
 /** Quota for the second, AdsGram-backed "Bonus Ad" task — a separate ledger
- *  (gm_bonus_ad_views) from the "Watch & Earn" Monetag task above. */
-async function getBonusAdQuota(db: any, telegramId: number) {
+ *  (gm_bonus_ad_views) from the "Watch & Earn" Monetag task above. Exported
+ *  so the withdrawal ads-gate (withdraw.server.ts) counts today's watched
+ *  ads from this exact same ledger/day-boundary instead of a second,
+ *  potentially-drifting counter. */
+export async function getBonusAdQuota(db: any, telegramId: number) {
   const dayStart = currentUtcMidnight();
   const { count, error } = await db
     .from('gm_bonus_ad_views')
@@ -628,6 +631,15 @@ export async function handleTasksApi(request: Request, sub: string): Promise<Res
   }
 
   if (sub === 'bonus-ads-watched' && method === 'POST') {
+    // This ledger also backs the Daily Withdrawal Ads Requirement (the
+    // withdraw screen's "Watch ad" button posts here too), so a
+    // network-retry or deliberate resend of the same "ad watched" call
+    // must never insert a second row for one watch. A real ad takes far
+    // longer than this window to complete, so a genuine second watch is
+    // never blocked by it.
+    if (!(await rateLimit(`bonus-ad-watch:${auth.id}`, 1, 4))) {
+      return json({ ok: false, message: 'bonus_ad_busy' }, 429);
+    }
     const [rewardSetting, limitSetting, quota] = await Promise.all([
       getSetting('bonus_ad_reward_coins'),
       getSetting('bonus_ad_daily_limit'),
