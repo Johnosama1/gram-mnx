@@ -361,6 +361,19 @@ function BonusAdCard({
   const [status, setStatus] = useState<BonusAdStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  // AdsGram itself throttles back-to-back ad requests per device and shows
+  // its own "too often" popup if asked again too soon — that popup comes
+  // from their SDK, not this app. Disabling the button for a bit after
+  // every attempt keeps a normal watch-again tap from ever reaching it.
+  const AD_COOLDOWN_MS = 20_000;
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    if (cooldownUntil <= Date.now()) return;
+    const id = setInterval(() => setNowTick(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [cooldownUntil]);
+  const cooldownSecondsLeft = Math.max(0, Math.ceil((cooldownUntil - nowTick) / 1000));
 
   const load = useCallback(async (force = false) => {
     const initData = getInitData();
@@ -392,7 +405,7 @@ function BonusAdCard({
     if (status?.blockId) initAdsgram(status.blockId);
   }, [status?.blockId]);
 
-  const canWatch = !!status?.enabled && status.remainingToday > 0;
+  const canWatch = !!status?.enabled && status.remainingToday > 0 && cooldownSecondsLeft === 0;
 
   // Dedicated AdsGram completion handler: credits the view, then immediately
   // refetches the server-side count so the x/10 counter updates right away.
@@ -432,6 +445,11 @@ function BonusAdCard({
     } finally {
       setBusy(false);
       setTimeout(() => setMsg(null), 3500);
+      // Applied whether the watch succeeded or failed: AdsGram's own
+      // per-device throttle counts every ad request, not just successful
+      // ones, so the button needs to stay disabled either way.
+      setCooldownUntil(Date.now() + AD_COOLDOWN_MS);
+      setNowTick(Date.now());
     }
   };
 
@@ -471,6 +489,8 @@ function BonusAdCard({
         >
           {busy ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : cooldownSecondsLeft > 0 ? (
+            `${cooldownSecondsLeft}s`
           ) : !canWatch ? (
             t('tasks_ads_limit_reached')
           ) : (

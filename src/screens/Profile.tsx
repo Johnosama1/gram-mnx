@@ -759,6 +759,20 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   const [adGate, setAdGate] = useState<AdGate | null>(null);
   const [adBusy, setAdBusy] = useState(false);
   const [adMsg, setAdMsg] = useState('');
+  // AdsGram itself throttles back-to-back ad requests per device and shows
+  // its own "too often" popup if you ask again too soon — that popup comes
+  // from their SDK, not this app, so it can't be silenced from here. This
+  // cooldown keeps the button disabled long enough that a normal tap
+  // sequence never reaches AdsGram's own limit in the first place.
+  const AD_COOLDOWN_MS = 20_000;
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    if (cooldownUntil <= Date.now()) return;
+    const id = setInterval(() => setNowTick(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [cooldownUntil]);
+  const cooldownSecondsLeft = Math.max(0, Math.ceil((cooldownUntil - nowTick) / 1000));
 
   const loadAdGate = async (force = false) => {
     const initData = getInitData();
@@ -784,7 +798,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   }, []);
 
   const watchGateAd = async () => {
-    if (!adGate || adBusy) return;
+    if (!adGate || adBusy || cooldownSecondsLeft > 0) return;
     setAdBusy(true);
     setAdMsg('');
     try {
@@ -802,6 +816,12 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
       setAdMsg(lang === 'ar' ? '❌ الإعلان لم يكتمل، حاول تاني' : '❌ Ad not completed, try again');
     } finally {
       setAdBusy(false);
+      // Applied whether the watch succeeded or failed: AdsGram's own
+      // per-device throttle counts every ad request, not just successful
+      // ones, so the button needs to stay disabled either way.
+      const until = Date.now() + AD_COOLDOWN_MS;
+      setCooldownUntil(until);
+      setNowTick(Date.now());
     }
   };
 
@@ -949,12 +969,14 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
             ) : (
               <button
                 onClick={watchGateAd}
-                disabled={adBusy}
+                disabled={adBusy || cooldownSecondsLeft > 0}
                 className="w-full py-3 rounded-xl bg-primary/20 border border-primary/40 text-primary font-black text-sm disabled:opacity-50 active:scale-95 transition-all"
               >
                 {adBusy
                   ? lang === 'ar' ? 'جاري تشغيل الإعلان…' : 'Loading ad…'
-                  : lang === 'ar' ? `شاهد إعلان (باقي ${adGate.remaining})` : `Watch ad (${adGate.remaining} left)`}
+                  : cooldownSecondsLeft > 0
+                    ? lang === 'ar' ? `استنى ${cooldownSecondsLeft} ثانية…` : `Wait ${cooldownSecondsLeft}s…`
+                    : lang === 'ar' ? `شاهد إعلان (باقي ${adGate.remaining})` : `Watch ad (${adGate.remaining} left)`}
               </button>
             )}
             {adMsg && <div className="text-xs text-red-400 font-medium text-center">{adMsg}</div>}
