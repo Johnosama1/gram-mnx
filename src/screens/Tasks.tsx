@@ -363,9 +363,10 @@ function BonusAdCard({
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   // AdsGram itself throttles back-to-back ad requests per device and shows
   // its own "too often" popup if asked again too soon — that popup comes
-  // from their SDK, not this app. Disabling the button for a bit after
-  // every attempt keeps a normal watch-again tap from ever reaching it.
-  const AD_COOLDOWN_MS = 20_000;
+  // from their SDK, not this app. Kept short on purpose: long enough to
+  // skip an instant double-tap, short enough that watching several ads
+  // one after another doesn't feel slow.
+  const AD_COOLDOWN_MS = 4_000;
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [nowTick, setNowTick] = useState(() => Date.now());
   useEffect(() => {

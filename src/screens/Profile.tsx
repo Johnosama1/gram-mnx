@@ -761,10 +761,10 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   const [adMsg, setAdMsg] = useState('');
   // AdsGram itself throttles back-to-back ad requests per device and shows
   // its own "too often" popup if you ask again too soon — that popup comes
-  // from their SDK, not this app, so it can't be silenced from here. This
-  // cooldown keeps the button disabled long enough that a normal tap
-  // sequence never reaches AdsGram's own limit in the first place.
-  const AD_COOLDOWN_MS = 20_000;
+  // from their SDK, not this app, so it can't be silenced from here. Kept
+  // short on purpose: long enough to skip an instant double-tap, short
+  // enough that normal one-after-another watching doesn't feel slow.
+  const AD_COOLDOWN_MS = 4_000;
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [nowTick, setNowTick] = useState(() => Date.now());
   useEffect(() => {
