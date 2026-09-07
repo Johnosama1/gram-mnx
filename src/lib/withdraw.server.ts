@@ -65,15 +65,30 @@ export async function countAdsWatchedToday(telegramId: number): Promise<number> 
   return watched;
 }
 
+/** True when the user has at least one confirmed (credited) deposit. */
+export async function hasConfirmedDeposit(telegramId: number): Promise<boolean> {
+  const db = (await getDb()) as any;
+  const { data } = await db
+    .from('gm_deposits')
+    .select('id')
+    .eq('telegram_id', telegramId)
+    .eq('status', 'confirmed')
+    .limit(1)
+    .maybeSingle();
+  return Boolean(data?.id);
+}
+
 /** GET /api/telegram/withdraw/ads-status */
 export async function handleWithdrawAdsStatus(request: Request): Promise<Response> {
   const user = resolveTelegramUser(getInitData(request));
   if (!user) return json({ message: 'Invalid initData' }, 401);
   const { getAdsGramBlockId } = await import('@/lib/adsgram.server');
-  const [required, watched, blockId] = await Promise.all([
+  const [required, watched, blockId, depositGateEnabled, deposited] = await Promise.all([
     getWithdrawAdsRequired(),
     countAdsWatchedToday(user.id),
     getAdsGramBlockId(),
+    isWithdrawGateEnabled(),
+    hasConfirmedDeposit(user.id),
   ]);
   return json({
     required,
@@ -81,8 +96,11 @@ export async function handleWithdrawAdsStatus(request: Request): Promise<Respons
     remaining: Math.max(0, required - watched),
     unlocked: watched >= required,
     blockId,
+    depositRequired: depositGateEnabled,
+    hasDeposited: deposited,
   });
 }
+
 
 
 function getInitData(request: Request, body?: { initData?: string }) {
