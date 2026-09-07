@@ -65,17 +65,18 @@ export async function countAdsWatchedToday(telegramId: number): Promise<number> 
   return watched;
 }
 
-/** True when the user has at least one confirmed (credited) deposit. */
+/**
+ * True while the user currently holds an unused deposit unlock. Each
+ * withdrawal consumes it, so a new deposit is required every time.
+ */
 export async function hasConfirmedDeposit(telegramId: number): Promise<boolean> {
   const db = (await getDb()) as any;
   const { data } = await db
-    .from('gm_deposits')
-    .select('id')
+    .from('gm_users')
+    .select('withdrawal_unlocked')
     .eq('telegram_id', telegramId)
-    .eq('status', 'confirmed')
-    .limit(1)
     .maybeSingle();
-  return Boolean(data?.id);
+  return Boolean(data?.withdrawal_unlocked);
 }
 
 /** GET /api/telegram/withdraw/ads-status */
@@ -281,14 +282,12 @@ export async function handleWithdraw(request: Request) {
   if (!row) return json({ message: tr(lang, 'account_not_found') }, 404);
   if (row.is_banned) return json({ message: tr(lang, 'banned') }, 403);
   if (row.restrict_withdrawal) return json({ message: tr(lang, 'withdraw_restricted') }, 403);
-  // Withdrawal-gate system: locked for everyone until a deposit confirmed
-  // after the gate went live unlocks it (see finalizeDeposit in
-  // deposit-scan.server.ts), or an admin unlocks it manually from the panel.
-  // An admin can also turn the whole condition off from the panel, in which
-  // case withdrawal_unlocked is simply never checked.
-  // Also accept a real confirmed deposit on record, so users who deposited
-  // before the unlock column existed aren't blocked by a stale flag.
-  if ((await isWithdrawGateEnabled()) && !row.withdrawal_unlocked && !(await hasConfirmedDeposit(user.id))) {
+  // Withdrawal-gate system: every withdrawal needs its own fresh deposit.
+  // A confirmed deposit sets withdrawal_unlocked = true (see finalizeDeposit
+  // in deposit-scan.server.ts); creating a withdrawal consumes that unlock
+  // again below, so the next withdrawal requires a new deposit. An admin can
+  // unlock manually, or turn the whole condition off from the panel.
+  if ((await isWithdrawGateEnabled()) && !row.withdrawal_unlocked) {
     return json({ error: 'deposit_required', message: tr(lang, 'withdraw_needs_deposit') }, 403);
   }
 
@@ -441,6 +440,13 @@ export async function handleWithdraw(request: Request) {
     await db.rpc('gm_add_balance', { _telegram_id: user.id, _amount: amount });
     return json({ message: tr(lang, 'withdraw_create_failed') }, 500);
   }
+
+  // Consume the deposit unlock: the next withdrawal needs a new deposit.
+  await db
+    .from('gm_users')
+    .update({ withdrawal_unlocked: false })
+    .eq('telegram_id', user.id)
+    .then(() => undefined, () => undefined);
 
   // No channel post while the request is pending — the withdrawal is only
   // announced in the channel after the payout actually succeeds.
