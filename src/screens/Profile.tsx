@@ -755,7 +755,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   }, []);
 
   // ── Withdrawal ad gate (AdsGram; the same views count for the daily task) ──
-  type AdGate = { required: number; watched: number; remaining: number; unlocked: boolean; blockId: string };
+  type AdGate = { required: number; watched: number; remaining: number; unlocked: boolean; blockId: string; depositRequired?: boolean; hasDeposited?: boolean };
   const [adGate, setAdGate] = useState<AdGate | null>(null);
   const [adBusy, setAdBusy] = useState(false);
   const [adMsg, setAdMsg] = useState('');
@@ -945,8 +945,23 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
           </div>
         )}
 
+        {/* Deposit gate */}
+        {adGate?.depositRequired && !adGate.hasDeposited && (
+          <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-1">
+            <div className="text-xs text-muted-foreground font-bold uppercase">
+              {lang === 'ar' ? 'الإيداع مطلوب لفتح السحب' : 'Deposit required to unlock withdrawal'}
+            </div>
+            <div className="text-xs font-medium text-red-400">
+              {lang === 'ar'
+                ? 'لازم تعمل إيداع واحد على الأقل قبل ما تقدر تسحب.'
+                : 'You must make at least one deposit before you can withdraw.'}
+            </div>
+          </div>
+        )}
+
         {/* Ad gate */}
         {adGate && adGate.required > 0 && (
+
           <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground font-bold uppercase">
@@ -986,7 +1001,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         {/* Submit */}
         <button
           onClick={submit}
-          disabled={status.type === 'loading' || !walletAddress || !amount || (adGate ? !adGate.unlocked : false)}
+          disabled={status.type === 'loading' || !walletAddress || !amount || (adGate ? !adGate.unlocked : false) || Boolean(adGate?.depositRequired && !adGate.hasDeposited)}
           className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading' ? t('withdraw_sending') : t('withdraw_request_btn')}
