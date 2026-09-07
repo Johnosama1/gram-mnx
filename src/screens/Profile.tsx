@@ -755,7 +755,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
   }, []);
 
   // ── Withdrawal ad gate (AdsGram; the same views count for the daily task) ──
-  type AdGate = { required: number; watched: number; remaining: number; unlocked: boolean; blockId: string };
+  type AdGate = { required: number; watched: number; remaining: number; unlocked: boolean; blockId: string; depositRequired?: boolean; hasDeposited?: boolean };
   const [adGate, setAdGate] = useState<AdGate | null>(null);
   const [adBusy, setAdBusy] = useState(false);
   const [adMsg, setAdMsg] = useState('');
