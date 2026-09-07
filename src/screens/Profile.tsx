@@ -945,8 +945,23 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
           </div>
         )}
 
+        {/* Deposit gate */}
+        {adGate?.depositRequired && !adGate.hasDeposited && (
+          <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-1">
+            <div className="text-xs text-muted-foreground font-bold uppercase">
+              {lang === 'ar' ? 'الإيداع مطلوب لفتح السحب' : 'Deposit required to unlock withdrawal'}
+            </div>
+            <div className="text-xs font-medium text-red-400">
+              {lang === 'ar'
+                ? 'لازم تعمل إيداع واحد على الأقل قبل ما تقدر تسحب.'
+                : 'You must make at least one deposit before you can withdraw.'}
+            </div>
+          </div>
+        )}
+
         {/* Ad gate */}
         {adGate && adGate.required > 0 && (
+
           <div className="bg-card border border-violet-500/15 shadow-[0_4px_18px_rgba(0,0,0,0.35)] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground font-bold uppercase">
