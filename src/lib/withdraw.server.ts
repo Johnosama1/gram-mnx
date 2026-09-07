@@ -441,6 +441,13 @@ export async function handleWithdraw(request: Request) {
     return json({ message: tr(lang, 'withdraw_create_failed') }, 500);
   }
 
+  // Consume the deposit unlock: the next withdrawal needs a new deposit.
+  await db
+    .from('gm_users')
+    .update({ withdrawal_unlocked: false })
+    .eq('telegram_id', user.id)
+    .then(() => undefined, () => undefined);
+
   // No channel post while the request is pending — the withdrawal is only
   // announced in the channel after the payout actually succeeds.
 
