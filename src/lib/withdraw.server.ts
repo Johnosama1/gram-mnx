@@ -65,17 +65,18 @@ export async function countAdsWatchedToday(telegramId: number): Promise<number> 
   return watched;
 }
 
-/** True when the user has at least one confirmed (credited) deposit. */
+/**
+ * True while the user currently holds an unused deposit unlock. Each
+ * withdrawal consumes it, so a new deposit is required every time.
+ */
 export async function hasConfirmedDeposit(telegramId: number): Promise<boolean> {
   const db = (await getDb()) as any;
   const { data } = await db
-    .from('gm_deposits')
-    .select('id')
+    .from('gm_users')
+    .select('withdrawal_unlocked')
     .eq('telegram_id', telegramId)
-    .eq('status', 'confirmed')
-    .limit(1)
     .maybeSingle();
-  return Boolean(data?.id);
+  return Boolean(data?.withdrawal_unlocked);
 }
 
 /** GET /api/telegram/withdraw/ads-status */
