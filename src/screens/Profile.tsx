@@ -1001,7 +1001,7 @@ function WithdrawPanel({ onClose, embedded }: { onClose: () => void; embedded?: 
         {/* Submit */}
         <button
           onClick={submit}
-          disabled={status.type === 'loading' || !walletAddress || !amount || (adGate ? !adGate.unlocked : false)}
+          disabled={status.type === 'loading' || !walletAddress || !amount || (adGate ? !adGate.unlocked : false) || Boolean(adGate?.depositRequired && !adGate.hasDeposited)}
           className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-base disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
         >
           {status.type === 'loading' ? t('withdraw_sending') : t('withdraw_request_btn')}
