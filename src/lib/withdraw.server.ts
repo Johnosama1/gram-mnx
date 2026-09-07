@@ -268,9 +268,12 @@ export async function handleWithdraw(request: Request) {
   // deposit-scan.server.ts), or an admin unlocks it manually from the panel.
   // An admin can also turn the whole condition off from the panel, in which
   // case withdrawal_unlocked is simply never checked.
-  if ((await isWithdrawGateEnabled()) && !row.withdrawal_unlocked) {
-    return json({ message: tr(lang, 'withdraw_needs_deposit') }, 403);
+  // Also accept a real confirmed deposit on record, so users who deposited
+  // before the unlock column existed aren't blocked by a stale flag.
+  if ((await isWithdrawGateEnabled()) && !row.withdrawal_unlocked && !(await hasConfirmedDeposit(user.id))) {
+    return json({ error: 'deposit_required', message: tr(lang, 'withdraw_needs_deposit') }, 403);
   }
+
   if (!row.wallet_address) return json({ message: tr(lang, 'withdraw_link_wallet') }, 400);
 
   // Ad gate: N rewarded ads (AdsGram) must be watched before withdrawing.
